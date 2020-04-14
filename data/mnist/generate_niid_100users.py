@@ -1,4 +1,4 @@
-from sklearn.datasets import fetch_mldata
+from sklearn.datasets import fetch_openml
 from tqdm import trange
 import numpy as np
 import random
@@ -19,8 +19,19 @@ dir_path = os.path.dirname(test_path)
 if not os.path.exists(dir_path):
     os.makedirs(dir_path)
 
+def sort_by_target(mnist):
+    reorder_train = np.array(sorted([(target, i) for i, target in enumerate(mnist.target[:60000])]))[:, 1]
+    reorder_test = np.array(sorted([(target, i) for i, target in enumerate(mnist.target[60000:])]))[:, 1]
+    mnist.data[:60000] = mnist.data[reorder_train]
+    mnist.target[:60000] = mnist.target[reorder_train]
+    mnist.data[60000:] = mnist.data[reorder_test + 60000]
+    mnist.target[60000:] = mnist.target[reorder_test + 60000]
+
 # Get MNIST data, normalize, and divide by level
-mnist = fetch_mldata('MNIST original', data_home='./data')
+# mnist = fetch_openml('MNIST original', data_home='./data')
+mnist = fetch_openml('mnist_784', version=1, cache=True)
+mnist.target = mnist.target.astype(np.int8)  # fetch_openml() returns targets as strings
+sort_by_target(mnist)  # fetch_openml() returns an unsorted dataset
 mu = np.mean(mnist.data.astype(np.float32), 0)
 sigma = np.std(mnist.data.astype(np.float32), 0)
 mnist.data = (mnist.data.astype(np.float32) - mu)/(sigma+0.001)
@@ -55,10 +66,13 @@ props = np.random.lognormal(
 props = np.array([[[len(v)-100]] for v in mnist_data])*props/np.sum(props,(1,2), keepdims=True)
 #idx = 1000*np.ones(10, dtype=np.int64)
 # print("here2:",props)
-for user in trange(NUM_USERS):
+
+# for user in trange(NUM_USERS):
+for user in range(NUM_USERS):
     for j in range(NUM_LABELS):  # 4 labels for each users
         # l = (2*user+j)%10
         l = ( user + j) % 10
+
         #num_samples = int(props[l,user//int(NUM_USERS/10),j]) *10
         num_samples = int(props[l, user, j]) * NUM_USERS
         #num_samples = min(num_samples,200)
