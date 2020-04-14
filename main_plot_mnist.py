@@ -166,12 +166,13 @@ if __name__ == '__main__':
     local_ep = [20, 20, 20, 20, 20, 20, 20, 20]
     batch_size = [20,20,50,50,0,0,0,0]
     DATA_SET = "mnist"
-    number_users = 100
+    number_users = 5 #100
+    number_global_iters = 2
 
     for i in range(len(algorithms_list)):
-        main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=800, lamb=lamb_value[i],
+        main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],
              learning_rate=learning_rate[i],hyper_learning_rate=hyper_learning_rate[i],  alg=algorithms_list[i], batch_size=batch_size[i], dataset=DATA_SET)
 
-    plot_summary_mnist(num_users=number_users, loc_ep1=local_ep, Numb_Glob_Iters=800, lamb=lamb_value,
+    plot_summary_mnist(num_users=number_users, loc_ep1=local_ep, Numb_Glob_Iters=number_global_iters, lamb=lamb_value,
                                learning_rate=learning_rate, hyper_learning_rate = hyper_learning_rate, algorithms_list=algorithms_list, batch_size=batch_size, dataset=DATA_SET)
     print("-- FINISH -- :",)
