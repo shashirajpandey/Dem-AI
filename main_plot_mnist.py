@@ -104,7 +104,7 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
     # Set seeds
     random.seed(1 + parsed['seed'])
     np.random.seed(12 + parsed['seed'])
-    tf.random.set_seed(123 + parsed['seed'])
+    tf.set_random_seed(123 + parsed['seed'])
 
     # load selected model
     # all synthetic datasets use the same model
@@ -142,7 +142,7 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
 
 def main(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01,hyper_learning_rate= 0.01, alg='fedprox', weight=True, batch_size=0, dataset="mnist"):
     # suppress tf warnings
-    # tf.logging.set_verbosity(tf.logging.WARN)
+    tf.logging.set_verbosity(tf.logging.WARN)
 
     # parse command line arguments
     options, learner, optimizer = read_options(
