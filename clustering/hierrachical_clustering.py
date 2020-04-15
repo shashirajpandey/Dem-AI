@@ -80,15 +80,6 @@ print(model.labels_)
 
 numb_samples, rs_linkage_matrix = cal_linkage_matrix(model)
 
-# Plot the corresponding dendrogram
-# plt.title('Hierarchical Clustering Dendrogram')
-# change p value to 5 if we want to get 5 levels
-# rs_dendrogram = dendrogram(rs_linkage_matrix, truncate_mode='level', p=3)
-#
-# print(rs_dendrogram['ivl']) #x_axis of dendrogram => index of nodes or (Number of points in clusters (i))
-# print(rs_dendrogram['leaves']) # merge points
-# plt.xlabel("index of nodes or (Number of points in clusters (i)).")
-
 K_Levels = 4
 for level in range(1,K_Levels):
     print("=> GENERALIZED LEVEL", K_Levels - level, "-------")
@@ -102,6 +93,21 @@ for level in range(1,K_Levels):
                 print("All leaves:",retrieve_leaves(g_idx, numb_samples))
             else:
                 print("Children:",retrieve_cluster_head(g_idx, numb_samples))
+
+
+# Plot the corresponding dendrogram
+plt.clf()
+
+# change p value to 5 if we want to get 5 levels
+plt.title('Hierarchical Clustering Dendrogram')
+rs_dendrogram = dendrogram(rs_linkage_matrix, truncate_mode='level', p=4)
+
+print(rs_dendrogram['ivl']) #x_axis of dendrogram => index of nodes or (Number of points in clusters (i))
+print(rs_dendrogram['leaves']) # merge points
+plt.xlabel("index of node or (Number of leaves in each cluster).")
+plt.show()
+
+
 
 
 
