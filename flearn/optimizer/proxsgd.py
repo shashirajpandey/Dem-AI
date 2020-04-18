@@ -8,7 +8,7 @@ import flearn.utils.tf_utils as tf_utils
 
 
 class PROXSGD(optimizer.Optimizer):
-    """Implementation of Proximal Gradient Decent, i.e., FedProx optimizer"""
+    """Implementation of Proximal Gradient Decent, i.e., FedProx optimizer from CharlieDinh/FEDL"""
 
     def __init__(self, learning_rate=0.001, lamb=0.001, use_locking=False, name="PROXSGD"):
         super(PROXSGD, self).__init__(use_locking, name)
@@ -33,7 +33,7 @@ class PROXSGD(optimizer.Optimizer):
         lr_t = math_ops.cast(self._lr_t, var.dtype.base_dtype)
         lamb_t = math_ops.cast(self._lamb_t, var.dtype.base_dtype)
         wzero = self.get_slot(var, "wzero")
-        prox = prox = tf_utils.prox_L2(var - lr_t*grad, wzero, lr_t, lamb_t)
+        prox = tf_utils.prox_L2(var - lr_t*grad, wzero, lr_t, lamb_t)   #Implement proximal operation here
         var_update = state_ops.assign(var, prox)
         return control_flow_ops.group(*[var_update, ])
 

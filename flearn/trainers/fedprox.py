@@ -24,7 +24,7 @@ class Server(BaseFedarated):
 
         for i in range(self.num_rounds):
             # test model
-            if i % self.eval_every == 0:
+            if i % self.eval_every == 0: #evaluation stage
                 stats = self.test()  # have set the latest model for all clients
                 stats_train = self.train_error_and_loss()
 

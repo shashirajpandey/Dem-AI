@@ -7,7 +7,7 @@ import tensorflow as tf
 
 
 class PerturbedGradientDescent(optimizer.Optimizer):
-    """Implementation of Perturbed Gradient Descent, i.e., FedProx optimizer"""
+    """Implementation of Perturbed Gradient Descent, i.e., FedProx optimizer from litian96/FedProx """
     def __init__(self, learning_rate=0.001, mu=0.01, use_locking=False, name="PGD"):
         super(PerturbedGradientDescent, self).__init__(use_locking, name)
         self._lr = learning_rate
@@ -31,12 +31,12 @@ class PerturbedGradientDescent(optimizer.Optimizer):
         mu_t = math_ops.cast(self._mu_t, var.dtype.base_dtype)
         vstar = self.get_slot(var, "vstar")
 
-        var_update = state_ops.assign_sub(var, lr_t*(grad + mu_t*(var-vstar)))
+        var_update = state_ops.assign_sub(var, lr_t*(grad + mu_t*(var-vstar)))  # Gradient update here:  w= w - lr_t *(grad + mu*(w - w'))
 
         return control_flow_ops.group(*[var_update,])
 
     
-    def _apply_sparse_shared(self, grad, var, indices, scatter_add):
+    def _apply_sparse_shared(self, grad, var, indices, scatter_add):  #only use for LSTM
 
         lr_t = math_ops.cast(self._lr_t, var.dtype.base_dtype)
         mu_t = math_ops.cast(self._mu_t, var.dtype.base_dtype)
@@ -50,7 +50,7 @@ class PerturbedGradientDescent(optimizer.Optimizer):
 
         return control_flow_ops.group(*[var_update,])
 
-    def _apply_sparse(self, grad, var):
+    def _apply_sparse(self, grad, var):  #only use for LSTM
         return self._apply_sparse_shared(
         grad.values, var, grad.indices,
         lambda x, i, v: state_ops.scatter_add(x, i, v))
