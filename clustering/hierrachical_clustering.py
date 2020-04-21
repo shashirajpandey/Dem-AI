@@ -112,8 +112,8 @@ def iris_clustering():
 def weight_clustering(X):
     # setting distance_threshold=0 ensures we compute the full tree.
     #linkage {“ward”, “complete”, “average”, “single”}, default =”ward”
-    #connectivity {default: "euclidean”, “l1”, “l2”, “manhattan”, “cosine”, or “precomputed”}
-    result = AgglomerativeClustering(distance_threshold=0, n_clusters=None, connectivity=None, linkage='ward')
+    #affinity {default: "euclidean”, “l1”, “l2”, “manhattan”, “cosine”, or “precomputed”}
+    result = AgglomerativeClustering(distance_threshold=0, n_clusters=None, connectivity=None, linkage='average')
 
     ### OR Plot Only get labels
     # model1 = result.fit_predict(X)
@@ -127,10 +127,10 @@ def weight_clustering(X):
 def gradient_clustering(X):
     # setting distance_threshold=0 ensures we compute the full tree.
     #linkage {“ward”, “complete”, “average”, “single”}, default =”ward”
-    #connectivity {default: "euclidean”, “l1”, “l2”, “manhattan”, “cosine”, or “precomputed”}
-    result = AgglomerativeClustering(distance_threshold=0, n_clusters=None, connectivity="cosine", linkage='ward')
+    #affinity {default: "euclidean”, “l1”, “l2”, “manhattan”, “cosine”, or “precomputed”}
+    result = AgglomerativeClustering(distance_threshold=0, n_clusters=None, affinity="cosine", linkage='average')
 
-    ### OR Plot Only get labels
+    ### OR Plot Only get average
     # model1 = result.fit_predict(X)
     # print(model1)
 
@@ -215,11 +215,10 @@ if __name__ == "__main__":
         Clients.append(Node(_id=c, _type="Client", level=0))
 
 
-
     weights_matrix = np.random.rand(N_clients, Weight_dimension)
     model = weight_clustering(weights_matrix)
-    # gradient_matrix = np.random.rand(N_clients, Weight_dimension)
-    # model = gradient_clustering(gradient_matrix)
+    gradient_matrix = np.random.rand(N_clients, Weight_dimension)
+    model = gradient_clustering(gradient_matrix)
 
     Tree_Root = tree_construction(model, Clients)
     # print(Tree_Root.childs[0].childs[0].childs[0].childs)
