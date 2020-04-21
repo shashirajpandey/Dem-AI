@@ -5,9 +5,13 @@ from tqdm import tqdm
 from flearn.models.client import Client
 from flearn.utils.model_utils import Metrics
 from flearn.utils.tf_utils import process_grad
+from clustering.hierrachical_clustering import *
+from clustering.Setting import *
+from flearn.models.demclient import DemClient
 import h5py
 
-class BaseFedarated(object):
+
+class DemBase(object):
     def __init__(self, params, learner, dataset):
         # transfer parameters to self
         for key, val in params.items(): setattr(self, key, val);
@@ -16,13 +20,19 @@ class BaseFedarated(object):
         tf.reset_default_graph()
         self.client_model = learner(*params['model_params'], self.inner_opt, self.seed)
         #initilzation of clients
+        self.Weight_dimension = 10
         self.clients = self.setup_clients(dataset, self.client_model)
+        self.N_clients = len(self.clients)
+        self.TreeRoot = self.hierrachical_clustering()
+
         print('{} Clients in Total'.format(len(self.clients)))
         self.latest_model = self.client_model.get_params()
 
         # initialize system metrics
         self.metrics = Metrics(self.clients, params)
         self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc = [], [], []
+
+
 
     def __del__(self):
         self.client_model.close()
@@ -36,8 +46,21 @@ class BaseFedarated(object):
         users, groups, train_data, test_data = dataset
         if len(groups) == 0:
             groups = [None for _ in users]
-        all_clients = [Client(u, g, train_data[u], test_data[u], model) for u, g in zip(users, groups)]
+        all_clients = [DemClient(u, g, train_data[u], test_data[u], model) for u, g in zip(users, groups)]
         return all_clients
+
+    def hierrachical_clustering(self):
+        weights_matrix = np.random.rand(self.N_clients, self.Weight_dimension)
+        model = weight_clustering(weights_matrix)
+        # gradient_matrix = np.random.rand(N_clients, Weight_dimension)
+        # model = gradient_clustering(gradient_matrix)
+
+        root = tree_construction(model, self.clients)
+        print("Number of agents in tree:", root.count_clients())
+        print("Number of agents in level K:", root.childs[0].count_clients(), root.childs[1].count_clients())
+        # print("Number of agents Group 1 in level K-1:", root.childs[0].childs[0].count_clients(),
+        #       root.childs[0].childs[1].count_clients())
+        return root
 
     def train_error_and_loss(self):
         num_samples = []

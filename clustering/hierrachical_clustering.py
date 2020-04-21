@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from scipy.cluster.hierarchy import dendrogram
 from sklearn.datasets import load_iris
 from sklearn.cluster import AgglomerativeClustering
-from flearn.utils.BTree import Node
+from flearn.utils.DTree import Node
 from clustering.Setting import *
 
 ''' sklearn.cluster.AgglomerativeClustering
@@ -36,7 +36,7 @@ def cal_linkage_matrix(model):
     counts = np.zeros(model.children_.shape[0])
     n_samples = len(model.labels_)  # 150 samples
     for i, merge in enumerate(model.children_):
-        # print(i,merge)
+        print(i,merge)
         current_count = 0
         for child_idx in merge:
             if child_idx < n_samples:  # leaf node
@@ -113,7 +113,8 @@ def weight_clustering(X):
     # setting distance_threshold=0 ensures we compute the full tree.
     #linkage {“ward”, “complete”, “average”, “single”}, default =”ward”
     #affinity {default: "euclidean”, “l1”, “l2”, “manhattan”, “cosine”, or “precomputed”}
-    result = AgglomerativeClustering(distance_threshold=0, n_clusters=None, affinity=None, linkage='average')
+    # result = AgglomerativeClustering(distance_threshold=0, n_clusters=None, affinity=None, linkage='average')
+    result = AgglomerativeClustering(distance_threshold=0, n_clusters=None, affinity="euclidean", linkage='average')
 
     ### OR Plot Only get labels
     # model1 = result.fit_predict(X)
@@ -181,10 +182,14 @@ def plot_dendrogram(rs_linkage_matrix):
 
 
 def tree_construction(model, Clients):
+    K_Levels = 3
+    N_clients = 20
+    Weight_dimension = 10
     # rs_dendrogram = dendrogram(rs_linkage_matrix, truncate_mode='level', p=1)
-    cluster_heads = model.children_[-1]
-    print(cluster_heads)
 
+    plot_dendrogram(cal_linkage_matrix(model)[1])
+    cluster_heads = model.children_[-1]
+    # print(cluster_heads)
     Root = Node(_id="Root", parent=None, level=K_Levels+1)
     Child1 = Node(_id=cluster_heads[0], parent=Root, level=K_Levels)
     Child2 = Node(_id=cluster_heads[1], parent=Root, level=K_Levels)
@@ -207,7 +212,7 @@ def tree_construction(model, Clients):
 
 if __name__ == "__main__":
     K_Levels = 3
-    N_clients = 20
+    N_clients = 50
     Weight_dimension = 10
 
     Clients = []
@@ -228,7 +233,7 @@ if __name__ == "__main__":
 
     print("Number of agents in tree:", Tree_Root.count_clients())
     print("Number of agents in level K:",Tree_Root.childs[0].count_clients(), Tree_Root.childs[1].count_clients())
-    print("Number of agents Group 1 in level K-1:",Tree_Root.childs[0].childs[0].count_clients(), Tree_Root.childs[0].childs[1].count_clients())
+    # print("Number of agents Group 1 in level K-1:",Tree_Root.childs[0].childs[0].count_clients(), Tree_Root.childs[0].childs[1].count_clients())
 
     # model = iris_clustering()
     # N_clients = 150

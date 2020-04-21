@@ -159,20 +159,24 @@ def main(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01
 
 
 if __name__ == '__main__':
-    algorithms_list = ["fedfedl","fedsgd","fedfedl","fedsgd","fedfedl","fedsgd","fedfedl","fedfedl"]
+    algorithms_list = ["demavg","fedfedl","fedsgd","fedfedl","fedsgd","fedfedl","fedsgd","fedfedl","fedfedl"]
     lamb_value = [0, 0, 0, 0, 0, 0,0, 0, 0, 0]
     learning_rate = [0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01]
     hyper_learning_rate = [0.2,0,0.2,0,0.2,0,2,4]
     local_ep = [20, 20, 20, 20, 20, 20, 20, 20]
     batch_size = [20,20,50,50,0,0,0,0]
     DATA_SET = "mnist"
-    number_users = 5 #100
+    number_users = 20 #100
     number_global_iters = 2
-
-    for i in range(len(algorithms_list)):
-        main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],
-             learning_rate=learning_rate[i],hyper_learning_rate=hyper_learning_rate[i],  alg=algorithms_list[i], batch_size=batch_size[i], dataset=DATA_SET)
-
-    plot_summary_mnist(num_users=number_users, loc_ep1=local_ep, Numb_Glob_Iters=number_global_iters, lamb=lamb_value,
-                               learning_rate=learning_rate, hyper_learning_rate = hyper_learning_rate, algorithms_list=algorithms_list, batch_size=batch_size, dataset=DATA_SET)
+    #
+    # for i in range(len(algorithms_list)):
+    #     main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],
+    #          learning_rate=learning_rate[i],hyper_learning_rate=hyper_learning_rate[i],  alg=algorithms_list[i], batch_size=batch_size[i], dataset=DATA_SET)
+    #
+    # plot_summary_mnist(num_users=number_users, loc_ep1=local_ep, Numb_Glob_Iters=number_global_iters, lamb=lamb_value,
+    #                            learning_rate=learning_rate, hyper_learning_rate = hyper_learning_rate, algorithms_list=algorithms_list, batch_size=batch_size, dataset=DATA_SET)
+    i=0
+    main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],
+         learning_rate=learning_rate[i], hyper_learning_rate=hyper_learning_rate[i], alg=algorithms_list[i],
+         batch_size=batch_size[i], dataset=DATA_SET)
     print("-- FINISH -- :",)

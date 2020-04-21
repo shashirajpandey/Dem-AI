@@ -3,12 +3,12 @@ from tqdm import trange, tqdm
 import tensorflow as tf
 from flearn.utils.tf_utils import process_grad
 from flearn.optimizer.proxsgd import PROXSGD
-from .fedbase import BaseFedarated
-from flearn.utils.BTree import  Node
+from .dembase import DemBase
+from flearn.utils.DTree import  Node
 
-class Server(BaseFedarated):
+class Server(DemBase):
     def __init__(self, params, learner, dataset):
-        print('Using Federated Average to Train')
+        print('Using Dem Average to Train')
         if(params["lamb"] > 0):
             self.inner_opt = PROXSGD(params['learning_rate'], params["lamb"])
         else:
@@ -17,7 +17,7 @@ class Server(BaseFedarated):
 
     def train(self):
         '''Train using Federated Averaging'''
-        print("Train using Federated Averaging")
+        print("Train using Dem Averaging")
         print('Training with {} workers ---'.format(self.clients_per_round))
         # for i in trange(self.num_rounds, desc='Round: ', ncols=120):
         for i in range(self.num_rounds):
