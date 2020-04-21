@@ -113,7 +113,7 @@ def weight_clustering(X):
     # setting distance_threshold=0 ensures we compute the full tree.
     #linkage {“ward”, “complete”, “average”, “single”}, default =”ward”
     #affinity {default: "euclidean”, “l1”, “l2”, “manhattan”, “cosine”, or “precomputed”}
-    result = AgglomerativeClustering(distance_threshold=0, n_clusters=None, connectivity=None, linkage='average')
+    result = AgglomerativeClustering(distance_threshold=0, n_clusters=None, affinity=None, linkage='average')
 
     ### OR Plot Only get labels
     # model1 = result.fit_predict(X)
