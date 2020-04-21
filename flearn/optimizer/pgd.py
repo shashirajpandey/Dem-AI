@@ -11,9 +11,7 @@ class PerturbedGradientDescent(optimizer.Optimizer):
     def __init__(self, learning_rate=0.001, mu=0.01, use_locking=False, name="PGD"):
         super(PerturbedGradientDescent, self).__init__(use_locking, name)
         self._lr = learning_rate
-        self._mu = mu
-       
-        # Tensor versions of the constructor arguments, created in _prepare().
+        self._mu = mu        # Tensor versions of the constructor arguments, created in _prepare().
         self._lr_t = None
         self._mu_t = None
 
