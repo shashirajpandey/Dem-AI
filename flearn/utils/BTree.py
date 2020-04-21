@@ -2,14 +2,17 @@ import numpy as np
 
 
 class Node(object):
-    __slots__ = ["_id", "_type", "parent", "data", "model"]
+    __slots__ = ["_id", "_type", "parent", "data", "model", "childs", "level"]
 
-    def __init__(self, _id=None, _type=None, parent=None, data=None, model=None):
+    def __init__(self, _id=None, _type="Group", parent=None, data=None, model=None, childs=None, level=None ):
+
         self._type = _type
         self._id = _id
         self.data = data or []
         self.model = model or []
-        self.parent = parent
+        self.parent = parent or "Empty"
+        self.childs = childs or []
+        self.level = level or 0
 
     def __getitem__(self, item):
         return getattr(self, item, 0)
@@ -23,8 +26,31 @@ class Node(object):
     def add_model(self, model=None):
         self.model = model
 
+    def add_parent(self, parent=None):
+        self.parent = parent
+
+    def get_clients(self):
+        if self._type.upper() == "GROUP":
+            return self.childs
+        else:
+            return False
+
+    def count_clients(self):
+        counts = 0
+        if self._type=="Client":
+            return 1
+        elif self.level ==1:
+            return len(self.childs)
+        else:
+            for c in self.childs:
+                counts += c.count_clients()
+        return counts
+
+
+
+
     def __repr__(self):
-        return "id: %s, type: %s, parent: %s;" % (self._id, self._type, self.parent)
+        return "id: %s, type: %s, parent: %s;\n" % (self._id, self._type, self.parent)
 
 
 class Tree(object):
@@ -58,8 +84,8 @@ class Level(object):
 
 if __name__ == '__main__':
     # unittest.main()
-    num_node = 5
-    list_node = []
-    for i in range(num_node):
-        list_node.append(Node(_id=i))
-        print(list_node[i])
+    print("a")
+
+
+
+

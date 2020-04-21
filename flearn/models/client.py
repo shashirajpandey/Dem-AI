@@ -12,6 +12,7 @@ class Client(object):
         self.num_samples = len(self.train_data['y'])
         self.test_samples = len(self.eval_data['y'])
 
+
     def set_params(self, model_params):
         '''set model parameters'''
         self.model.set_params(model_params)
