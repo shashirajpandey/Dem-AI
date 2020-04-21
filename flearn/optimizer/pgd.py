@@ -31,7 +31,7 @@ class PerturbedGradientDescent(optimizer.Optimizer):
         mu_t = math_ops.cast(self._mu_t, var.dtype.base_dtype)
         vstar = self.get_slot(var, "vstar")
 
-        var_update = state_ops.assign_sub(var, lr_t*(grad + mu_t*(var-vstar)))  # Gradient update here:  w= w - lr_t *(grad + mu*(w - w'))
+        var_update = state_ops.assign_sub(var, lr_t*(grad + mu_t*(var-vstar)))  # Gradient update here:  w^{t+1}= w^{t} - lr *(grad + mu*(w^{t} - w^{0}))
 
         return control_flow_ops.group(*[var_update,])
 

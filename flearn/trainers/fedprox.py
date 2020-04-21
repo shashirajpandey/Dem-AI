@@ -85,6 +85,7 @@ class Server(BaseFedarated):
                 csolns, weighted=self.parameters['weight'])  # Weighted = False / True
             self.client_model.set_params(self.latest_model)
 
+
         # final test model
         stats = self.test()
         stats_train = self.train_error_and_loss()
