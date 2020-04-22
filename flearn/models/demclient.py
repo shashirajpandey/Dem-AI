@@ -6,6 +6,7 @@ from flearn.utils.DTree import Node
 class DemClient(Node):
 
     def __init__(self, id, group=None, train_data={'x': [], 'y': []}, eval_data={'x': [], 'y': []}, model=None):
+        # super(_id = id, _type = "Client")
         self.model = model
         self.id = id  # integer
         self._id = id
@@ -16,6 +17,9 @@ class DemClient(Node):
         self.test_samples = len(self.eval_data['y'])
         self._type = "Client"
         self.level = 0
+        self.childs = None
+        self.numb_clients = 1.0
+
 
 
 

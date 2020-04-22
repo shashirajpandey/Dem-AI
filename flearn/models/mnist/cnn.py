@@ -17,8 +17,10 @@ class Model(object):
         # params
         self.num_classes = num_classes
         self.optimizer = optimizer
+        #self.create_model(optimizer)
         # create computation graph        
         self.graph = tf.Graph()
+
         with self.graph.as_default():
             tf.set_random_seed(123+seed)
             self.features, self.labels, self.train_op, self.grads, self.eval_metric_ops, self.loss = self.create_model(optimizer)
@@ -38,12 +40,7 @@ class Model(object):
         features = tf.placeholder(tf.float32, shape=[None, 784], name='features')
         labels = tf.placeholder(tf.int64, shape=[None,], name='labels')
         input_layer = tf.reshape(features, [-1, 28, 28, 1])
-        conv1 = tf.layers.conv2d(
-            inputs=input_layer,
-            filters=32,
-            kernel_size=[5, 5],
-            padding="same",
-            activation=tf.nn.relu)
+        conv1 = tf.layers.conv2d(inputs=input_layer, filters=32,  kernel_size=[5, 5], padding="same",  activation=tf.nn.relu)
         pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
         dropout1 = tf.layers.dropout(
             pool1,

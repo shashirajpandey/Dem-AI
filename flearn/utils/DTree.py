@@ -1,18 +1,22 @@
-import numpy as np
 
+import numpy as np
+import tensorflow as tf
+from tqdm import trange
 
 class Node(object):
-    __slots__ = ["_id", "_type", "parent", "data", "model", "childs", "level"]
+    __slots__ = ["_id", "_type", "parent", "data", "gmodel","ggrad", "childs", "level", "numb_clients"]
 
-    def __init__(self, _id=None, _type="Group", parent=None, data=None, model=None, childs=None, level=None ):
+    def __init__(self, _id=None, _type="Group", parent=None, data=None, gmodel=None, ggrad= None, childs=None, level=None ):
 
         self._type = _type
         self._id = _id
         self.data = data or []
-        self.model = model or []
+        self.gmodel = gmodel or []
+        self.ggrad= ggrad or []
         self.parent = parent or "Empty"
         self.childs = childs or []
         self.level = level or 0
+        self.numb_clients = 1
 
     def __getitem__(self, item):
         return getattr(self, item, 0)
@@ -34,6 +38,18 @@ class Node(object):
             return self.childs
         else:
             return False
+
+    def get_hierrachical_info(self):
+        print("Checking at id:", self._id)
+        # print("Parent",self.parent)
+        if (self._type.upper() == "CLIENT"):
+            return self.parent.get_hierrachical_info()
+        else:
+            if(self.parent != "Empty"):
+                parent_md = self.parent.get_hierrachical_info()
+                return (self.gmodel[0]/self.numb_clients + parent_md[0], self.gmodel[1]/self.numb_clients + parent_md[1])
+            elif(self.parent == "Empty"):  #root node
+                return (self.gmodel[0]/self.numb_clients, self.gmodel[1]/self.numb_clients)
 
     def count_clients(self):
         counts = 0
@@ -83,9 +99,18 @@ class Level(object):
 
 
 if __name__ == '__main__':
-    # unittest.main()
-    print("a")
 
+    #
+    # features = tf.placeholder(tf.float32, shape=[None, 784], name='features')
+    # labels = tf.placeholder(tf.int64, shape=[None, ], name='labels')
+    # input_layer = tf.reshape(features, [-1, 28, 28, 1])
+    # conv1 = tf.layers.conv2d(
+    #     inputs=input_layer,
+    #     filters=32,
+    #     kernel_size=[5, 5],
+    #     padding="same",
+    #     activation=tf.nn.relu)
+    # pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
 
 
 

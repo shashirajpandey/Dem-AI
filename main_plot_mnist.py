@@ -116,7 +116,8 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
             'flearn', 'models', parsed['dataset'], parsed['model'])
 
     # mod = importlib.import_module(model_path)
-    import flearn.models.mnist.mclr as mclr
+    import flearn.models.mnist.cnn as mclr
+    # import flearn.models.mnist.mclr as mclr
     mod = mclr
     learner = getattr(mod, 'Model')
 

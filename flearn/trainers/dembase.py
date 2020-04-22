@@ -21,9 +21,11 @@ class DemBase(object):
         self.client_model = learner(*params['model_params'], self.inner_opt, self.seed)
         #initilzation of clients
         self.Weight_dimension = 10
+        self.model_shape = None
         self.clients = self.setup_clients(dataset, self.client_model)
         self.N_clients = len(self.clients)
-        self.TreeRoot = self.hierrachical_clustering()
+        self.TreeRoot = None
+        self.gamma = 1.   #soft or hard update in hierrachical averaging
 
         print('{} Clients in Total'.format(len(self.clients)))
         self.latest_model = self.client_model.get_params()
@@ -47,20 +49,79 @@ class DemBase(object):
         if len(groups) == 0:
             groups = [None for _ in users]
         all_clients = [DemClient(u, g, train_data[u], test_data[u], model) for u, g in zip(users, groups)]
+        # print("ID of Client 1:",all_clients[0]._id)
         return all_clients
 
-    def hierrachical_clustering(self):
-        weights_matrix = np.random.rand(self.N_clients, self.Weight_dimension)
+    def create_w_matrix(self,csolns):
+        w_list =[]
+        self.model_shape = (csolns[0][1][0].shape,csolns[0][1][1].shape)  #weight, bias dimension
+        print("Model Shape:", self.model_shape)
+        for w in csolns:
+            # print("Weight Shape:", w[1][0].shape)
+            # print("Bias Shape:", w[1][1].shape)
+            w_list.append( np.concatenate( (w[1][0].flatten(),w[1][1]), axis=0)   )
+
+        self.Weight_dimension = len(w_list[0])
+        return w_list
+
+    def update_generalized_model(self,node,mode="hard"):
+        # print("Node id:", node._id, node._type)
+        childs = node.childs
+        if childs:
+            node.numb_clients = node.count_clients()
+            # print(self.Weight_dimension)
+            rs_w = np.zeros(self.model_shape[0])
+            rs_b = np.zeros(self.model_shape[1])
+            for child in childs:
+                gmd = self.update_generalized_model(child,mode)
+                # print("shape=",gmd.shape)
+                rs_w += gmd[0] * child.numb_clients #weight
+                rs_b += gmd[1] * child.numb_clients #bias
+            avg_w = 1.0 * rs_w /node.numb_clients
+            avg_b = 1.0 * rs_b /node.numb_clients
+            if(mode=="hard"):
+                node.gmodel = (avg_w,avg_b)
+            else:
+                node.gmodel = ((1-self.gamma)*node.gmodel[0] + self.gamma * avg_w,
+                               (1 - self.gamma) * node.gmodel[1] + self.gamma * avg_b )# (weight,bias)
+            return node.gmodel
+        else:
+            md = node.model.get_params()
+            # print(md[0].shape,"--",md[1].shape)
+            # return np.concatenate( (md[0].flatten(),md[1]), axis=0 )
+            return md
+
+    def get_hierrachical_params(self,client):
+        return client.get_hierrachical_info()
+
+
+        # def update_client_count(self,node):
+     #     childs = node.childs
+     #     if childs:
+     #         for child in childs:
+     #            child.count_clients()
+            # if(node._type=="Group"):
+            # childs = node.childs
+            # for c in childs:
+            #     self.c
+            #     self.update_generalized_model(c)
+
+
+
+    def hierrachical_clustering(self, csolns):
+        weights_matrix = self.create_w_matrix(csolns)
+        # weights_matrix = np.random.rand(self.N_clients, self.Weight_dimension)
         model = weight_clustering(weights_matrix)
         # gradient_matrix = np.random.rand(N_clients, Weight_dimension)
         # model = gradient_clustering(gradient_matrix)
 
-        root = tree_construction(model, self.clients)
-        print("Number of agents in tree:", root.count_clients())
-        print("Number of agents in level K:", root.childs[0].count_clients(), root.childs[1].count_clients())
+        self.TreeRoot = tree_construction(model, self.clients)
+        print("Number of agents in tree:", self.TreeRoot.count_clients())
+        print("Number of agents in level K:", self.TreeRoot.childs[0].count_clients(), self.TreeRoot.childs[1].count_clients())
         # print("Number of agents Group 1 in level K-1:", root.childs[0].childs[0].count_clients(),
         #       root.childs[0].childs[1].count_clients())
-        return root
+        # self.update_client_count(self)
+        # self.update_generalized_model(self.TreeRoot)
 
     def train_error_and_loss(self):
         num_samples = []

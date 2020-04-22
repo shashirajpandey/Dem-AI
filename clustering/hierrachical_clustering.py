@@ -36,7 +36,7 @@ def cal_linkage_matrix(model):
     counts = np.zeros(model.children_.shape[0])
     n_samples = len(model.labels_)  # 150 samples
     for i, merge in enumerate(model.children_):
-        print(i,merge)
+        # print(i,merge)
         current_count = 0
         for child_idx in merge:
             if child_idx < n_samples:  # leaf node
@@ -178,7 +178,7 @@ def plot_dendrogram(rs_linkage_matrix):
     print(rs_dendrogram['ivl'])  # x_axis of dendrogram => index of nodes or (Number of points in clusters (i))
     print(rs_dendrogram['leaves'])  # merge points
     plt.xlabel("index of node or (Number of leaves in each cluster).")
-    plt.show()
+    plt.gcf()
 
 
 def tree_construction(model, Clients):
