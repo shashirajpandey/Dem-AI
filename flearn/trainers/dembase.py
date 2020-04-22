@@ -85,7 +85,7 @@ class DemBase(object):
                 node.gmodel = ((1-self.gamma)*node.gmodel[0] + self.gamma * avg_w,
                                (1 - self.gamma) * node.gmodel[1] + self.gamma * avg_b )# (weight,bias)
             return node.gmodel
-        else:
+        else: #Client
             md = node.model.get_params()
             # print(md[0].shape,"--",md[1].shape)
             # return np.concatenate( (md[0].flatten(),md[1]), axis=0 )
