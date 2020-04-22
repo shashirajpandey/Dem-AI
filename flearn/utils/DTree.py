@@ -4,15 +4,15 @@ import tensorflow as tf
 from tqdm import trange
 
 class Node(object):
-    __slots__ = ["_id", "_type", "parent", "data", "gmodel","ggrad", "childs", "level", "numb_clients"]
+    __slots__ = ["_id", "_type", "parent", "data", "gmodel","grad", "childs", "level", "numb_clients"]
 
-    def __init__(self, _id=None, _type="Group", parent=None, data=None, gmodel=None, ggrad= None, childs=None, level=None, numb_clients= None ):
+    def __init__(self, _id=None, _type="Group", parent=None, data=None, gmodel=None, grad= None, childs=None, level=None, numb_clients= None ):
 
         self._type = _type
         self._id = _id
         self.data = data or []
         self.gmodel = gmodel or []
-        self.ggrad= ggrad or []
+        self.grad= grad or []
         self.parent = parent or "Empty"
         self.childs = childs or []
         self.level = level or 0
@@ -40,14 +40,14 @@ class Node(object):
             return False
 
     def get_hierrachical_info(self):
-        print("Checking at id:", self._id)
+        # print("Checking at id:", self._id)
         # print("Parent",self.parent)
         if (self._type.upper() == "CLIENT"):
             return self.parent.get_hierrachical_info()
         else:
             if(self.parent != "Empty"):
                 parent_md = self.parent.get_hierrachical_info()
-                print(parent_md)
+                # print(parent_md)
                 return (self.gmodel[0]/self.numb_clients + parent_md[0], self.gmodel[1]/self.numb_clients + parent_md[1])
             elif(self.parent == "Empty"):  #root node
                 return (self.gmodel[0]/self.numb_clients, self.gmodel[1]/self.numb_clients)

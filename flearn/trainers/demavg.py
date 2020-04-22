@@ -72,7 +72,7 @@ class Server(DemBase):
                     c.set_params(self.latest_model)
                 else:
                     hm = self.get_hierrachical_params(c)
-                    print(hm)
+                    # print(hm)
                     c.set_params(hm)
 
                 # solve minimization locally
@@ -87,11 +87,15 @@ class Server(DemBase):
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
 
             if (i % 5 == 0):
-                self.hierrachical_clustering(csolns, cgrads)
+                print("DEM-AI --------->>>>> Clustering")
+                self.hierrachical_clustering(csolns)
+                print("DEM-AI --------->>>>> Hard Update generalized model")
                 self.update_generalized_model(self.TreeRoot) #hard update
-            # update model
-            # self.latest_model = self.aggregate(csolns,weighted=True)
-            self.update_generalized_model(self.TreeRoot,mode="soft") #soft update
+            else:
+                # update model
+                # self.latest_model = self.aggregate(csolns,weighted=True)
+                print("DEM-AI --------->>>>> Soft Update generalized model")
+                self.update_generalized_model(self.TreeRoot,mode="soft") #soft update
 
         # final test model
         stats = self.test()
