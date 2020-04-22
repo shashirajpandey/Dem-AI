@@ -91,6 +91,7 @@ class BaseFedarated(object):
             ct, ns = c.test()
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
+            print("Acc Client", c.id, ":", ct / ns)
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
         return ids, groups, num_samples, tot_correct
@@ -135,6 +136,7 @@ class BaseFedarated(object):
             # Equal weights
 #            if(weighted==False):
 #                w=1 # Equal weights
+#             w=1
             total_weight += w
             for i, v in enumerate(soln):
                 base[i] += w*v.astype(np.float64)

@@ -122,7 +122,7 @@ def weight_clustering(X):
 
     # OR Plot
     model = result.fit(X)
-    print("After Clustering:",model.labels_)
+    # print("After Clustering:",model.labels_)
     return model
 
 def gradient_clustering(X):
@@ -137,7 +137,7 @@ def gradient_clustering(X):
 
     # OR Plot
     model = result.fit(X)
-    print("After Clustering:",model.labels_)
+    # print("After Clustering:",model.labels_)
     return model
 
 
@@ -175,8 +175,8 @@ def plot_dendrogram(rs_linkage_matrix):
     plt.title('Hierarchical Clustering Dendrogram')
     rs_dendrogram = dendrogram(rs_linkage_matrix, truncate_mode='level', p=4)
 
-    print(rs_dendrogram['ivl'])  # x_axis of dendrogram => index of nodes or (Number of points in clusters (i))
-    print(rs_dendrogram['leaves'])  # merge points
+    # print(rs_dendrogram['ivl'])  # x_axis of dendrogram => index of nodes or (Number of points in clusters (i))
+    # print(rs_dendrogram['leaves'])  # merge points
     plt.xlabel("index of node or (Number of leaves in each cluster).")
     plt.gcf()
 

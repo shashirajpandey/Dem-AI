@@ -26,7 +26,8 @@ class DemBase(object):
         self.N_clients = len(self.clients)
         self.TreeRoot = None
         self.gamma = 1.   #soft or hard update in hierrachical averaging
-        self.Hierrchical_Method = "Weight"
+        self.beta  = 1.
+        self.Hierrchical_Method = "Weight" ### "Gradient" or "Weight"
 
         print('{} Clients in Total'.format(len(self.clients)))
         self.latest_model = self.client_model.get_params()
@@ -53,29 +54,29 @@ class DemBase(object):
         # print("ID of Client 1:",all_clients[0]._id)
         return all_clients
 
-    def create_w_matrix(self,csolns):
+    def create_matrix(self,csolns):
         w_list =[]
         self.model_shape = (csolns[0][1][0].shape,csolns[0][1][1].shape)  #weight, bias dimension
         print("Model Shape:", self.model_shape)
         for w in csolns:
-            # print("Weight Shape:", w[1][0].shape)
-            # print("Bias Shape:", w[1][1].shape)
+            # print("Weight:", w[1][0])
+            # print("Bias:", w[1][1])
             w_list.append( np.concatenate( (w[1][0].flatten(),w[1][1]), axis=0)   )
 
         self.Weight_dimension = len(w_list[0])
         return w_list
 
-    def create_g_matrix(self,cgrads):
-        g_list =[]
-        self.model_shape = (cgrads[0][0].shape,cgrads[0][1].shape)  #weight, bias dimension
-        print("Model Shape:", self.model_shape)
-        for g in cgrads:
-            print("Grad Weight Shape:", g[0].shape)
-            print("Grad Bias Shape:", g[1].shape)
-            g_list.append( np.concatenate( (g[0].flatten(),g[1]), axis=0)   )
-
-        self.Weight_dimension = len(g_list[0])
-        return g_list
+    # def create_g_matrix(self,cgrads):
+    #     g_list =[]
+    #     self.model_shape = (cgrads[0][0].shape,cgrads[0][1].shape)  #weight, bias dimension
+    #     print("Model Shape:", self.model_shape)
+    #     for g in cgrads:
+    #         print("Grad Weight Shape:", g[0].shape)
+    #         print("Grad Bias Shape:", g[1].shape)
+    #         g_list.append( np.concatenate( (g[0].flatten(),g[1]), axis=0)   )
+    #
+    #     self.Weight_dimension = len(g_list[0])
+    #     return g_list
 
 
     def update_generalized_model(self,node,mode="hard"):
@@ -89,8 +90,8 @@ class DemBase(object):
             for child in childs:
                 gmd = self.update_generalized_model(child,mode)
                 # print("shape=",gmd.shape)
-                rs_w += gmd[0] * child.numb_clients #weight
-                rs_b += gmd[1] * child.numb_clients #bias
+                rs_w += child.numb_clients * gmd[0].astype(np.float64)  #weight
+                rs_b += child.numb_clients * gmd[1].astype(np.float64)  #bias
             avg_w = 1.0 * rs_w /node.numb_clients
             avg_b = 1.0 * rs_b /node.numb_clients
             if(mode=="hard"):
@@ -99,23 +100,27 @@ class DemBase(object):
                 node.gmodel = ((1-self.gamma)*node.gmodel[0] + self.gamma * avg_w,
                                (1 - self.gamma) * node.gmodel[1] + self.gamma * avg_b )# (weight,bias)
             return node.gmodel
-        else: #Client
-            md = node.model.get_params()
+        elif(node._type.upper()=="CLIENT"): #Client
+            # md = node.model.get_params() # At this time, node.model.get_params() is replaced by other client graph
+            md = node.gmodel
             # print(md[0].shape,"--",md[1].shape)
             # return np.concatenate( (md[0].flatten(),md[1]), axis=0 )
             return md
 
     def get_hierrachical_params(self,client):
-        return client.get_hierrachical_info()
+        hmd, nf = client.get_hierrachical_info1()
+        # print("Normalized term:", nf)
+        return (hmd[0]/nf, hmd[1]/nf) #normalized version
+        # return client.get_hierrachical_info()
 
     def hierrachical_clustering(self, csolns, cgrads):
         if(self.Hierrchical_Method == "Weight"):
+            weights_matrix = self.create_matrix(csolns)
             # weights_matrix = np.random.rand(self.N_clients, self.Weight_dimension)
-            weights_matrix = self.create_w_matrix(csolns)
             model = weight_clustering(weights_matrix)
         else:
+            gradient_matrix = self.create_matrix(cgrads)
             # gradient_matrix = np.random.rand(N_clients, Weight_dimension)
-            gradient_matrix = self.create_g_matrix(cgrads)
             model = gradient_clustering(gradient_matrix)
 
         self.TreeRoot = tree_construction(model, self.clients)
@@ -124,12 +129,15 @@ class DemBase(object):
         # print("Number of agents Group 1 in level K-1:", root.childs[0].childs[0].count_clients(),
         #       root.childs[0].childs[1].count_clients())
 
-    def train_error_and_loss(self):
+    def train_error_and_loss(self, i):
         num_samples = []
         tot_correct = []
         losses = []
 
+        if (i == 0): self.client_model.set_params(self.latest_model)  # update parameter of local model initially
         for c in self.clients:
+            if(i>0): self.client_model.set_params(c.gmodel) ## reassign to the tf.graph for testing independently
+
             ct, cl, ns = c.train_error_and_loss() 
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
@@ -166,16 +174,20 @@ class DemBase(object):
         return intermediate_grads
  
   
-    def test(self):
+    def test(self, i ):
         '''tests self.latest_model on given clients
         '''
         num_samples = []
         tot_correct = []
-        self.client_model.set_params(self.latest_model)
+        #no need to reassign client model
+        if(i==0): self.client_model.set_params(self.latest_model) # update parameter of local model initially
+
         for c in self.clients:
+            if(i>0): self.client_model.set_params(c.gmodel) ## reassign to the tf.graph for testing independently
             ct, ns = c.test()
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
+            print("Acc Client",c.id,":",ct/ns)
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
         return ids, groups, num_samples, tot_correct

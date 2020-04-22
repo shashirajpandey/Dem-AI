@@ -1,3 +1,2 @@
-K_Levels = 3
+K_Levels = 2
 N_clients = 20
-Weight_dimension = 10

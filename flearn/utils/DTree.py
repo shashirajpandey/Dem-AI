@@ -52,6 +52,21 @@ class Node(object):
             elif(self.parent == "Empty"):  #root node
                 return (self.gmodel[0]/self.numb_clients, self.gmodel[1]/self.numb_clients)
 
+    def get_hierrachical_info1(self): # with defactor later for normalize the sum
+        # print("Checking at id:", self._id)
+        # print("Parent",self.parent)
+        if (self._type.upper() == "CLIENT"):
+            return self.parent.get_hierrachical_info1()
+        else:
+            if(self.parent != "Empty"):
+                parent_md, parent_normalize_term = self.parent.get_hierrachical_info1()
+                normalize_term = 1./self.numb_clients + parent_normalize_term
+                # print(parent_md)
+                return ((self.gmodel[0]/self.numb_clients + parent_md[0], self.gmodel[1]/self.numb_clients + parent_md[1]), normalize_term)
+            elif(self.parent == "Empty"):  #root node
+                return ((self.gmodel[0]/self.numb_clients, self.gmodel[1]/self.numb_clients), 1./self.numb_clients)
+
+
     def count_clients(self):
         counts = 0
         if self._type=="Client":
@@ -99,7 +114,7 @@ class Level(object):
         self.members = members  # number of clients
 
 
-def test_generalized_update(node,mode="hard"):
+def t_generalized_update(node,mode="hard"):
         model_shape = (1,1)
         gamma=1.0
         # print("Node id:", node._id, node._type)
@@ -110,7 +125,7 @@ def test_generalized_update(node,mode="hard"):
             rs_w = np.zeros(model_shape[0])
             rs_b = np.zeros(model_shape[1])
             for child in childs:
-                gmd = test_generalized_update(child,mode)
+                gmd = t_generalized_update(child,mode)
                 # print("shape=",gmd.shape)
                 rs_w += gmd[0] * child.numb_clients #weight
                 rs_b += gmd[1] * child.numb_clients #bias
@@ -141,20 +156,34 @@ if __name__ == '__main__':
     #     padding="same",
     #     activation=tf.nn.relu)
     # pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
-    Root = Node(_id=0, parent="Empty",gmodel=(5,5), numb_clients= 2 , _type="Group" )
-    Group1 = Node(_id=1, parent=Root,gmodel=(2,2), numb_clients=1, _type="Group")
-    # Group2 = Node(_id=2, parent=Root, gmodel=(3, 3), numb_clients=1, _type="Group")
+    Root = Node(_id=0, parent="Empty",gmodel=(5,5), numb_clients= 4 , _type="Group" )
+    Group1 = Node(_id=1, parent=Root,gmodel=(2,2), numb_clients=2, _type="Group")
+    Group2 = Node(_id=2, parent=Root, gmodel=(3, 3), numb_clients=2, _type="Group")
     Client1 =  Node(_id=3, parent=Group1,gmodel=(3.0,3.0), _type="Client")
-    Client2 = Node(_id=4, parent=Root, gmodel=(6, 6), _type="Client")
-    Group1.childs = [Client1]
-    # Group2.childs = Client2
-    Root.childs = [Group1, Client2]
+    Client2 = Node(_id=4, parent=Group1, gmodel=(6, 6), _type="Client")
+    Client3 = Node(_id=5, parent=Group2, gmodel=(3, 3), _type="Client")
+    Client4 = Node(_id=6, parent=Group2, gmodel=(4, 4), _type="Client")
+    Group1.childs = [Client1,Client2]
+    Group2.childs = [Client3,Client4 ]
+    # Root.childs = [Group1, Client2]
     # print(Group2.get_hierrachical_info())
     # print(Group1.get_hierrachical_info())
     # print(Client1.get_hierrachical_info())
     # print(Client2.get_hierrachical_info())
-    test_generalized_update(Root)
-    print(Root.gmodel)
-    print(Group1.gmodel)
+    # test_generalized_update(Root)
+    # print(Root.gmodel)
+    # print(Group1.gmodel)
+    Root.childs = [Group1, Group2]
+    print(Group1.get_hierrachical_info1())
+    print(Group2.get_hierrachical_info1())
+    print("Client")
+    c1 = Client1.get_hierrachical_info1()
+    print(c1 , (c1 [0][0]/c1[1], c1 [0][1]/c1[1]))
+    c2 = Client2.get_hierrachical_info1()
+    print(c2, (c2[0][0] / c2[1], c2[0][1] / c2[1]))
+    c3 = Client3.get_hierrachical_info1()
+    print(c3, (c3[0][0] / c3[1], c3[0][1] / c3[1]))
+    c4 = Client4.get_hierrachical_info1()
+    print(c4, (c4[0][0] / c4[1], c4[0][1] / c4[1]))
 
 

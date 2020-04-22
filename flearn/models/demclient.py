@@ -19,6 +19,7 @@ class DemClient(Node):
         self.level = 0
         self.childs = None
         self.numb_clients = 1.0
+        self.gmodel = model
 
 
 
@@ -67,6 +68,7 @@ class DemClient(Node):
         soln, grad, comp = self.model.solve_inner(optimizer,
             self.train_data, num_epochs, batch_size)
         bytes_r=self.model.size
+        self.gmodel = soln # Store Local model otherwise it was replaced by other clients. All clients share a graph
         return (self.num_samples, soln), (self.num_samples,grad), (bytes_w, comp, bytes_r)
 
     def train_error_and_loss(self):
