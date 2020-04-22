@@ -78,12 +78,12 @@ def create_nodes(model, Parent, Clients):
         cluster_heads = model.children_[Parent["_id"] - N_clients]
         Child1 = Node(_id=cluster_heads[0], parent=Parent, level=Parent.level - 1)
         Child2 = Node(_id=cluster_heads[1], parent=Parent, level=Parent.level - 1)
-        if (cluster_heads[0] <= N_clients):
+        if (cluster_heads[0] < N_clients):
             Child1 = Clients[cluster_heads[0]]
             Child1.parent = Parent
         else:
             create_nodes(model,Child1,Clients)
-        if (cluster_heads[1] <= N_clients):
+        if (cluster_heads[1] < N_clients):
             Child2 = Clients[cluster_heads[1]]
             Child2.parent = Parent
         else:

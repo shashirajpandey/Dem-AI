@@ -26,6 +26,7 @@ class DemBase(object):
         self.N_clients = len(self.clients)
         self.TreeRoot = None
         self.gamma = 1.   #soft or hard update in hierrachical averaging
+        self.Hierrchical_Method = "Weight"
 
         print('{} Clients in Total'.format(len(self.clients)))
         self.latest_model = self.client_model.get_params()
@@ -64,6 +65,19 @@ class DemBase(object):
         self.Weight_dimension = len(w_list[0])
         return w_list
 
+    def create_g_matrix(self,cgrads):
+        g_list =[]
+        self.model_shape = (cgrads[0][0].shape,cgrads[0][1].shape)  #weight, bias dimension
+        print("Model Shape:", self.model_shape)
+        for g in cgrads:
+            print("Grad Weight Shape:", g[0].shape)
+            print("Grad Bias Shape:", g[1].shape)
+            g_list.append( np.concatenate( (g[0].flatten(),g[1]), axis=0)   )
+
+        self.Weight_dimension = len(g_list[0])
+        return g_list
+
+
     def update_generalized_model(self,node,mode="hard"):
         # print("Node id:", node._id, node._type)
         childs = node.childs
@@ -94,34 +108,21 @@ class DemBase(object):
     def get_hierrachical_params(self,client):
         return client.get_hierrachical_info()
 
-
-        # def update_client_count(self,node):
-     #     childs = node.childs
-     #     if childs:
-     #         for child in childs:
-     #            child.count_clients()
-            # if(node._type=="Group"):
-            # childs = node.childs
-            # for c in childs:
-            #     self.c
-            #     self.update_generalized_model(c)
-
-
-
-    def hierrachical_clustering(self, csolns):
-        weights_matrix = self.create_w_matrix(csolns)
-        # weights_matrix = np.random.rand(self.N_clients, self.Weight_dimension)
-        model = weight_clustering(weights_matrix)
-        # gradient_matrix = np.random.rand(N_clients, Weight_dimension)
-        # model = gradient_clustering(gradient_matrix)
+    def hierrachical_clustering(self, csolns, cgrads):
+        if(self.Hierrchical_Method == "Weight"):
+            # weights_matrix = np.random.rand(self.N_clients, self.Weight_dimension)
+            weights_matrix = self.create_w_matrix(csolns)
+            model = weight_clustering(weights_matrix)
+        else:
+            # gradient_matrix = np.random.rand(N_clients, Weight_dimension)
+            gradient_matrix = self.create_g_matrix(cgrads)
+        model = gradient_clustering(gradient_matrix)
 
         self.TreeRoot = tree_construction(model, self.clients)
         print("Number of agents in tree:", self.TreeRoot.count_clients())
         print("Number of agents in level K:", self.TreeRoot.childs[0].count_clients(), self.TreeRoot.childs[1].count_clients())
         # print("Number of agents Group 1 in level K-1:", root.childs[0].childs[0].count_clients(),
         #       root.childs[0].childs[1].count_clients())
-        # self.update_client_count(self)
-        # self.update_generalized_model(self.TreeRoot)
 
     def train_error_and_loss(self):
         num_samples = []

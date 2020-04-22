@@ -64,6 +64,7 @@ class Server(DemBase):
             selected_clients = self.clients
 
             csolns = [] # buffer for receiving client solutions
+            cgrads =[]
             for c in tqdm(selected_clients, desc='Client: ', leave=False, ncols=120):
                 # communicate the latest model
 
@@ -80,13 +81,13 @@ class Server(DemBase):
 
                 # gather solutions from client
                 csolns.append(soln)
-
+                cgrads.append(grads[1])
 
                 # track communication cost
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
 
             if (i % 5 == 0):
-                self.hierrachical_clustering(csolns)
+                self.hierrachical_clustering(csolns, cgrads)
                 self.update_generalized_model(self.TreeRoot) #hard update
             # update model
             # self.latest_model = self.aggregate(csolns,weighted=True)
