@@ -116,7 +116,7 @@ class DemBase(object):
         else:
             # gradient_matrix = np.random.rand(N_clients, Weight_dimension)
             gradient_matrix = self.create_g_matrix(cgrads)
-        model = gradient_clustering(gradient_matrix)
+            model = gradient_clustering(gradient_matrix)
 
         self.TreeRoot = tree_construction(model, self.clients)
         print("Number of agents in tree:", self.TreeRoot.count_clients())

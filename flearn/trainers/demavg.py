@@ -88,7 +88,7 @@ class Server(DemBase):
 
             if (i % 5 == 0):
                 print("DEM-AI --------->>>>> Clustering")
-                self.hierrachical_clustering(csolns)
+                self.hierrachical_clustering(csolns,cgrads)
                 print("DEM-AI --------->>>>> Hard Update generalized model")
                 self.update_generalized_model(self.TreeRoot) #hard update
             else:
