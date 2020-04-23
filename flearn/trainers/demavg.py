@@ -6,6 +6,8 @@ from flearn.optimizer.proxsgd import PROXSGD
 from .dembase import DemBase
 from flearn.utils.DTree import  Node
 import matplotlib.pyplot as plt
+from clustering.Setting import *
+from clustering.Setting import *
 
 class Server(DemBase):
     def __init__(self, params, learner, dataset):
@@ -30,12 +32,12 @@ class Server(DemBase):
                 # ============= Test each client =============
                 tqdm.write('============= Test Client Models - Specialization ============= ')
                 stest_acu, strain_acc = self.evaluating_clients(i,mode="spe")
-                self.s_data_test.append( stest_acu )
-                self.s_data_train.append(strain_acc)
+                self.cs_avg_data_test.append(stest_acu)
+                self.cs_avg_data_train.append(strain_acc)
                 tqdm.write('============= Test Client Models - Generalization ============= ')
                 gtest_acu, gtrain_acc = self.evaluating_clients(i, mode="gen")
-                self.g_data_test.append(gtest_acu)
-                self.g_data_train.append( gtrain_acc)
+                self.cg_avg_data_test.append(gtest_acu)
+                self.cg_avg_data_train.append(gtrain_acc)
 
                 # ============= Test root =============
                 if(i>0):
@@ -147,33 +149,56 @@ class Server(DemBase):
                 # print("Root Model:", np.sum(self.TreeRoot.gmodel[0]),np.sum(self.TreeRoot.gmodel[1]))
 
         self.display_results()
+        # # final test model
+        # stats = self.test()
+        # # stats_train = self.train_error()
+        # # stats_loss = self.train_loss()
+        # stats_train = self.train_error_and_loss()
+        #
+        # self.metrics.accuracies.append(stats)
+        # self.metrics.train_accuracies.append(stats_train)
+        # tqdm.write('At round {} accuracy: {}'.format(self.num_rounds, np.sum(stats[3])*1.0/np.sum(stats[2])))
+        # tqdm.write('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
+        # # save server model
+        # self.metrics.write()
+        # #self.save()
+        # self.save(learning_rate=self.parameters["learning_rate"])
+        #
+        # print("Test ACC:", self.rs_glob_acc)
+        # print("Training ACC:", self.rs_train_acc)
+        # print("Training Loss:", self.rs_train_loss)
+
+
+
     def display_results(self):
-        print("DEM--------------> Plotting")
-        print(self.gs_data_test)
-        print("==========================")
-        print(self.gs_data_train)
-        avg_root_test = np.asarray(self.gs_data_test)[:,2]
-        avg_root_train = np.asarray(self.gs_data_train)[:,2]
+        print("DEM-AI --------->>>>> Plotting")
+        alg_name = "DEMAVG_"
+        root_test = np.asarray(self.gs_data_test)[:,2]
+        root_train = np.asarray(self.gs_data_train)[:,2]
         plt.clf()
         plt.figure(3)
         plt.clf()
-        plt.plot(avg_root_train, label="root train", linestyle="--")
-        plt.plot(avg_root_test, label="root test", linestyle="--")
-        plt.plot( np.arange(len(self.s_data_train)), self.s_data_train, label="s_train" )
-        plt.plot(np.arange(len(self.s_data_test)), self.s_data_test,label="s_test")
+        plt.plot(root_train, label="root train", linestyle="--")
+        plt.plot(root_test, label="root test", linestyle="--")
+        plt.plot(np.arange(len(self.cs_avg_data_train)), self.cs_avg_data_train, label="cs_avg_train")
+        plt.plot(np.arange(len(self.cs_avg_data_test)), self.cs_avg_data_test, label="cs_avg_test")
         plt.legend()
+        plt.xlabel("Global Rounds")
         plt.grid()
         plt.title("AVG Clients Specialization Accuracy")
+        plt.savefig(PLOT_PATH + alg_name + "AVGC_Spec.pdf")
 
         plt.figure(4)
         plt.clf()
-        plt.plot(avg_root_train, label="root train", linestyle="--")
-        plt.plot(avg_root_test, label="root test", linestyle="--")
-        plt.plot(np.arange(len(self.g_data_train)), self.g_data_train, label="g_train")
-        plt.plot(np.arange(len(self.g_data_test)), self.g_data_test, label="g_test")
+        plt.plot(root_train, label="root train", linestyle="--")
+        plt.plot(root_test, label="root test", linestyle="--")
+        plt.plot(np.arange(len(self.cg_avg_data_train)), self.cg_avg_data_train, label="cg_avg_train")
+        plt.plot(np.arange(len(self.cg_avg_data_test)), self.cg_avg_data_test, label="cg_avg_test")
         plt.legend()
+        plt.xlabel("Global Rounds")
         plt.grid()
         plt.title("AVG Clients Generalization Accuracy")
+        plt.savefig(PLOT_PATH + alg_name + "AVGC_Gen.pdf")
 
         # plt.figure(5)
         # plt.clf()
@@ -195,74 +220,56 @@ class Server(DemBase):
 
         plt.figure(7)
         plt.clf()
-        # print(self.cs_data_test)
-        # print("-----------------------------||----------------")
-        # plt.plot(np.transpose(self.client_data_test))
-        # for i in self.client_data_test:
-        #     plt.plot(i)
-        plt.plot(avg_root_test, linestyle="--", label="root test")
+        plt.plot(root_test, linestyle="--", label="root test")
         plt.plot(self.cs_data_test)
+        plt.legend()
+        plt.xlabel("Global Rounds")
         plt.grid()
-        plt.title("Testing Client Specialization ")
+        plt.title("Testing Client Specialization")
+        plt.savefig(PLOT_PATH + alg_name + "C_Spec_Testing.pdf")
 
 
         plt.figure(8)
         plt.clf()
-        # print(self.cs_data_train)
-        plt.plot(avg_root_train, linestyle = "--" ,label="root train")
+        plt.plot(root_train, linestyle = "--" ,label="root train")
         plt.plot(self.cs_data_train)
-        # for i in self.client_data_train:
-        #     plt.plot(i)
+        plt.legend()
+        plt.xlabel("Global Rounds")
         plt.grid()
-        plt.title("Training Client Specialization ")
+        plt.title("Training Client Specialization")
+        plt.savefig(PLOT_PATH + alg_name + "C_Spec_Training.pdf")
 
         plt.figure(9)
         plt.clf()
-        # print(self.cs_data_test)
-        # print("-----------------------------||----------------")
-        # plt.plot(np.transpose(self.client_data_test))
-        # for i in self.client_data_test:
-        #     plt.plot(i)
         plt.plot(self.cg_data_test)
-        # plt.plot(avg_root_train, label="root train")
-        plt.plot(avg_root_test,linestyle="--", label="root test")
+        plt.plot(root_test,linestyle="--", label="root test")
+        plt.legend()
+        plt.xlabel("Global Rounds")
         plt.grid()
-        plt.title("Testing Client Generalization ")
+        plt.title("Testing Client Generalization")
+        plt.savefig(PLOT_PATH + alg_name + "C_Gen_Testing.pdf")
 
         plt.figure(10)
         plt.clf()
-        # print(self.cs_data_train)
         plt.plot(self.cg_data_train)
-        # plt.plot(avg_root_train, label="root train")
-        plt.plot(avg_root_train, linestyle="--", label="root train")
-        # plt.plot(avg_root_test,linestyle="--", label="root test")
-        # for i in self.client_data_train:
-        #     plt.plot(i)
+        plt.plot(root_train, linestyle="--", label="root train")
+        plt.legend()
+        plt.xlabel("Global Rounds")
         plt.grid()
-        plt.title("Training Client Generalization ")
-
+        plt.title("Training Client Generalization")
+        plt.savefig(PLOT_PATH + alg_name + "C_Gen_Training.pdf")
 
         plt.show()
 
+        print("** Summary Results: ---- Training ----")
+        print("AVG Clients Specialization - Training:",self.cs_avg_data_train)
+        print("AVG Clients Generalization - Training::",self.cg_avg_data_train)
+        print("Root performance - Training:",root_train)
+        print("** Summary Results: ---- Testing ----")
+        print("AVG Clients Specialization - Testing:", self.cs_avg_data_test)
+        print("AVG Clients Generalization - Testing:", self.cg_avg_data_test)
+        print("Root performance - Testing:", root_test)
 
 
 
 
-        # # final test model
-        # stats = self.test()
-        # # stats_train = self.train_error()
-        # # stats_loss = self.train_loss()
-        # stats_train = self.train_error_and_loss()
-        #
-        # self.metrics.accuracies.append(stats)
-        # self.metrics.train_accuracies.append(stats_train)
-        # tqdm.write('At round {} accuracy: {}'.format(self.num_rounds, np.sum(stats[3])*1.0/np.sum(stats[2])))
-        # tqdm.write('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
-        # # save server model
-        # self.metrics.write()
-        # #self.save()
-        # self.save(learning_rate=self.parameters["learning_rate"])
-        #
-        # print("Test ACC:", self.rs_glob_acc)
-        # print("Training ACC:", self.rs_train_acc)
-        # print("Training Loss:", self.rs_train_loss)
