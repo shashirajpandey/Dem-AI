@@ -25,14 +25,20 @@ class Server(DemBase):
             # test model
             if i % self.eval_every == 0:
                 # ============= Test each client =============
-                tqdm.write('============= Test Client Models ============= ')
-                self.evaluating_clients(i)
+                tqdm.write('============= Test Client Models - Specialization ============= ')
+                self.evaluating_clients(i,mode="spe")
+                tqdm.write('============= Test Client Models - Generalization ============= ')
+                self.evaluating_clients(i, mode="gen")
 
                 # ============= Test root =============
                 if(i>0):
-                    tqdm.write('============= Test Group Models ============= ')
+                    tqdm.write('============= Test Group Models - Specialization ============= ')
                     # self.TreeRoot.print_structure()
-                    self.evaluating_groups(self.TreeRoot,i)
+                    self.evaluating_groups(self.TreeRoot,i,mode="spe")
+                    print("Avg. Testing performance for each level:", self.test_accs / self.count_grs)
+                    print("Avg. Training performance for each level:", self.train_accs / self.count_grs)
+                    tqdm.write('============= Test Client Models - Generalization ============= ')
+                    self.evaluating_groups(self.TreeRoot, i, mode="gen")
                     print("Avg. Testing performance for each level:", self.test_accs/ self.count_grs)
                     print("Avg. Training performance for each level:",self.train_accs/self.count_grs)
 
