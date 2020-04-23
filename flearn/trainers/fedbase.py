@@ -91,7 +91,7 @@ class BaseFedarated(object):
             ct, ns = c.test()
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
-            print("Acc Client", c.id, ":", ct / ns)
+            # print("Acc Client", c.id, ":", ct / ns)
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
         return ids, groups, num_samples, tot_correct
@@ -155,4 +155,99 @@ class BaseFedarated(object):
         averaged_soln = [v / total_derivative for v in base]
         return averaged_soln
 
+    def gc_test(self):
+        num_samples = []
+        tot_correct = []
+
+        for c in self.clients:
+            ct, ns = c.test()
+            tot_correct.append(ct*1.0)
+            num_samples.append(ns)
+
+        return np.sum(tot_correct), np.sum(num_samples)
+
+    def c_test(self, i , mode="spe"): # mode spe: specialization, gen: generalization
+        '''tests self.latest_model on given clients
+        '''
+        num_samples = []
+        tot_correct = []
+        clients_acc = []
+
+        #no need to reassign client model
+        if(i==0): self.client_model.set_params(self.latest_model) # update parameter of local model initially to the shared tf.graph
+
+        for c in self.clients:
+            if (i > 0): ## reassign to the tf.graph for testing independently to the shared tf.graph
+                self.client_model.set_params(c.gmodel)
+            if(mode=="spe"):
+                ct, ns = c.test()
+            else:
+                ct, ns = self.gc_test()  #Test client as testing group approach in gen mode
+
+            tot_correct.append(ct * 1.0)
+            num_samples.append(ns)
+            clients_acc.append(ct/ns)
+
+        # print("Testing Acc Client:", clients_acc )
+        ids = [c.id for c in self.clients]
+        groups = [c.group for c in self.clients]
+        return ids, groups, num_samples, tot_correct
+
+    def gc_train_error_and_loss(self):
+        num_samples = []
+        tot_correct = []
+
+        for c in self.clients:
+            ct, cl, ns = c.train_error_and_loss()
+            tot_correct.append(ct*1.0)
+            num_samples.append(ns)
+
+        return np.sum(tot_correct), np.sum(tot_correct), np.sum(num_samples)
+
+
+    def c_train_error_and_loss(self, i, mode="spe"): # mode spe: specialization, gen: generalization
+        num_samples = []
+        tot_correct = []
+        losses = []
+        clients_acc = []
+
+        if (i == 0): self.client_model.set_params(self.latest_model)  # update parameter of local model initially to the shared tf.graph
+        for c in self.clients:
+            if (i > 0):  ## reassign to the tf.graph for testing independently to the shared tf.graph
+                self.client_model.set_params(c.gmodel)
+            if (mode == "spe"):
+                ct, cl, ns = c.train_error_and_loss()
+            else:
+                ct, cl, ns = self.gc_train_error_and_loss()  # Test client as testing group approach in gen mode
+
+            tot_correct.append(ct*1.0)
+            num_samples.append(ns)
+            losses.append(cl*1.0)
+            clients_acc.append(ct / ns)
+
+        # print("Training Acc Client:", clients_acc)
+        ids = [c.id for c in self.clients]
+        groups = [c.group for c in self.clients]
+
+        return ids, groups, num_samples, tot_correct, losses
+
+
+    def evaluating_clients(self, i, mode="spe"): # mode spe: specialization, gen: generalization
+        stats = self.c_test(i,mode)
+        stats_train = self.c_train_error_and_loss(i,mode)
+        # self.metrics.accuracies.append(stats)
+        # self.metrics.train_accuracies.append(stats_train)
+        tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
+        tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
+        # tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
+        #     stats_train[2])))
+
+    def evaluating_global(self,i):
+        stats = self.test()
+        stats_train = self.train_error_and_loss()
+        self.metrics.accuracies.append(stats)
+        self.metrics.train_accuracies.append(stats_train)
+        tqdm.write('At round {} global testing accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))
+        tqdm.write('At round {} global training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
+        tqdm.write('At round {} global training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
 

@@ -23,13 +23,24 @@ class Server(BaseFedarated):
         for i in range(self.num_rounds):
             # test model
             if i % self.eval_every == 0:
-                stats = self.test()
-                stats_train = self.train_error_and_loss()
-                self.metrics.accuracies.append(stats)
-                self.metrics.train_accuracies.append(stats_train)
-                tqdm.write('At round {} accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))
-                tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
-                tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
+                # ============= Test each client =============
+                tqdm.write('============= Test Client Models - Specialization ============= ')
+                self.evaluating_clients(i,mode="spe")
+                tqdm.write('============= Test Client Models - Generalization ============= ')
+                self.evaluating_clients(i, mode="gen")
+                tqdm.write('============= Test Global Models  ============= ')
+                self.evaluating_global(i)
+
+
+        #     # test model
+        #     if i % self.eval_every == 0:
+        #         stats = self.test()
+        #         stats_train = self.train_error_and_loss()
+        #         self.metrics.accuracies.append(stats)
+        #         self.metrics.train_accuracies.append(stats_train)
+        #         tqdm.write('At round {} accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))
+        #         tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
+        #         tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
 
                 # self.rs_glob_acc.append(np.sum(stats[3])*1.0/np.sum(stats[2]))
                 # self.rs_train_acc.append(np.sum(stats_train[3])*1.0/np.sum(stats_train[2]))
@@ -71,18 +82,18 @@ class Server(BaseFedarated):
                 # solve minimization locally
                 soln, grads, stats  = c.solve_inner(
                     self.optimizer, num_epochs=self.num_epochs, batch_size=self.batch_size)
-
+                c.gmodel=soln[1]
                 # gather solutions from client
                 csolns.append(soln)
 
                 # track communication cost
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
             # print("First Client model:", csolns[0][1])
-            print("First Client model:", np.sum(csolns[0][1][0]))
+            # print("First Client model:", np.sum(csolns[0][1][0]))
             # update model
             self.latest_model = self.aggregate(csolns,weighted=True)
             # print("Averaging model:", self.latest_model )
-            print("Averaging model:", np.sum(self.latest_model[0]))
+            # print("Averaging model:", np.sum(self.latest_model[0]))
 
         # final test model
         stats = self.test()
