@@ -48,9 +48,10 @@ class DemBase(object):
         self.gg_data_test = []
         self.gs_data_train = []
         self.gg_data_train = []
-        self.client_data_test =  [] # np.zeros((self.num_rounds, self.N_clients))
-        print("num of round", self.num_rounds )
-        self.client_data_train =  [] #np.zeros((self.num_rounds, self.N_clients))
+        self.cs_data_test = np.zeros((self.num_rounds, self.N_clients))
+        self.cs_data_train = np.zeros((self.num_rounds, self.N_clients))
+        self.cg_data_test = np.zeros((self.num_rounds, self.N_clients))
+        self.cg_data_train = np.zeros((self.num_rounds, self.N_clients))
 
 
     def __del__(self):
@@ -216,13 +217,15 @@ class DemBase(object):
             num_samples.append(ns)
             losses.append(cl*1.0)
             clients_acc.append(ct / ns)
-            # self.client_data_train[i,j] = ct / ns
-
 
         # print("Training Acc Client:", clients_acc)
         # self.client_data_train[i][:] = clients_acc
 
-        self.client_data_train.append(clients_acc)
+        if (mode == "spe"):
+            self.cs_data_train[i, :] = clients_acc
+        else:
+            self.cg_data_train[i, :] = clients_acc
+
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
 
@@ -263,8 +266,7 @@ class DemBase(object):
 
         return np.sum(tot_correct), np.sum(num_samples)
 
-    def c_test(self, i , mode="spe"):
-        print("called c_test")# mode spe: specialization, gen: generalization
+    def c_test(self, i , mode="spe"): # mode spe: specialization, gen: generalization
         '''tests self.latest_model on given clients
         '''
         num_samples = []
@@ -286,9 +288,12 @@ class DemBase(object):
             num_samples.append(ns)
             clients_acc.append(ct/ns)
 
-        print("Testing Acc Client:", clients_acc )
-        # self.client_data_test [i][:]= clients_acc[:]
-        self.client_data_test.append(clients_acc)
+        # print("Testing Acc Client:", clients_acc )
+        if(mode=="spe"):
+            self.cs_data_test[i,:]= clients_acc
+        else:
+            self.cg_data_test[i, :] = clients_acc
+        # self.client_data_test.append(clients_acc)
 
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
