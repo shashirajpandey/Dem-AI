@@ -8,8 +8,7 @@ import os
 import tensorflow as tf
 from flearn.utils.plot_utils import plot_summary_two_figures, plot_summary_one_figure2, plot_summary_three_figures, plot_summary_three_figures_batch, plot_summary_mnist, plot_summary_nist
 from flearn.utils.model_utils import read_data
-import matplotlib
-matplotlib.use('Agg')
+
 
 # GLOBAL PARAMETERS
 OPTIMIZERS = ['fedavg', 'fedprox', 'fedsgd', 'fedfedl']
@@ -170,7 +169,7 @@ if __name__ == '__main__':
     batch_size = [20,20,50,50,0,0,0,0]
     DATA_SET = "mnist"
     number_users = 20 #100
-    number_global_iters = 10
+    number_global_iters = 5
     #
     # for i in range(len(algorithms_list)):
     #     main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],

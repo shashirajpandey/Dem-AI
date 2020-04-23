@@ -169,8 +169,8 @@ def iris_test(model):
 
 def plot_dendrogram(rs_linkage_matrix):
     # Plot the corresponding dendrogram
+    plt.figure(1)
     plt.clf()
-
     # change p value to 5 if we want to get 5 levels
     plt.title('Hierarchical Clustering Dendrogram')
     rs_dendrogram = dendrogram(rs_linkage_matrix, truncate_mode='level', p=4)
@@ -178,7 +178,7 @@ def plot_dendrogram(rs_linkage_matrix):
     # print(rs_dendrogram['ivl'])  # x_axis of dendrogram => index of nodes or (Number of points in clusters (i))
     # print(rs_dendrogram['leaves'])  # merge points
     plt.xlabel("index of node or (Number of leaves in each cluster).")
-    plt.gcf()
+
 
 
 def tree_construction(model, Clients):

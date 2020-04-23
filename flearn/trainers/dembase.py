@@ -14,6 +14,7 @@ import h5py
 class DemBase(object):
     def __init__(self, params, learner, dataset):
         # transfer parameters to self
+
         for key, val in params.items(): setattr(self, key, val);
         self.parameters = params
         # create worker nodes
@@ -39,6 +40,17 @@ class DemBase(object):
         self.test_accs = np.zeros(K_Levels+1)
         self.train_accs = np.zeros(K_Levels+1)
         self.count_grs = np.zeros(K_Levels+1)
+        self.g_data_test = []
+        self.g_data_train = []
+        self.s_data_test = []
+        self.s_data_train = []
+        self.gs_data_test = []
+        self.gg_data_test = []
+        self.gs_data_train = []
+        self.gg_data_train = []
+        self.client_data_test =   np.zeros((self.num_rounds, self.N_clients))
+        print("num of round", self.num_rounds )
+        self.client_data_train = np.zeros((self.num_rounds, self.N_clients))
 
 
     def __del__(self):
@@ -191,6 +203,7 @@ class DemBase(object):
         clients_acc = []
 
         if (i == 0): self.client_model.set_params(self.latest_model)  # update parameter of local model initially to the shared tf.graph
+        j = 0
         for c in self.clients:
             if (i > 0):  ## reassign to the tf.graph for testing independently to the shared tf.graph
                 self.client_model.set_params(c.gmodel)
@@ -203,8 +216,13 @@ class DemBase(object):
             num_samples.append(ns)
             losses.append(cl*1.0)
             clients_acc.append(ct / ns)
+            self.client_data_train[i,j] = ct / ns
+            j+=1
 
         # print("Training Acc Client:", clients_acc)
+        # self.client_data_train[i][:] = clients_acc
+
+        # self.client_data_train.append(clients_acc)
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
 
@@ -267,7 +285,10 @@ class DemBase(object):
             num_samples.append(ns)
             clients_acc.append(ct/ns)
 
-        # print("Testing Acc Client:", clients_acc )
+        print("Testing Acc Client:", clients_acc )
+        self.client_data_test [i][:]= clients_acc[:]
+        # self.client_data_test.append(clients_acc)
+
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
         return ids, groups, num_samples, tot_correct
@@ -278,11 +299,13 @@ class DemBase(object):
         stats_train = self.c_train_error_and_loss(i,mode)
         # self.metrics.accuracies.append(stats)
         # self.metrics.train_accuracies.append(stats_train)
-        tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
-        tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
+        test_acr = np.sum(stats[3]) * 1.0 / np.sum(stats[2])
+        train_acr = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
+        tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, test_acr))
+        tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, train_acr ))
         # tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
         #     stats_train[2])))
-
+        return test_acr, train_acr
 
     def evaluating_groups(self,gr,i, mode="spe"): # mode spe: specialization, gen: generalization
         if(gr.parent == "Empty"):

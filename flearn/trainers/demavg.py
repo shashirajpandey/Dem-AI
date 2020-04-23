@@ -5,14 +5,17 @@ from flearn.utils.tf_utils import process_grad
 from flearn.optimizer.proxsgd import PROXSGD
 from .dembase import DemBase
 from flearn.utils.DTree import  Node
+import matplotlib.pyplot as plt
 
 class Server(DemBase):
     def __init__(self, params, learner, dataset):
+
         print('Using Dem Average to Train')
         if(params["lamb"] > 0):
             self.inner_opt = PROXSGD(params['learning_rate'], params["lamb"])
         else:
             self.inner_opt = tf.train.GradientDescentOptimizer(params['learning_rate'])
+
         super(Server, self).__init__(params, learner, dataset)
 
     def train(self):
@@ -26,21 +29,33 @@ class Server(DemBase):
             if i % self.eval_every == 0:
                 # ============= Test each client =============
                 tqdm.write('============= Test Client Models - Specialization ============= ')
-                self.evaluating_clients(i,mode="spe")
+                stest_acu, strain_acc = self.evaluating_clients(i,mode="spe")
+                self.s_data_test.append( stest_acu )
+                self.s_data_train.append(strain_acc)
                 tqdm.write('============= Test Client Models - Generalization ============= ')
-                self.evaluating_clients(i, mode="gen")
+                gtest_acu, gtrain_acc = self.evaluating_clients(i, mode="gen")
+                self.g_data_test.append(gtest_acu)
+                self.g_data_train.append( gtrain_acc)
 
                 # ============= Test root =============
                 if(i>0):
                     tqdm.write('============= Test Group Models - Specialization ============= ')
                     # self.TreeRoot.print_structure()
                     self.evaluating_groups(self.TreeRoot,i,mode="spe")
-                    print("AvgG. Testing performance for each level:", self.test_accs / self.count_grs)
-                    print("AvgG. Training performance for each level:", self.train_accs / self.count_grs)
+                    gs_test = self.test_accs / self.count_grs
+                    gs_train = self.train_accs / self.count_grs
+                    self.gs_data_test.append(gs_test)
+                    self.gs_data_train.append(gs_train)
+                    print("AvgG. Testing performance for each level:", gs_test)
+                    print("AvgG. Training performance for each level:", gs_train)
                     tqdm.write('============= Test Group Models - Generalization ============= ')
                     self.evaluating_groups(self.TreeRoot, i, mode="gen")
-                    print("AvgG. Testing performance for each level:", self.test_accs/ self.count_grs)
-                    print("AvgG. Training performance for each level:",self.train_accs/self.count_grs)
+                    gg_test = self.test_accs/ self.count_grs
+                    gg_train = self.train_accs/self.count_grs
+                    self.gg_data_test.append(gg_test)
+                    self.gg_data_train.append( gg_train)
+                    print("AvgG. Testing performance for each level:", gg_test)
+                    print("AvgG. Training performance for each level:",gg_train)
 
 
 
@@ -131,6 +146,68 @@ class Server(DemBase):
                 self.update_generalized_model(self.TreeRoot,mode="soft") #soft update
                 # print("Root Model:", np.sum(self.TreeRoot.gmodel[0]),np.sum(self.TreeRoot.gmodel[1]))
 
+        self.display_results()
+    def display_results(self):
+        print("Ve hinh")
+
+        plt.clf()
+        plt.figure(3)
+        plt.clf()
+        plt.plot( np.arange(len(self.s_data_train)), self.s_data_train, label="s_train" )
+        plt.plot(np.arange(len(self.s_data_test)), self.s_data_test,label="s_test")
+        plt.legend()
+        plt.grid()
+        plt.title("clients")
+
+        plt.figure(4)
+        plt.clf()
+        plt.plot(np.arange(len(self.g_data_train)), self.g_data_train, label="g_train")
+        plt.plot(np.arange(len(self.g_data_test)), self.g_data_test, label="g_test")
+
+        plt.legend()
+        plt.grid()
+        plt.title("clients")
+
+        plt.figure(5)
+        plt.clf()
+        plt.plot(np.arange(len(self.gs_data_train)), self.gs_data_train, label="s_train")
+        plt.plot(np.arange(len(self.gs_data_test)), self.gs_data_test, label="s_test")
+        # print(self.gs_data_test)
+
+        plt.legend()
+        plt.grid()
+        plt.title("group")
+
+        plt.figure(6)
+        plt.clf()
+        plt.plot(np.arange(len(self.gg_data_train)), self.gg_data_train, label="g_train")
+        plt.plot(np.arange(len(self.gg_data_test)), self.gg_data_test, label="g_test")
+        plt.legend()
+        plt.grid()
+        plt.title("group")
+
+        plt.figure(7)
+        plt.clf()
+        print(self.client_data_test)
+        print("-----------------------------||----------------")
+        # plt.plot(np.transpose(self.client_data_test))
+        # for i in self.client_data_test:
+        #     plt.plot(i)
+        plt.plot(self.client_data_test)
+        plt.grid()
+        plt.title("client test")
+
+
+        plt.figure(8)
+        plt.clf()
+        print(self.client_data_train)
+        plt.plot(self.client_data_train)
+        # for i in self.client_data_train:
+        #     plt.plot(i)
+        plt.grid()
+        plt.title("client train")
+
+        plt.show()
         # # final test model
         # stats = self.test()
         # # stats_train = self.train_error()
