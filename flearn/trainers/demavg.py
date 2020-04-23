@@ -148,43 +148,50 @@ class Server(DemBase):
 
         self.display_results()
     def display_results(self):
-        print("Ve hinh")
-
+        print("DEM--------------> Plotting")
+        print(self.gs_data_test)
+        print("==========================")
+        print(self.gs_data_train)
+        avg_root_test = np.asarray(self.gs_data_test)[:,2]
+        avg_root_train = np.asarray(self.gs_data_train)[:,2]
         plt.clf()
         plt.figure(3)
         plt.clf()
+        plt.plot(avg_root_train, label="root train", linestyle="--")
+        plt.plot(avg_root_test, label="root test", linestyle="--")
         plt.plot( np.arange(len(self.s_data_train)), self.s_data_train, label="s_train" )
         plt.plot(np.arange(len(self.s_data_test)), self.s_data_test,label="s_test")
         plt.legend()
         plt.grid()
-        plt.title("clients")
+        plt.title("AVG Clients Specialization Accuracy")
 
         plt.figure(4)
         plt.clf()
+        plt.plot(avg_root_train, label="root train", linestyle="--")
+        plt.plot(avg_root_test, label="root test", linestyle="--")
         plt.plot(np.arange(len(self.g_data_train)), self.g_data_train, label="g_train")
         plt.plot(np.arange(len(self.g_data_test)), self.g_data_test, label="g_test")
-
         plt.legend()
         plt.grid()
-        plt.title("clients")
+        plt.title("AVG Clients Generalization Accuracy")
 
-        plt.figure(5)
-        plt.clf()
-        plt.plot(np.arange(len(self.gs_data_train)), self.gs_data_train, label="s_train")
-        plt.plot(np.arange(len(self.gs_data_test)), self.gs_data_test, label="s_test")
-        # print(self.gs_data_test)
+        # plt.figure(5)
+        # plt.clf()
+        # plt.plot(np.arange(len(self.gs_data_train)), self.gs_data_train, label="s_train")
+        # plt.plot(np.arange(len(self.gs_data_test)), self.gs_data_test, label="s_test")
+        # # print(self.gs_data_test)
 
-        plt.legend()
-        plt.grid()
-        plt.title("group")
+        # plt.legend()
+        # plt.grid()
+        # plt.title("AVG Group Specialization")
 
-        plt.figure(6)
-        plt.clf()
-        plt.plot(np.arange(len(self.gg_data_train)), self.gg_data_train, label="g_train")
-        plt.plot(np.arange(len(self.gg_data_test)), self.gg_data_test, label="g_test")
-        plt.legend()
-        plt.grid()
-        plt.title("group")
+        # plt.figure(6)
+        # plt.clf()
+        # plt.plot(np.arange(len(self.gg_data_train)), self.gg_data_train, label="g_train")
+        # plt.plot(np.arange(len(self.gg_data_test)), self.gg_data_test, label="g_test")
+        # plt.legend()
+        # plt.grid()
+        # plt.title("AVG Group Generalization")
 
         plt.figure(7)
         plt.clf()
@@ -193,6 +200,7 @@ class Server(DemBase):
         # plt.plot(np.transpose(self.client_data_test))
         # for i in self.client_data_test:
         #     plt.plot(i)
+        plt.plot(avg_root_test, linestyle="--", label="root test")
         plt.plot(self.cs_data_test)
         plt.grid()
         plt.title("Testing Client Specialization ")
@@ -201,6 +209,7 @@ class Server(DemBase):
         plt.figure(8)
         plt.clf()
         # print(self.cs_data_train)
+        plt.plot(avg_root_train, linestyle = "--" ,label="root train")
         plt.plot(self.cs_data_train)
         # for i in self.client_data_train:
         #     plt.plot(i)
@@ -215,6 +224,8 @@ class Server(DemBase):
         # for i in self.client_data_test:
         #     plt.plot(i)
         plt.plot(self.cg_data_test)
+        # plt.plot(avg_root_train, label="root train")
+        plt.plot(avg_root_test,linestyle="--", label="root test")
         plt.grid()
         plt.title("Testing Client Generalization ")
 
@@ -222,6 +233,9 @@ class Server(DemBase):
         plt.clf()
         # print(self.cs_data_train)
         plt.plot(self.cg_data_train)
+        # plt.plot(avg_root_train, label="root train")
+        plt.plot(avg_root_train, linestyle="--", label="root train")
+        # plt.plot(avg_root_test,linestyle="--", label="root test")
         # for i in self.client_data_train:
         #     plt.plot(i)
         plt.grid()

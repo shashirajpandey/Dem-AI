@@ -4,7 +4,7 @@ import tensorflow as tf
 from flearn.utils.tf_utils import process_grad
 from flearn.optimizer.proxsgd import PROXSGD
 from .fedbase import BaseFedarated
-
+import matplotlib.pyplot as plt
 
 class Server(BaseFedarated):
     def __init__(self, params, learner, dataset):
@@ -25,9 +25,17 @@ class Server(BaseFedarated):
             if i % self.eval_every == 0:
                 # ============= Test each client =============
                 tqdm.write('============= Test Client Models - Specialization ============= ')
-                self.evaluating_clients(i,mode="spe")
+                stest_acu, strain_acc = self.evaluating_clients(i, mode="spe")
+                self.s_data_test.append(stest_acu)
+                self.s_data_train.append(strain_acc)
                 tqdm.write('============= Test Client Models - Generalization ============= ')
-                self.evaluating_clients(i, mode="gen")
+                gtest_acu, gtrain_acc = self.evaluating_clients(i, mode="gen")
+                self.g_data_test.append(gtest_acu)
+                self.g_data_train.append(gtrain_acc)
+                # tqdm.write('============= Test Client Models - Specialization ============= ')
+                # self.evaluating_clients(i,mode="spe")
+                # tqdm.write('============= Test Client Models - Generalization ============= ')
+                # self.evaluating_clients(i, mode="gen")
                 tqdm.write('============= Test Global Models  ============= ')
                 self.evaluating_global(i)
 
@@ -113,3 +121,115 @@ class Server(BaseFedarated):
         print("Test ACC:", self.rs_glob_acc)
         print("Training ACC:", self.rs_train_acc)
         print("Training Loss:", self.rs_train_loss)
+        self.display_results()
+    def display_results(self):
+        print("FED--------------> Plotting")
+
+        avg_root_test = np.asarray(self.root_data_test)
+        avg_root_train = np.asarray(self.root_data_train)
+        plt.clf()
+        plt.figure(3)
+        plt.clf()
+        plt.plot(avg_root_train, label="root train", linestyle="--")
+        plt.plot(avg_root_test, label="root test", linestyle="--")
+        plt.plot(np.arange(len(self.s_data_train)), self.s_data_train, label="s_train")
+        plt.plot(np.arange(len(self.s_data_test)), self.s_data_test, label="s_test")
+        plt.legend()
+        plt.grid()
+        plt.title("AVG Clients Specialization Accuracy")
+
+        plt.figure(4)
+        plt.clf()
+        plt.plot(avg_root_train, label="root train", linestyle="--")
+        plt.plot(avg_root_test, label="root test", linestyle="--")
+        plt.plot(np.arange(len(self.g_data_train)), self.g_data_train, label="g_train")
+        plt.plot(np.arange(len(self.g_data_test)), self.g_data_test, label="g_test")
+        plt.legend()
+        plt.grid()
+        plt.title("AVG Clients Generalization Accuracy")
+
+        # plt.figure(5)
+        # plt.clf()
+        # plt.plot(np.arange(len(self.gs_data_train)), self.gs_data_train, label="s_train")
+        # plt.plot(np.arange(len(self.gs_data_test)), self.gs_data_test, label="s_test")
+        # # print(self.gs_data_test)
+
+        # plt.legend()
+        # plt.grid()
+        # plt.title("AVG Group Specialization")
+
+        # plt.figure(6)
+        # plt.clf()
+        # plt.plot(np.arange(len(self.gg_data_train)), self.gg_data_train, label="g_train")
+        # plt.plot(np.arange(len(self.gg_data_test)), self.gg_data_test, label="g_test")
+        # plt.legend()
+        # plt.grid()
+        # plt.title("AVG Group Generalization")
+        #
+        plt.figure(7)
+        plt.clf()
+        # print(self.cs_data_test)
+        # print("-----------------------------||----------------")
+        # plt.plot(np.transpose(self.client_data_test))
+        # for i in self.client_data_test:
+        #     plt.plot(i)
+        plt.plot(avg_root_test, linestyle="--", label="root test")
+        plt.plot(self.cs_data_test)
+        plt.grid()
+        plt.title("Testing Client Specialization ")
+
+        plt.figure(8)
+        plt.clf()
+        # print(self.cs_data_train)
+        plt.plot(avg_root_train, linestyle="--", label="root train")
+        plt.plot(self.cs_data_train)
+        # for i in self.client_data_train:
+        #     plt.plot(i)
+        plt.grid()
+        plt.title("Training Client Specialization ")
+
+        plt.figure(9)
+        plt.clf()
+        # print(self.cs_data_test)
+        # print("-----------------------------||----------------")
+        # plt.plot(np.transpose(self.client_data_test))
+        # for i in self.client_data_test:
+        #     plt.plot(i)
+        plt.plot(self.cg_data_test)
+        # plt.plot(avg_root_train, label="root train")
+        plt.plot(avg_root_test, linestyle="--", label="root test")
+        plt.grid()
+        plt.title("Testing Client Generalization ")
+
+        plt.figure(10)
+        plt.clf()
+        # print(self.cs_data_train)
+        plt.plot(self.cg_data_train)
+        # plt.plot(avg_root_train, label="root train")
+        plt.plot(avg_root_train, linestyle="--", label="root train")
+        # plt.plot(avg_root_test,linestyle="--", label="root test")
+        # for i in self.client_data_train:
+        #     plt.plot(i)
+        plt.grid()
+        plt.title("Training Client Generalization ")
+
+        plt.show()
+
+        # # final test model
+        # stats = self.test()
+        # # stats_train = self.train_error()
+        # # stats_loss = self.train_loss()
+        # stats_train = self.train_error_and_loss()
+        #
+        # self.metrics.accuracies.append(stats)
+        # self.metrics.train_accuracies.append(stats_train)
+        # tqdm.write('At round {} accuracy: {}'.format(self.num_rounds, np.sum(stats[3])*1.0/np.sum(stats[2])))
+        # tqdm.write('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
+        # # save server model
+        # self.metrics.write()
+        # #self.save()
+        # self.save(learning_rate=self.parameters["learning_rate"])
+        #
+        # print("Test ACC:", self.rs_glob_acc)
+        # print("Training ACC:", self.rs_train_acc)
+        # print("Training Loss:", self.rs_train_loss)

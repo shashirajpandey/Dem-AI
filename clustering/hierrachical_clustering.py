@@ -178,7 +178,7 @@ def plot_dendrogram(rs_linkage_matrix):
     # print(rs_dendrogram['ivl'])  # x_axis of dendrogram => index of nodes or (Number of points in clusters (i))
     # print(rs_dendrogram['leaves'])  # merge points
     plt.xlabel("index of node or (Number of leaves in each cluster).")
-
+    plt.show()
 
 
 def tree_construction(model, Clients):

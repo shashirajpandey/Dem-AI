@@ -6,10 +6,12 @@ from flearn.models.client import Client
 from flearn.utils.model_utils import Metrics
 from flearn.utils.tf_utils import process_grad
 import h5py
+import matplotlib.pyplot as plt
 
 class BaseFedarated(object):
     def __init__(self, params, learner, dataset):
         # transfer parameters to self
+
         for key, val in params.items(): setattr(self, key, val);
         self.parameters = params
         # create worker nodes
@@ -17,13 +19,23 @@ class BaseFedarated(object):
         self.client_model = learner(*params['model_params'], self.inner_opt, self.seed)
         #initilzation of clients
         self.clients = self.setup_clients(dataset, self.client_model)
+        self.N_clients = len(self.clients)
         print('{} Clients in Total'.format(len(self.clients)))
         self.latest_model = self.client_model.get_params()
 
         # initialize system metrics
         self.metrics = Metrics(self.clients, params)
         self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc = [], [], []
-
+        self.root_data_test = []  # generalization of group test accuracy
+        self.root_data_train = []  # specialization of group train accuracy
+        self.cs_data_test = np.zeros((self.num_rounds, self.N_clients))
+        self.cs_data_train = np.zeros((self.num_rounds, self.N_clients))
+        self.cg_data_test = np.zeros((self.num_rounds, self.N_clients))
+        self.cg_data_train = np.zeros((self.num_rounds, self.N_clients))
+        self.g_data_test = []  # avg generalization client accuracy test
+        self.g_data_train = []  # avg generalization client accuracy train
+        self.s_data_test = []  # avg specialization client test accuracy
+        self.s_data_train = []  # avg specialization client train accuracy
     def __del__(self):
         self.client_model.close()
 
@@ -187,7 +199,10 @@ class BaseFedarated(object):
             tot_correct.append(ct * 1.0)
             num_samples.append(ns)
             clients_acc.append(ct/ns)
-
+        if (mode == "spe"):
+            self.cs_data_test[i, :] = clients_acc
+        else:
+            self.cg_data_test[i, :] = clients_acc
         # print("Testing Acc Client:", clients_acc )
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
@@ -224,7 +239,10 @@ class BaseFedarated(object):
             num_samples.append(ns)
             losses.append(cl*1.0)
             clients_acc.append(ct / ns)
-
+        if (mode == "spe"):
+            self.cs_data_train[i, :] = clients_acc
+        else:
+            self.cg_data_train[i, :] = clients_acc
         # print("Training Acc Client:", clients_acc)
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
@@ -237,17 +255,28 @@ class BaseFedarated(object):
         stats_train = self.c_train_error_and_loss(i,mode)
         # self.metrics.accuracies.append(stats)
         # self.metrics.train_accuracies.append(stats_train)
-        tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
-        tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
+        # tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
+        # tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
         # tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
         #     stats_train[2])))
+        test_acr = np.sum(stats[3]) * 1.0 / np.sum(stats[2])
+        train_acr = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
+        tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, test_acr))
+        tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, train_acr))
+        # tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
+        #     stats_train[2])))
+        return test_acr, train_acr
 
     def evaluating_global(self,i):
         stats = self.test()
         stats_train = self.train_error_and_loss()
         self.metrics.accuracies.append(stats)
         self.metrics.train_accuracies.append(stats_train)
-        tqdm.write('At round {} global testing accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))
-        tqdm.write('At round {} global training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
+        gl_test = np.sum(stats[3])*1.0/np.sum(stats[2])
+        gl_train = np.sum(stats_train[3])*1.0/np.sum(stats_train[2])
+        self.root_data_test.append(gl_test)
+        self.root_data_train.append(gl_train)
+        tqdm.write('At round {} global testing accuracy: {}'.format(i, gl_test))
+        tqdm.write('At round {} global training accuracy: {}'.format(i, gl_train))
         tqdm.write('At round {} global training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
 

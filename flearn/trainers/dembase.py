@@ -44,9 +44,11 @@ class DemBase(object):
         self.g_data_train = [] # avg generalization client accuracy train
         self.s_data_test = []   # avg specialization client test accuracy 
         self.s_data_train = [] # avg specialization client train accuracy
-        self.gs_data_test = []  # specialization of group test accuracy 
+        self.gs_data_test = []  # specialization of group test accuracy
+        self.gs_data_test.append(np.zeros(K_Levels+1 ))
         self.gg_data_test = [] # generalization of group test accuracy
         self.gs_data_train = []  # specialization of group train accuracy
+        self.gs_data_train.append(np.zeros(K_Levels + 1))
         self.gg_data_train = []  # generalization of group train accuracy
         self.cs_data_test = np.zeros((self.num_rounds, self.N_clients))
         self.cs_data_train = np.zeros((self.num_rounds, self.N_clients))
