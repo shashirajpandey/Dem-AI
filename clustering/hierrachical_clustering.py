@@ -182,23 +182,19 @@ def plot_dendrogram(rs_linkage_matrix):
 
 
 def tree_construction(model, Clients):
-    K_Levels = 3
-    N_clients = 20
-    Weight_dimension = 10
     # rs_dendrogram = dendrogram(rs_linkage_matrix, truncate_mode='level', p=1)
-
     plot_dendrogram(cal_linkage_matrix(model)[1])
     cluster_heads = model.children_[-1]
     # print(cluster_heads)
     Root = Node(_id="Root", parent=None, level=K_Levels+1)
     Child1 = Node(_id=cluster_heads[0], parent=Root, level=K_Levels)
     Child2 = Node(_id=cluster_heads[1], parent=Root, level=K_Levels)
-    if (cluster_heads[0] <= N_clients):
+    if (cluster_heads[0] < N_clients):
         Child1 = Clients[cluster_heads[0]]
         Child1.parent = Root
     else:
         create_nodes(model, Child1, Clients)
-    if (cluster_heads[1] <= N_clients):
+    if (cluster_heads[1] < N_clients):
         Child2 = Clients[cluster_heads[1]]
         Child2.parent = Root
     else:

@@ -31,7 +31,11 @@ class Server(DemBase):
                 # ============= Test root =============
                 if(i>0):
                     tqdm.write('============= Test Group Models ============= ')
+                    # self.TreeRoot.print_structure()
                     self.evaluating_groups(self.TreeRoot,i)
+                    print("Avg. Testing performance for each level:", self.test_accs/ self.count_grs)
+                    print("Avg. Training performance for each level:",self.train_accs/self.count_grs)
+
 
 
                 # self.rs_glob_acc.append(np.sum(stats[3])*1.0/np.sum(stats[2]))

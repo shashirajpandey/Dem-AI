@@ -102,7 +102,7 @@ class Node(object):
                 c.print_structure()
 
     def __repr__(self):
-        return "id: %s, type: %s, parent: %s;\n" % (self._id, self._type, self.parent)
+        return "id: %s, lv: %s, type: %s, parent: %s;" % (self._id, self.level, self._type, self.parent)
 
 
 # class Tree(object):

@@ -36,7 +36,9 @@ class DemBase(object):
         # initialize system metrics
         self.metrics = Metrics(self.clients, params)
         self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc = [], [], []
-
+        self.test_accs = np.zeros(K_Levels+1)
+        self.train_accs = np.zeros(K_Levels+1)
+        self.count_grs = np.zeros(K_Levels+1)
 
 
     def __del__(self):
@@ -228,24 +230,36 @@ class DemBase(object):
         self.metrics.train_accuracies.append(stats_train)
         tqdm.write('At round {} testing accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
         tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
-        tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
-            stats_train[2])))
+        # tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
+        #     stats_train[2])))
 
     def evaluating_groups(self,gr,i):
-        tqdm.write('---- Test Group {} ----'.format( gr._id ))
+        tqdm.write('---- Test Group {} at level {} ----'.format( gr._id, gr.level ))
+        if(gr.parent == "Empty"):
+            self.test_accs = np.zeros(K_Levels + 1)
+            self.train_accs = np.zeros(K_Levels + 1)
+            self.count_grs = np.zeros(K_Levels + 1)
+
         stats = self.g_test(gr)
         stats_train = self.g_train_error_and_loss(gr)
         self.metrics.accuracies.append(stats)
         self.metrics.train_accuracies.append(stats_train)
-        tqdm.write('At round {} testing accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
-        tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
-        tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
-            stats_train[2])))
+        test_acc =  np.sum(stats[3]) * 1.0 / np.sum(stats[2])
+        train_acc = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
+        tqdm.write('At round {} testing accuracy: {}'.format(i, test_acc))
+        tqdm.write('At round {} training accuracy: {}'.format(i, train_acc))
+        # tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
+        #     stats_train[2])))
+
+        self.train_accs[gr.level-1] += train_acc
+        self.test_accs[gr.level-1]  += test_acc
+        self.count_grs[gr.level-1]  += 1
 
         if (gr.childs):
             for c in gr.childs:
                 if(c._type.upper()=="GROUP"):
                     self.evaluating_groups(c,i)
+
 
     def show_grads(self):
         '''
