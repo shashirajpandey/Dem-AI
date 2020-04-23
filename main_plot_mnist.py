@@ -115,8 +115,8 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
             'flearn', 'models', parsed['dataset'], parsed['model'])
 
     # mod = importlib.import_module(model_path)
-    # import flearn.models.mnist.cnn as mclr
-    import flearn.models.mnist.mclr as mclr
+    import flearn.models.mnist.cnn as mclr
+    # import flearn.models.mnist.mclr as mclr
     mod = mclr
     learner = getattr(mod, 'Model')
 
@@ -169,7 +169,7 @@ if __name__ == '__main__':
     batch_size = [20,20,50,50,0,0,0,0]
     DATA_SET = "mnist"
     number_users = 20 #100
-    number_global_iters = 20
+    number_global_iters = 100
     #
     # for i in range(len(algorithms_list)):
     #     main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],
