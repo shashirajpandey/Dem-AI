@@ -36,16 +36,8 @@ class Server(DemBase):
 
                 # ============= Test root =============
                 if(i>0):
-                    stats = self.g_test(self.TreeRoot)
-                    stats_train = self.g_train_error_and_loss(self.TreeRoot)
-                    self.metrics.accuracies.append(stats)
-                    self.metrics.train_accuracies.append(stats_train)
-                    tqdm.write('============= Test each client ============= ')
-                    tqdm.write('At round {} testing accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))
-                    tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
-                    tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
-
-
+                    tqdm.write('============= Test Groups ============= ')
+                    self.evaluating_groups(self.TreeRoot,i)
 
 
                 # self.rs_glob_acc.append(np.sum(stats[3])*1.0/np.sum(stats[2]))

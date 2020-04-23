@@ -227,6 +227,22 @@ class DemBase(object):
         groups = [c.group for c in self.clients]
         return ids, groups, num_samples, tot_correct
 
+    def evaluating_groups(self,gr,i):
+        tqdm.write('---- Test Group {} ----'.format( gr._id ))
+        stats = self.g_test(gr)
+        stats_train = self.g_train_error_and_loss(gr)
+        self.metrics.accuracies.append(stats)
+        self.metrics.train_accuracies.append(stats_train)
+        tqdm.write('At round {} testing accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
+        tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
+        tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
+            stats_train[2])))
+
+        if (gr.childs):
+            for c in gr.childs:
+                if(c._type.upper()=="GROUP"):
+                    self.evaluating_groups(c,i)
+
     def c_test(self, i ):
         '''tests self.latest_model on given clients
         '''
@@ -240,7 +256,7 @@ class DemBase(object):
             ct, ns = c.test()
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
-            print("Acc Client",c.id,":",ct/ns)
+            # print("Acc Client",c.id,":",ct/ns)
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
         return ids, groups, num_samples, tot_correct
