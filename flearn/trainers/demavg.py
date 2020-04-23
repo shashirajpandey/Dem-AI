@@ -188,22 +188,29 @@ class Server(DemBase):
 
         plt.figure(7)
         plt.clf()
-        print(self.client_data_test)
-        print("-----------------------------||----------------")
+
+
         # plt.plot(np.transpose(self.client_data_test))
         # for i in self.client_data_test:
-        #     plt.plot(i)
-        plt.plot(self.client_data_test)
+        # #     plt.plot(i)
+        # for cl in self.client_data_test:
+        #     print(cl)
+        tt = np.asarray(self.client_data_test)
+        for i in range(self.N_clients):
+            plt.plot(tt[:,i])
         plt.grid()
         plt.title("client test")
 
-
+        print("-----------------------------||----------------")
         plt.figure(8)
         plt.clf()
-        print(self.client_data_train)
-        plt.plot(self.client_data_train)
+        # print(self.client_data_train)
+        # plt.plot(self.client_data_train)
         # for i in self.client_data_train:
         #     plt.plot(i)
+        ttrain = np.asarray(self.client_data_train)
+        for i in range(self.N_clients):
+            plt.plot(ttrain[:, i])
         plt.grid()
         plt.title("client train")
 

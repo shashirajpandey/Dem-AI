@@ -48,9 +48,9 @@ class DemBase(object):
         self.gg_data_test = []
         self.gs_data_train = []
         self.gg_data_train = []
-        self.client_data_test =   np.zeros((self.num_rounds, self.N_clients))
+        self.client_data_test =  [] # np.zeros((self.num_rounds, self.N_clients))
         print("num of round", self.num_rounds )
-        self.client_data_train = np.zeros((self.num_rounds, self.N_clients))
+        self.client_data_train =  [] #np.zeros((self.num_rounds, self.N_clients))
 
 
     def __del__(self):
@@ -203,7 +203,7 @@ class DemBase(object):
         clients_acc = []
 
         if (i == 0): self.client_model.set_params(self.latest_model)  # update parameter of local model initially to the shared tf.graph
-        j = 0
+
         for c in self.clients:
             if (i > 0):  ## reassign to the tf.graph for testing independently to the shared tf.graph
                 self.client_model.set_params(c.gmodel)
@@ -216,13 +216,13 @@ class DemBase(object):
             num_samples.append(ns)
             losses.append(cl*1.0)
             clients_acc.append(ct / ns)
-            self.client_data_train[i,j] = ct / ns
-            j+=1
+            # self.client_data_train[i,j] = ct / ns
+
 
         # print("Training Acc Client:", clients_acc)
         # self.client_data_train[i][:] = clients_acc
 
-        # self.client_data_train.append(clients_acc)
+        self.client_data_train.append(clients_acc)
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
 
@@ -263,7 +263,8 @@ class DemBase(object):
 
         return np.sum(tot_correct), np.sum(num_samples)
 
-    def c_test(self, i , mode="spe"): # mode spe: specialization, gen: generalization
+    def c_test(self, i , mode="spe"):
+        print("called c_test")# mode spe: specialization, gen: generalization
         '''tests self.latest_model on given clients
         '''
         num_samples = []
@@ -286,8 +287,8 @@ class DemBase(object):
             clients_acc.append(ct/ns)
 
         print("Testing Acc Client:", clients_acc )
-        self.client_data_test [i][:]= clients_acc[:]
-        # self.client_data_test.append(clients_acc)
+        # self.client_data_test [i][:]= clients_acc[:]
+        self.client_data_test.append(clients_acc)
 
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
