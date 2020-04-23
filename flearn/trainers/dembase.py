@@ -21,7 +21,7 @@ class DemBase(object):
         self.client_model = learner(*params['model_params'], self.inner_opt, self.seed)
         #initilzation of clients
         self.Weight_dimension = 10
-        self.model_shape = None
+
         self.clients = self.setup_clients(dataset, self.client_model)
         self.N_clients = len(self.clients)
         self.TreeRoot = None
@@ -31,7 +31,8 @@ class DemBase(object):
 
         print('{} Clients in Total'.format(len(self.clients)))
         self.latest_model = self.client_model.get_params()
-
+        self.model_shape = (self.latest_model[0].shape,self.latest_model[1].shape) #weight, bias dimension
+        print("Model Shape:", self.model_shape)
         # initialize system metrics
         self.metrics = Metrics(self.clients, params)
         self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc = [], [], []
@@ -66,6 +67,22 @@ class DemBase(object):
         self.Weight_dimension = len(w_list[0])
         return w_list
 
+    def run_clustering(self):
+        p_list =[]
+        for c in self.clients:
+            # print("Weight:", w[1][0])
+            # print("Bias:", w[1][1])
+            if(self.Hierrchical_Method == "Weight"):
+                p_list.append( np.concatenate( (c.gmodel[0].flatten(),c.gmodel[1]), axis=0)   )
+            else:
+                p_list.append(np.concatenate((c.grad[0].flatten(), c.grad[1]), axis=0))
+
+        self.Weight_dimension = len(p_list[0])
+        if (self.Hierrchical_Method == "Weight"):
+            return weight_clustering(p_list)
+        else:
+            return gradient_clustering(p_list)
+
     # def create_g_matrix(self,cgrads):
     #     g_list =[]
     #     self.model_shape = (cgrads[0][0].shape,cgrads[0][1].shape)  #weight, bias dimension
@@ -83,7 +100,10 @@ class DemBase(object):
         # print("Node id:", node._id, node._type)
         childs = node.childs
         if childs:
-            node.numb_clients = node.count_clients()
+            # node.numb_clients = node.count_clients()
+            node.in_clients = node.collect_clients()
+            node.numb_clients = len(node.in_clients)
+            # print(node.numb_clients)
             # print(self.Weight_dimension)
             rs_w = np.zeros(self.model_shape[0])
             rs_b = np.zeros(self.model_shape[1])
@@ -113,30 +133,47 @@ class DemBase(object):
         return (hmd[0]/nf, hmd[1]/nf) #normalized version
         # return client.get_hierrachical_info()
 
-    def hierrachical_clustering(self, csolns, cgrads):
-        if(self.Hierrchical_Method == "Weight"):
-            weights_matrix = self.create_matrix(csolns)
-            # weights_matrix = np.random.rand(self.N_clients, self.Weight_dimension)
-            model = weight_clustering(weights_matrix)
-        else:
-            gradient_matrix = self.create_matrix(cgrads)
-            # gradient_matrix = np.random.rand(N_clients, Weight_dimension)
-            model = gradient_clustering(gradient_matrix)
-
+    def hierrachical_clustering(self):
+        # if(self.Hierrchical_Method == "Weight"):
+        #     weights_matrix = self.create_matrix()
+        #
+        # else:
+        #     gradient_matrix = self.create_matrix()
+        #     # gradient_matrix = np.random.rand(N_clients, Weight_dimension)
+        #     model = gradient_clustering(gradient_matrix)
+        model = self.run_clustering()
         self.TreeRoot = tree_construction(model, self.clients)
         print("Number of agents in tree:", self.TreeRoot.count_clients())
         print("Number of agents in level K:", self.TreeRoot.childs[0].count_clients(), self.TreeRoot.childs[1].count_clients())
         # print("Number of agents Group 1 in level K-1:", root.childs[0].childs[0].count_clients(),
         #       root.childs[0].childs[1].count_clients())
 
-    def train_error_and_loss(self, i):
+    def g_train_error_and_loss(self, gr):
         num_samples = []
         tot_correct = []
         losses = []
 
-        if (i == 0): self.client_model.set_params(self.latest_model)  # update parameter of local model initially
+        self.client_model.set_params(gr.gmodel) #update parameter of group to tf.graph
+        # print("Clients in group:",self.gr.in_clients)
+        for c in gr.in_clients:
+            ct, cl, ns = c.train_error_and_loss()
+            tot_correct.append(ct * 1.0)
+            num_samples.append(ns)
+            losses.append(cl * 1.0)
+
+        ids = [c.id for c in self.clients]
+        groups = [c.group for c in self.clients]
+
+        return ids, groups, num_samples, tot_correct, losses
+
+    def c_train_error_and_loss(self, i):
+        num_samples = []
+        tot_correct = []
+        losses = []
+
+        if (i == 0): self.client_model.set_params(self.latest_model)  # update parameter of local model initially to the shared tf.graph
         for c in self.clients:
-            if(i>0): self.client_model.set_params(c.gmodel) ## reassign to the tf.graph for testing independently
+            if(i>0): c.model.set_params(c.gmodel) ## reassign to the tf.graph for testing independently to the shared tf.graph
 
             ct, cl, ns = c.train_error_and_loss() 
             tot_correct.append(ct*1.0)
@@ -173,17 +210,33 @@ class DemBase(object):
 
         return intermediate_grads
  
-  
-    def test(self, i ):
+    def g_test(self, gr ):
         '''tests self.latest_model on given clients
         '''
         num_samples = []
         tot_correct = []
         #no need to reassign client model
-        if(i==0): self.client_model.set_params(self.latest_model) # update parameter of local model initially
+        self.client_model.set_params(gr.gmodel) #update parameter of group to tf.graph
+        # print("Clients in group:",self.gr.in_clients)
+        for c in gr.in_clients:
+            ct, ns = c.test()
+            tot_correct.append(ct*1.0)
+            num_samples.append(ns)
+            # print("Acc Client",c.id,":",ct/ns)
+        ids = [c.id for c in self.clients]
+        groups = [c.group for c in self.clients]
+        return ids, groups, num_samples, tot_correct
+
+    def c_test(self, i ):
+        '''tests self.latest_model on given clients
+        '''
+        num_samples = []
+        tot_correct = []
+        #no need to reassign client model
+        if(i==0): self.client_model.set_params(self.latest_model) # update parameter of local model initially to the shared tf.graph
 
         for c in self.clients:
-            if(i>0): self.client_model.set_params(c.gmodel) ## reassign to the tf.graph for testing independently
+            if(i>0): self.client_model.set_params(c.gmodel) ## reassign to the tf.graph for testing independently to the shared tf.graph
             ct, ns = c.test()
             tot_correct.append(ct*1.0)
             num_samples.append(ns)

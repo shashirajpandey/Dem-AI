@@ -69,6 +69,7 @@ class DemClient(Node):
             self.train_data, num_epochs, batch_size)
         bytes_r=self.model.size
         self.gmodel = soln # Store Local model otherwise it was replaced by other clients. All clients share a graph
+        self.grad = grad
         return (self.num_samples, soln), (self.num_samples,grad), (bytes_w, comp, bytes_r)
 
     def train_error_and_loss(self):

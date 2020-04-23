@@ -24,13 +24,29 @@ class Server(DemBase):
         for i in range(self.num_rounds):
             # test model
             if i % self.eval_every == 0:
-                stats = self.test(i)
-                stats_train = self.train_error_and_loss(i)
+                # ============= Test each client =============
+                stats = self.c_test(i)
+                stats_train = self.c_train_error_and_loss(i)
                 self.metrics.accuracies.append(stats)
                 self.metrics.train_accuracies.append(stats_train)
-                tqdm.write('At round {} average accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))
+                tqdm.write('============= Test each client ============= ')
+                tqdm.write('At round {} testing accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))
                 tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
                 tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
+
+                # ============= Test root =============
+                if(i>0):
+                    stats = self.g_test(self.TreeRoot)
+                    stats_train = self.g_train_error_and_loss(self.TreeRoot)
+                    self.metrics.accuracies.append(stats)
+                    self.metrics.train_accuracies.append(stats_train)
+                    tqdm.write('============= Test each client ============= ')
+                    tqdm.write('At round {} testing accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))
+                    tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
+                    tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
+
+
+
 
                 # self.rs_glob_acc.append(np.sum(stats[3])*1.0/np.sum(stats[2]))
                 # self.rs_train_acc.append(np.sum(stats_train[3])*1.0/np.sum(stats_train[2]))
@@ -71,7 +87,7 @@ class Server(DemBase):
 
                 if(i==0):
                     c.set_params(self.latest_model)
-                elif(i > 0):
+                else:
                     #Initialize the model of client based on hierrachical GK
                     # init_w = (1 - self.beta)*(c.model.get_params()[0])
                     # init_b = (1 - self.beta)*(c.model.get_params()[1])
@@ -93,44 +109,47 @@ class Server(DemBase):
 
 
                 # solve minimization locally
-                soln, grads, stats  = c.solve_inner(
-                    self.optimizer, num_epochs=self.num_epochs, batch_size=self.batch_size)  #Local round
+                # soln, grads, stats  = c.solve_inner(
+                #     self.optimizer, num_epochs=self.num_epochs, batch_size=self.batch_size)  #Local round
+                #
+                # # gather solutions from client
+                # csolns.append(soln)
+                # cgrads.append(grads)
 
-                # gather solutions from client
-                csolns.append(soln)
-                cgrads.append(grads)
+                _, _, stats = c.solve_inner(
+                    self.optimizer, num_epochs=self.num_epochs, batch_size=self.batch_size)  # Local round
 
                 # track communication cost
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
-            print("First Client model:", np.sum(csolns[0][1][0]), np.sum(csolns[0][1][1]))
+            # print("First Client model:", np.sum(csolns[0][1][0]), np.sum(csolns[0][1][1]))
             if (i % 2 == 0):
                 print("DEM-AI --------->>>>> Clustering")
-                self.hierrachical_clustering(csolns,cgrads)
+                self.hierrachical_clustering()
                 print("DEM-AI --------->>>>> Hard Update generalized model")
                 self.update_generalized_model(self.TreeRoot) #hard update
-                print("Root Model:", np.sum(self.TreeRoot.gmodel[0]),np.sum(self.TreeRoot.gmodel[1]))
+                # print("Root Model:", np.sum(self.TreeRoot.gmodel[0]),np.sum(self.TreeRoot.gmodel[1]))
             else:
                 # update model
                 # self.latest_model = self.aggregate(csolns,weighted=True)
                 print("DEM-AI --------->>>>> Soft Update generalized model")
                 self.update_generalized_model(self.TreeRoot,mode="soft") #soft update
-                print("Root Model:", np.sum(self.TreeRoot.gmodel[0]),np.sum(self.TreeRoot.gmodel[1]))
+                # print("Root Model:", np.sum(self.TreeRoot.gmodel[0]),np.sum(self.TreeRoot.gmodel[1]))
 
-        # final test model
-        stats = self.test()
-        # stats_train = self.train_error()
-        # stats_loss = self.train_loss()
-        stats_train = self.train_error_and_loss()
-
-        self.metrics.accuracies.append(stats)
-        self.metrics.train_accuracies.append(stats_train)
-        tqdm.write('At round {} accuracy: {}'.format(self.num_rounds, np.sum(stats[3])*1.0/np.sum(stats[2])))
-        tqdm.write('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
-        # save server model
-        self.metrics.write()
-        #self.save()
-        self.save(learning_rate=self.parameters["learning_rate"])
-
-        print("Test ACC:", self.rs_glob_acc)
-        print("Training ACC:", self.rs_train_acc)
-        print("Training Loss:", self.rs_train_loss)
+        # # final test model
+        # stats = self.test()
+        # # stats_train = self.train_error()
+        # # stats_loss = self.train_loss()
+        # stats_train = self.train_error_and_loss()
+        #
+        # self.metrics.accuracies.append(stats)
+        # self.metrics.train_accuracies.append(stats_train)
+        # tqdm.write('At round {} accuracy: {}'.format(self.num_rounds, np.sum(stats[3])*1.0/np.sum(stats[2])))
+        # tqdm.write('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
+        # # save server model
+        # self.metrics.write()
+        # #self.save()
+        # self.save(learning_rate=self.parameters["learning_rate"])
+        #
+        # print("Test ACC:", self.rs_glob_acc)
+        # print("Training ACC:", self.rs_train_acc)
+        # print("Training Loss:", self.rs_train_loss)

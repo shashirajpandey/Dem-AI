@@ -4,9 +4,9 @@ import tensorflow as tf
 from tqdm import trange
 
 class Node(object):
-    __slots__ = ["_id", "_type", "parent", "data", "gmodel","grad", "childs", "level", "numb_clients"]
+    __slots__ = ["_id", "_type", "parent", "data", "gmodel","grad", "childs", "level", "numb_clients", "in_clients"]
 
-    def __init__(self, _id=None, _type="Group", parent=None, data=None, gmodel=None, grad= None, childs=None, level=None, numb_clients= None ):
+    def __init__(self, _id=None, _type="Group", parent=None, data=None, gmodel=None, grad= None, childs=None, level=None, numb_clients= None, in_clients=None ):
 
         self._type = _type
         self._id = _id
@@ -17,6 +17,7 @@ class Node(object):
         self.childs = childs or []
         self.level = level or 0
         self.numb_clients = numb_clients or 1
+        self.in_clients = in_clients or []
 
     def __getitem__(self, item):
         return getattr(self, item, 0)
@@ -68,50 +69,69 @@ class Node(object):
 
 
     def count_clients(self):
-        counts = 0
-        if self._type=="Client":
+        if self._type.upper()=="CLIENT":
             return 1
         elif self.level ==1:
             return len(self.childs)
         else:
+            counts = 0
             for c in self.childs:
                 counts += c.count_clients()
-        return counts
+            return counts
 
+    def collect_clients(self):
+        # print("Node:",self._id)
+        if self._type.upper() == "CLIENT":
+            return None
+        elif self.level==1:
+            return self.childs
+        else:
+            rs = []
+            for c in self.childs:
+                tmp = c.collect_clients()
+                if(tmp):  #Not None => subgroup
+                    rs += tmp
+                else:  #None =>c is a leave
+                    rs.append(c)
+            return rs
 
-
+    def print_structure(self):
+        print(self)
+        if self.childs:
+            for c in self.childs:
+                c.print_structure()
 
     def __repr__(self):
         return "id: %s, type: %s, parent: %s;\n" % (self._id, self._type, self.parent)
 
 
-class Tree(object):
-    __slots__ = ["elements", "nums", "levels"]
-
-    def __init__(self, nums=None, elements=None, levels=None):
-        self.nums = nums
-        self.elements = elements
-        self.levels = levels
-
-    def __getitem__(self, item):
-        return getattr(self, item, 0)
-
-    def get_node(self, _id=None):
-        i = 0
-        while i < self.nums and self.elements[i]["_id"] != _id:
-            i = i + 1
-        if i < self.nums:
-            return self.elements[i]
-        else:
-            return None
-
-
-class Level(object):
-    __slots__ = ["num_level", "members"]
-
-    def __init__(self, num_level=None, members=None):
-        self.num_level = num_level  # number of levels
-        self.members = members  # number of clients
+# class Tree(object):
+#     __slots__ = ["elements", "nums", "levels"]
+#
+#     def __init__(self, nums=None, elements=None, levels=None):
+#         self.nums = nums
+#         self.elements = elements
+#         self.levels = levels
+#
+#     def __getitem__(self, item):
+#         return getattr(self, item, 0)
+#
+#     def get_node(self, _id=None):
+#         i = 0
+#         while i < self.nums and self.elements[i]["_id"] != _id:
+#             i = i + 1
+#         if i < self.nums:
+#             return self.elements[i]
+#         else:
+#             return None
+#
+#
+# class Level(object):
+#     __slots__ = ["num_level", "members"]
+#
+#     def __init__(self, num_level=None, members=None):
+#         self.num_level = num_level  # number of levels
+#         self.members = members  # number of clients
 
 
 def t_generalized_update(node,mode="hard"):
