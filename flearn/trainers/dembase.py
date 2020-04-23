@@ -184,31 +184,6 @@ class DemBase(object):
         groups = [c.group for c in self.clients]
 
         return ids, groups, num_samples, tot_correct, losses
-
-
-    def show_grads(self):  
-        '''
-        Return:
-            gradients on all workers and the global gradient
-        '''
-
-        model_len = process_grad(self.latest_model).size
-        global_grads = np.zeros(model_len)  
-
-        intermediate_grads = []
-        samples=[]
-
-        self.client_model.set_params(self.latest_model)
-        for c in self.clients:
-            num_samples, client_grads = c.get_grads(self.latest_model) 
-            samples.append(num_samples)
-            global_grads = np.add(global_grads, client_grads * num_samples)
-            intermediate_grads.append(client_grads)
-
-        global_grads = global_grads * 1.0 / np.sum(np.asarray(samples)) 
-        intermediate_grads.append(global_grads)
-
-        return intermediate_grads
  
     def g_test(self, gr ):
         '''tests self.latest_model on given clients
@@ -226,6 +201,25 @@ class DemBase(object):
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
         return ids, groups, num_samples, tot_correct
+
+    def c_test(self, i ):
+        '''tests self.latest_model on given clients
+        '''
+        num_samples = []
+        tot_correct = []
+        #no need to reassign client model
+        if(i==0): self.client_model.set_params(self.latest_model) # update parameter of local model initially to the shared tf.graph
+
+        for c in self.clients:
+            if(i>0): self.client_model.set_params(c.gmodel) ## reassign to the tf.graph for testing independently to the shared tf.graph
+            ct, ns = c.test()
+            tot_correct.append(ct*1.0)
+            num_samples.append(ns)
+            # print("Acc Client",c.id,":",ct/ns)
+        ids = [c.id for c in self.clients]
+        groups = [c.group for c in self.clients]
+        return ids, groups, num_samples, tot_correct
+
 
     def evaluating_clients(self, i):
         stats = self.c_test(i)
@@ -253,23 +247,29 @@ class DemBase(object):
                 if(c._type.upper()=="GROUP"):
                     self.evaluating_groups(c,i)
 
-    def c_test(self, i ):
-        '''tests self.latest_model on given clients
+    def show_grads(self):
         '''
-        num_samples = []
-        tot_correct = []
-        #no need to reassign client model
-        if(i==0): self.client_model.set_params(self.latest_model) # update parameter of local model initially to the shared tf.graph
+        Return:
+            gradients on all workers and the global gradient
+        '''
 
+        model_len = process_grad(self.latest_model).size
+        global_grads = np.zeros(model_len)
+
+        intermediate_grads = []
+        samples=[]
+
+        self.client_model.set_params(self.latest_model)
         for c in self.clients:
-            if(i>0): self.client_model.set_params(c.gmodel) ## reassign to the tf.graph for testing independently to the shared tf.graph
-            ct, ns = c.test()
-            tot_correct.append(ct*1.0)
-            num_samples.append(ns)
-            # print("Acc Client",c.id,":",ct/ns)
-        ids = [c.id for c in self.clients]
-        groups = [c.group for c in self.clients]
-        return ids, groups, num_samples, tot_correct
+            num_samples, client_grads = c.get_grads(self.latest_model)
+            samples.append(num_samples)
+            global_grads = np.add(global_grads, client_grads * num_samples)
+            intermediate_grads.append(client_grads)
+
+        global_grads = global_grads * 1.0 / np.sum(np.asarray(samples))
+        intermediate_grads.append(global_grads)
+
+        return intermediate_grads
 
     def save(self, prox=False, lamb=0, learning_rate=0, data_set="", num_users=0, batch=0):
         alg = data_set + self.parameters['optimizer']
