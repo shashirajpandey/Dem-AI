@@ -172,21 +172,39 @@ class DemBase(object):
 
         return ids, groups, num_samples, tot_correct, losses
 
+    def gc_train_error_and_loss(self):
+        num_samples = []
+        tot_correct = []
+
+        for c in self.clients:
+            ct, cl, ns = c.train_error_and_loss()
+            tot_correct.append(ct*1.0)
+            num_samples.append(ns)
+
+        return np.sum(tot_correct), np.sum(tot_correct), np.sum(num_samples)
+
+
     def c_train_error_and_loss(self, i, mode="spe"): # mode spe: specialization, gen: generalization
         num_samples = []
         tot_correct = []
         losses = []
+        clients_acc = []
 
         if (i == 0): self.client_model.set_params(self.latest_model)  # update parameter of local model initially to the shared tf.graph
         for c in self.clients:
-            if(i>0 and mode=="spe"):
-                c.model.set_params(c.gmodel) ## reassign to the tf.graph for testing independently to the shared tf.graph
+            if (i > 0):  ## reassign to the tf.graph for testing independently to the shared tf.graph
+                self.client_model.set_params(c.gmodel)
+            if (mode == "spe"):
+                ct, cl, ns = c.train_error_and_loss()
+            else:
+                ct, cl, ns = self.gc_train_error_and_loss()  # Test client as testing group approach in gen mode
 
-            ct, cl, ns = c.train_error_and_loss() 
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
             losses.append(cl*1.0)
-        
+            clients_acc.append(ct / ns)
+
+        # print("Training Acc Client:", clients_acc)
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
 
@@ -197,8 +215,8 @@ class DemBase(object):
         '''
         num_samples = []
         tot_correct = []
-        #no need to reassign client model
-        self.client_model.set_params(gr.gmodel) #update parameter of group to tf.graph
+
+        self.client_model.set_params(gr.gmodel)  # update parameter of group to tf.graph
         # print("Clients in group:",self.gr.in_clients)
         if(mode =="spe"):
             validating_clients = gr.in_clients
@@ -209,26 +227,47 @@ class DemBase(object):
             ct, ns = c.test()
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
-            # print("Acc Client",c.id,":",ct/ns)
+
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
+
         return ids, groups, num_samples, tot_correct
+
+
+    def gc_test(self):
+        num_samples = []
+        tot_correct = []
+
+        for c in self.clients:
+            ct, ns = c.test()
+            tot_correct.append(ct*1.0)
+            num_samples.append(ns)
+
+        return np.sum(tot_correct), np.sum(num_samples)
 
     def c_test(self, i , mode="spe"): # mode spe: specialization, gen: generalization
         '''tests self.latest_model on given clients
         '''
         num_samples = []
         tot_correct = []
+        clients_acc = []
+
         #no need to reassign client model
         if(i==0): self.client_model.set_params(self.latest_model) # update parameter of local model initially to the shared tf.graph
 
         for c in self.clients:
-            if(i>0 and mode=="spe"):
-                self.client_model.set_params(c.gmodel) ## reassign to the tf.graph for testing independently to the shared tf.graph
-            ct, ns = c.test()
-            tot_correct.append(ct*1.0)
+            if (i > 0): ## reassign to the tf.graph for testing independently to the shared tf.graph
+                self.client_model.set_params(c.gmodel)
+            if(mode=="spe"):
+                ct, ns = c.test()
+            else:
+                ct, ns = self.gc_test()  #Test client as testing group approach in gen mode
+
+            tot_correct.append(ct * 1.0)
             num_samples.append(ns)
-            # print("Acc Client",c.id,":",ct/ns)
+            clients_acc.append(ct/ns)
+
+        # print("Testing Acc Client:", clients_acc )
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
         return ids, groups, num_samples, tot_correct
@@ -239,8 +278,8 @@ class DemBase(object):
         stats_train = self.c_train_error_and_loss(i,mode)
         # self.metrics.accuracies.append(stats)
         # self.metrics.train_accuracies.append(stats_train)
-        tqdm.write('At round {} testing accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
-        tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
+        tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
+        tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
         # tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
         #     stats_train[2])))
 
@@ -271,6 +310,11 @@ class DemBase(object):
             for c in gr.childs:
                 if(c._type.upper()=="GROUP"):
                     self.evaluating_groups(c,i, mode)
+
+
+
+
+
 
 
     def show_grads(self):

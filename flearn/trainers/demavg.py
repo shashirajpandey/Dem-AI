@@ -35,12 +35,12 @@ class Server(DemBase):
                     tqdm.write('============= Test Group Models - Specialization ============= ')
                     # self.TreeRoot.print_structure()
                     self.evaluating_groups(self.TreeRoot,i,mode="spe")
-                    print("Avg. Testing performance for each level:", self.test_accs / self.count_grs)
-                    print("Avg. Training performance for each level:", self.train_accs / self.count_grs)
-                    tqdm.write('============= Test Client Models - Generalization ============= ')
+                    print("AvgG. Testing performance for each level:", self.test_accs / self.count_grs)
+                    print("AvgG. Training performance for each level:", self.train_accs / self.count_grs)
+                    tqdm.write('============= Test Group Models - Generalization ============= ')
                     self.evaluating_groups(self.TreeRoot, i, mode="gen")
-                    print("Avg. Testing performance for each level:", self.test_accs/ self.count_grs)
-                    print("Avg. Training performance for each level:",self.train_accs/self.count_grs)
+                    print("AvgG. Testing performance for each level:", self.test_accs/ self.count_grs)
+                    print("AvgG. Training performance for each level:",self.train_accs/self.count_grs)
 
 
 
