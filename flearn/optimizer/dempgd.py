@@ -11,14 +11,13 @@ class DemPerturbedGradientDescent(optimizer.Optimizer):
     def __init__(self, learning_rate=0.001, mu=0.01, use_locking=False, name="DemPGD"):
         super(DemPerturbedGradientDescent, self).__init__(use_locking, name)
         self._lr = learning_rate
-        self._beta = mu        # Tensor versions of the constructor arguments, created in _prepare().
+        self._mu = mu        # Tensor versions of the constructor arguments, created in _prepare().
         self._lr_t = None
-        self._beta_t = None
-        self. pre_factors = None
+        self._mu_t = None
 
     def _prepare(self):
         self._lr_t = ops.convert_to_tensor(self._lr, name="learning_rate")
-        self._beta_t = ops.convert_to_tensor(self._beta, name="prox_beta")
+        self._mu_t = ops.convert_to_tensor(self._mu, name="prox_mu")
 
     def _create_slots(self, var_list):
         # Create slots for the global solution.
@@ -27,13 +26,12 @@ class DemPerturbedGradientDescent(optimizer.Optimizer):
 
     def _apply_dense(self, grad, var):
         lr_t = math_ops.cast(self._lr_t, var.dtype.base_dtype)
-        beta_t = math_ops.cast(self._beta_t, var.dtype.base_dtype)
-        # vstar = self.get_slot(var, "vstar")
+        mu_t = math_ops.cast(self._mu_t, var.dtype.base_dtype)
+        vstar = self.get_slot(var, "vstar")
         # var_update = state_ops.assign_sub(var, lr_t*(grad + beta_t*(var-vstar)))  # Gradient update here:  w^{t+1}= w^{t} - lr *(grad + beta*(w^{t} - w^{0}))
 
-        #Retrieve a pre-calculated pairs =(sum 1/N_k, sum 1/N_k * w_k)] from all fathers
-        sum_Nk, sum_w_Nk = self.pre_factors
-        var_update = state_ops.assign_sub(var, lr_t*(grad + 2*beta_t*(sum_Nk*var-sum_w_Nk)))  # Gradient update here:  w^{t+1}= w^{t} - lr *(grad + 2beta*(sum_Nk*w^{t} - sum_w_Nk{k=1..K})))
+        # Gradient update here:  w^{t+1}= w^{t} - lr *(grad + 2beta*(sum_Nk*w^{t} - sum_w_Nk{k=1..K})))
+        var_update = state_ops.assign_sub(var, lr_t*( grad + 2*mu_t*(var-vstar)))
 
 
         return control_flow_ops.group(*[var_update,])

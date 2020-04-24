@@ -26,8 +26,6 @@ class DemBase(object):
         self.clients = self.setup_clients(dataset, self.client_model)
         self.N_clients = len(self.clients)
         self.TreeRoot = None
-        self.gamma = 1.   #soft or hard update in hierrachical averaging
-        self.beta  = 1.
         self.Hierrchical_Method = "Weight" ### "Gradient" or "Weight"
 
         print('{} Clients in Total'.format(len(self.clients)))

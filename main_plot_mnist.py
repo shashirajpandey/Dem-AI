@@ -95,6 +95,7 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
                         help='Penalty value for proximal term;',
                         type=int,
                         default=lamb)
+
     try:
         parsed = vars(parser.parse_args())
     except IOError as msg:
@@ -115,15 +116,20 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
             'flearn', 'models', parsed['dataset'], parsed['model'])
 
     # mod = importlib.import_module(model_path)
-    import flearn.models.mnist.cnn as mclr
-    # import flearn.models.mnist.mclr as mclr
+    # import flearn.models.mnist.cnn as mclr
+    import flearn.models.mnist.mclr as mclr
     mod = mclr
-    learner = getattr(mod, 'Model')
+    learner_model = getattr(mod, 'Model')
 
     # load selected trainer
-    opt_path = 'flearn.trainers.%s' % parsed['optimizer']
+    alg = parsed['optimizer']
+    if (alg== "demprox"):
+        alg = "demavg"
+    opt_path = 'flearn.trainers.%s' % alg
+
+
     mod = importlib.import_module(opt_path)
-    optimizer = getattr(mod, 'Server')
+    trainer = getattr(mod, 'Server')
 
     # add selected model parameter
     parsed['model_params'] = MODEL_PARAMS['.'.join(
@@ -137,7 +143,7 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
     for keyPair in sorted(parsed.items()):
         print(fmtString % keyPair)
 
-    return parsed, learner, optimizer
+    return parsed, learner_model, trainer
 
 
 def main(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01,hyper_learning_rate= 0.01, alg='fedprox', weight=True, batch_size=0, dataset="mnist"):
@@ -145,7 +151,7 @@ def main(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01
     tf.logging.set_verbosity(tf.logging.WARN)
 
     # parse command line arguments
-    options, learner, optimizer = read_options(
+    options, learner_model, trainer = read_options(
         num_users, loc_ep, Numb_Glob_Iters, lamb, learning_rate,hyper_learning_rate, alg, weight, batch_size, dataset)
 
     # read data
@@ -154,13 +160,16 @@ def main(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01
     dataset = read_data(train_path, test_path)
 
     # call appropriate trainer
-    t = optimizer(options, learner, dataset)
+    t = trainer(options, learner_model, dataset)
     t.train()
 
 
 if __name__ == '__main__':
     algorithms_list = ["fedavg", "fedfedl", "fedsgd", "fedfedl", "fedsgd", "fedfedl", "fedsgd", "fedfedl", "fedfedl"]
-    # algorithms_list = ["demavg","fedfedl","fedsgd","fedfedl","fedsgd","fedfedl","fedsgd","fedfedl","fedfedl"]
+    # algorithms_list[0] = "fedavg"
+    # algorithms_list[0] = "demavg"
+    algorithms_list[0] = "demprox"
+
     lamb_value = [0, 0, 0, 0, 0, 0,0, 0, 0, 0]
     learning_rate = [0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01]
     hyper_learning_rate = [0.2,0,0.2,0,0.2,0,2,4]
@@ -169,7 +178,7 @@ if __name__ == '__main__':
     batch_size = [20,20,50,50,0,0,0,0]
     DATA_SET = "mnist"
     number_users = 20 #100
-    number_global_iters = 100
+    number_global_iters = 20
     #
     # for i in range(len(algorithms_list)):
     #     main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],

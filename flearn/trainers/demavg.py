@@ -8,21 +8,31 @@ from flearn.utils.DTree import  Node
 import matplotlib.pyplot as plt
 from clustering.Setting import *
 from clustering.Setting import *
+from ..optimizer.dempgd import DemPerturbedGradientDescent
+from ..optimizer.pgd import PerturbedGradientDescent
+
 
 class Server(DemBase):
     def __init__(self, params, learner, dataset):
-
-        print('Using Dem Average to Train')
-        if(params["lamb"] > 0):
-            self.inner_opt = PROXSGD(params['learning_rate'], params["lamb"])
-        else:
+        self.gamma = 1.  # soft or hard update in hierrachical averaging
+        self.beta = 1.
+        if(params['optimizer'] =="demavg"):
+            print('Using DemAvg to Train')
+            self.alg = "DEMAVG"
             self.inner_opt = tf.train.GradientDescentOptimizer(params['learning_rate'])
+        elif(params['optimizer'] =="demprox"):
+            self.mu = 0.2
+            print('Using DemProx to Train')
+            self.alg = "DEMPROX"
+            self.inner_opt = DemPerturbedGradientDescent(params['learning_rate'], mu=self.mu)
 
         super(Server, self).__init__(params, learner, dataset)
 
+
+
     def train(self):
         '''Train using Federated Averaging'''
-        print("Train using Dem Averaging")
+        print("Train using " + self.alg)
         print('Training with {} workers ---'.format(self.clients_per_round))
 
         # for i in trange(self.num_rounds, desc='Round: ', ncols=120):
@@ -101,14 +111,6 @@ class Server(DemBase):
                 if(i==0):
                     c.set_params(self.latest_model)
                 else:
-                    #Initialize the model of client based on hierrachical GK
-                    # init_w = (1 - self.beta)*(c.model.get_params()[0])
-                    # init_b = (1 - self.beta)*(c.model.get_params()[1])
-                    # hm = self.get_hierrachical_params(c)
-                    # # print(hm)
-                    # init_w += self.beta*hm[0]
-                    # init_b += self.beta*hm[1]
-
                     # Initialize the model of client based on hierrachical GK
                     init_w = (1 - self.beta)*(c.model.get_params()[0])
                     init_b = (1 - self.beta)*(c.model.get_params()[1])
@@ -172,7 +174,7 @@ class Server(DemBase):
 
     def display_results(self):
         print("DEM-AI --------->>>>> Plotting")
-        alg_name = "DEMAVG_"
+        alg_name = self.alg+"_"
         root_test = np.asarray(self.gs_data_test)[:,2]
         root_train = np.asarray(self.gs_data_train)[:,2]
         plt.clf()
