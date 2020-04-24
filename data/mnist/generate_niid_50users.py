@@ -8,7 +8,7 @@ import os
 random.seed(1)
 np.random.seed(1)
 NUM_USERS = 50
-NUM_LABELS = 3
+NUM_LABELS = 2
 # Setup directory for train/test data
 train_path = './data/train/mnist_train.json'
 test_path = './data/test/mnist_test.json'
@@ -54,14 +54,14 @@ for user in range(NUM_USERS):
         print("L:", l)
         X[user] += mnist_data[l][idx[l]:idx[l]+10].tolist()
         y[user] += (l*np.ones(10)).tolist()
-        idx[l] += 10
+        idx[l] += 5
 
 print("IDX1:", idx)  # counting samples for each labels
 
 # Assign remaining sample by power law
 user = 0
 props = np.random.lognormal(
-    0, 2., (10, NUM_USERS, NUM_LABELS))  # last 5 is 5 labels
+    0, 1., (10, NUM_USERS, NUM_LABELS))  # last 5 is 5 labels
 props = np.array([[[len(v)-1000]] for v in mnist_data]) * \
     props/np.sum(props, (1, 2), keepdims=True)
 # print("here:",props/np.sum(props,(1,2), keepdims=True))
@@ -74,11 +74,12 @@ for user in trange(NUM_USERS):
         # l = (2*user+j)%10
         l = (user + j) % 10     # round robin style to assign labels keep user_index in 10 base or 100 base
         num_samples = int(props[l, user//int(NUM_USERS/10), j])
-
-        numran1 = random.randint(10, 50)     # num_samples plus 50, 100, 200
-        numran2 = random.randint(1, 2)        # scale up num_samples to 2, 5, 10 times
-        # num_samples = (num_samples) * numran2 + numran1  #Scale up number of samples by factors of numran2, numran1
-        num_samples = num_samples  + numran1  # Scale up number of samples by factors of numran2, numran1
+        num_samples = int(num_samples * 0.45)  # Scale down number of samples
+        # print(num_samples)
+        # numran1 = random.randint(10, 50)     # num_samples plus 50, 100, 200
+        # numran2 = random.randint(1, 2)        # scale up num_samples to 2, 5, 10 times
+        # # num_samples = (num_samples) * numran2 + numran1  #Scale up number of samples by factors of numran2, numran1
+        # num_samples = num_samples  + numran1  # Scale up number of samples by factors of numran2, numran1
         if(NUM_USERS <= 10):
             num_samples = num_samples * 2
         # num_samples = int(props[l,user//int(NUM_USERS/10),j])
