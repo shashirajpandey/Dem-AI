@@ -8,7 +8,7 @@ import os
 import tensorflow as tf
 from flearn.utils.plot_utils import plot_summary_two_figures, plot_summary_one_figure2, plot_summary_three_figures, plot_summary_three_figures_batch, plot_summary_mnist, plot_summary_nist
 from flearn.utils.model_utils import read_data
-
+from clustering.Setting import *
 
 # GLOBAL PARAMETERS
 OPTIMIZERS = ['fedavg', 'fedprox', 'fedsgd', 'fedfedl']
@@ -116,9 +116,13 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
             'flearn', 'models', parsed['dataset'], parsed['model'])
 
     # mod = importlib.import_module(model_path)
-    # import flearn.models.mnist.cnn as mclr
-    import flearn.models.mnist.mclr as mclr
-    mod = mclr
+    if MODEL_TYPE == "cnn": #"cnn" or "mclr"
+        import flearn.models.mnist.cnn as cnn
+        mod = cnn
+    else:
+        import flearn.models.mnist.cnn as mclr
+        mod = mclr
+
     learner_model = getattr(mod, 'Model')
 
     # load selected trainer
@@ -178,7 +182,7 @@ if __name__ == '__main__':
     batch_size = [20,20,50,50,0,0,0,0]
     DATA_SET = "mnist"
     number_users = 20 #100
-    number_global_iters = 10
+    number_global_iters = 15
     #
     # for i in range(len(algorithms_list)):
     #     main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],

@@ -16,7 +16,7 @@ class Server(DemBase):
     def __init__(self, params, learner, dataset):
         self.gamma = 1.  # soft or hard update in hierrachical averaging
         self.beta = 1.
-        self.Tree_Update_Period = 3 # tested with 2
+        self.Tree_Update_Period = 2 # tested with 2
 
         if(params['optimizer'] =="demavg"):
             print('Using DemAvg to Train')
@@ -177,8 +177,8 @@ class Server(DemBase):
     def display_results(self):
         print("DEM-AI --------->>>>> Plotting")
         alg_name = self.alg+"_"
-        root_train = np.asarray(self.gs_data_train)[:, 2]
-        root_test = np.asarray(self.gs_data_test)[:,2]
+        root_train = np.asarray(self.gs_data_train)[:, -1]
+        root_test = np.asarray(self.gs_data_test)[:,-1]
 
 
         plt.figure(3)
