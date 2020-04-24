@@ -166,9 +166,9 @@ def main(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01
 
 if __name__ == '__main__':
     algorithms_list = ["fedavg", "fedfedl", "fedsgd", "fedfedl", "fedsgd", "fedfedl", "fedsgd", "fedfedl", "fedfedl"]
-    algorithms_list[0] = "fedavg"
+    # algorithms_list[0] = "fedavg"
     # algorithms_list[0] = "demavg"
-    # algorithms_list[0] = "demprox"
+    algorithms_list[0] = "demprox"
 
     lamb_value = [0, 0, 0, 0, 0, 0,0, 0, 0, 0]
     learning_rate = [0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01]
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     batch_size = [20,20,50,50,0,0,0,0]
     DATA_SET = "mnist"
     number_users = 20 #100
-    number_global_iters = 15
+    number_global_iters = 50
     #
     # for i in range(len(algorithms_list)):
     #     main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],
