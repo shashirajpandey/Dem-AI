@@ -148,7 +148,7 @@ class DemBase(object):
         return (hmd[0]/nf, hmd[1]/nf) #normalized version
         # return client.get_hierrachical_info()
 
-    def hierrachical_clustering(self):
+    def hierrachical_clustering(self,i):
         # if(self.Hierrchical_Method == "Weight"):
         #     weights_matrix = self.create_matrix()
         #
@@ -157,7 +157,7 @@ class DemBase(object):
         #     # gradient_matrix = np.random.rand(N_clients, Weight_dimension)
         #     model = gradient_clustering(gradient_matrix)
         model = self.run_clustering()
-        self.TreeRoot = tree_construction(model, self.clients)
+        self.TreeRoot = tree_construction(model, self.clients, round=i, alg=self.alg)
         print("Number of agents in tree:", self.TreeRoot.count_clients())
         print("Number of agents in level K:", self.TreeRoot.childs[0].count_clients(), self.TreeRoot.childs[1].count_clients())
         # print("Number of agents Group 1 in level K-1:", root.childs[0].childs[0].count_clients(),

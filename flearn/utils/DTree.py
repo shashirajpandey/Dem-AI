@@ -96,7 +96,8 @@ class Node(object):
             return rs
 
     def print_structure(self):
-        print(self)
+        if(self._type.upper() !="CLIENT"):
+            print(self)
         if self.childs:
             for c in self.childs:
                 c.print_structure()

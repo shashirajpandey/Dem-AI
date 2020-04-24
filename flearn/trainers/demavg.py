@@ -16,6 +16,8 @@ class Server(DemBase):
     def __init__(self, params, learner, dataset):
         self.gamma = 1.  # soft or hard update in hierrachical averaging
         self.beta = 1.
+        self.Tree_Update_Period = 3 # tested with 2
+
         if(params['optimizer'] =="demavg"):
             print('Using DemAvg to Train')
             self.alg = "DEMAVG"
@@ -52,7 +54,6 @@ class Server(DemBase):
                 # ============= Test root =============
                 if(i>0):
                     tqdm.write('============= Test Group Models - Specialization ============= ')
-                    # self.TreeRoot.print_structure()
                     self.evaluating_groups(self.TreeRoot,i,mode="spe")
                     gs_test = self.test_accs / self.count_grs
                     gs_train = self.train_accs / self.count_grs
@@ -137,9 +138,10 @@ class Server(DemBase):
                 # track communication cost
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
             # print("First Client model:", np.sum(csolns[0][1][0]), np.sum(csolns[0][1][1]))
-            if (i % 2 == 0):
+            if (i % self.Tree_Update_Period == 0):
                 print("DEM-AI --------->>>>> Clustering")
-                self.hierrachical_clustering()
+                self.hierrachical_clustering(i)
+                # self.TreeRoot.print_structure()
                 print("DEM-AI --------->>>>> Hard Update generalized model")
                 self.update_generalized_model(self.TreeRoot) #hard update
                 # print("Root Model:", np.sum(self.TreeRoot.gmodel[0]),np.sum(self.TreeRoot.gmodel[1]))
