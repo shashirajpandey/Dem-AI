@@ -26,7 +26,6 @@ class DemBase(object):
         self.clients = self.setup_clients(dataset, self.client_model)
         self.N_clients = len(self.clients)
         self.TreeRoot = None
-        self.Hierrchical_Method = "Weight" ### "Gradient" or "Weight"
 
         print('{} Clients in Total'.format(len(self.clients)))
         self.latest_model = self.client_model.get_params()
@@ -87,13 +86,13 @@ class DemBase(object):
         for c in self.clients:
             # print("Weight:", w[1][0])
             # print("Bias:", w[1][1])
-            if(self.Hierrchical_Method == "Weight"):
+            if(CLUSTER_METHOD == "weight"):
                 p_list.append( np.concatenate( (c.gmodel[0].flatten(),c.gmodel[1]), axis=0)   )
             else:
                 p_list.append(np.concatenate((c.grad[0].flatten(), c.grad[1]), axis=0))
 
         self.Weight_dimension = len(p_list[0])
-        if (self.Hierrchical_Method == "Weight"):
+        if (CLUSTER_METHOD == "weight"):
             return weight_clustering(p_list)
         else:
             return gradient_clustering(p_list)

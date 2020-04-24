@@ -16,7 +16,7 @@ class Server(DemBase):
     def __init__(self, params, learner, dataset):
         self.gamma = 1.  # soft or hard update in hierrachical averaging
         self.beta = 1.
-        self.Tree_Update_Period = 2 # tested with 2
+
 
         if(params['optimizer'] =="demavg"):
             print('Using DemAvg to Train')
@@ -138,7 +138,7 @@ class Server(DemBase):
                 # track communication cost
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
             # print("First Client model:", np.sum(csolns[0][1][0]), np.sum(csolns[0][1][1]))
-            if (i % self.Tree_Update_Period == 0):
+            if (i % TREE_UPDATE_PERIOD == 0):
                 print("DEM-AI --------->>>>> Clustering")
                 self.hierrachical_clustering(i)
                 # self.TreeRoot.print_structure()

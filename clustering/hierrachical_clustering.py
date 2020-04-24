@@ -179,7 +179,10 @@ def plot_dendrogram(rs_linkage_matrix, round, alg):
     # print(rs_dendrogram['leaves'])  # merge points
     plt.xlabel("index of node or (Number of leaves in each cluster).")
     if(MODEL_TYPE == "cnn"):
-        plt.ylim(0, 0.5)
+        if(CLUSTER_METHOD == "gradient"):
+            plt.ylim(0, 1.2)
+        else:
+            plt.ylim(0, 0.4)
     else:
         plt.ylim(0,1.5)
     plt.savefig(PLOT_PATH + alg + "_T"+str(round)+".pdf")
