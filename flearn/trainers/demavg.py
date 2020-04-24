@@ -21,7 +21,7 @@ class Server(DemBase):
             self.alg = "DEMAVG"
             self.inner_opt = tf.train.GradientDescentOptimizer(params['learning_rate'])
         elif(params['optimizer'] =="demprox"):
-            self.mu = 0.2
+            self.mu = 0.004  #params['mu'] 0.002 (better generaliztaion) vs 0.005 (better specialization)
             print('Using DemProx to Train')
             self.alg = "DEMPROX"
             self.inner_opt = DemPerturbedGradientDescent(params['learning_rate'], mu=self.mu)
@@ -177,7 +177,6 @@ class Server(DemBase):
         alg_name = self.alg+"_"
         root_test = np.asarray(self.gs_data_test)[:,2]
         root_train = np.asarray(self.gs_data_train)[:,2]
-        plt.clf()
         plt.figure(3)
         plt.clf()
         plt.plot(root_train, label="root train", linestyle="--")
@@ -186,6 +185,7 @@ class Server(DemBase):
         plt.plot(np.arange(len(self.cs_avg_data_test)), self.cs_avg_data_test, label="cs_avg_test")
         plt.legend()
         plt.xlabel("Global Rounds")
+        plt.ylim(0,1.02)
         plt.grid()
         plt.title("AVG Clients Specialization Accuracy")
         plt.savefig(PLOT_PATH + alg_name + "AVGC_Spec.pdf")
@@ -198,6 +198,7 @@ class Server(DemBase):
         plt.plot(np.arange(len(self.cg_avg_data_test)), self.cg_avg_data_test, label="cg_avg_test")
         plt.legend()
         plt.xlabel("Global Rounds")
+        plt.ylim(0, 1.02)
         plt.grid()
         plt.title("AVG Clients Generalization Accuracy")
         plt.savefig(PLOT_PATH + alg_name + "AVGC_Gen.pdf")
@@ -226,6 +227,7 @@ class Server(DemBase):
         plt.plot(self.cs_data_test)
         plt.legend()
         plt.xlabel("Global Rounds")
+        plt.ylim(0, 1.02)
         plt.grid()
         plt.title("Testing Client Specialization")
         plt.savefig(PLOT_PATH + alg_name + "C_Spec_Testing.pdf")
@@ -237,6 +239,7 @@ class Server(DemBase):
         plt.plot(self.cs_data_train)
         plt.legend()
         plt.xlabel("Global Rounds")
+        plt.ylim(0, 1.02)
         plt.grid()
         plt.title("Training Client Specialization")
         plt.savefig(PLOT_PATH + alg_name + "C_Spec_Training.pdf")
@@ -247,6 +250,7 @@ class Server(DemBase):
         plt.plot(root_test,linestyle="--", label="root test")
         plt.legend()
         plt.xlabel("Global Rounds")
+        plt.ylim(0, 1.02)
         plt.grid()
         plt.title("Testing Client Generalization")
         plt.savefig(PLOT_PATH + alg_name + "C_Gen_Testing.pdf")
@@ -257,6 +261,7 @@ class Server(DemBase):
         plt.plot(root_train, linestyle="--", label="root train")
         plt.legend()
         plt.xlabel("Global Rounds")
+        plt.ylim(0, 1.02)
         plt.grid()
         plt.title("Training Client Generalization")
         plt.savefig(PLOT_PATH + alg_name + "C_Gen_Training.pdf")
