@@ -330,8 +330,8 @@ class DemBase(object):
         # tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
         #     stats_train[2])))
 
-        self.train_accs[gr.level-1] += train_acc
-        self.test_accs[gr.level-1]  += test_acc
+        self.train_accs[gr.level-1] += train_acc #append train_cc and gr.num_clients
+        self.test_accs[gr.level-1]  += test_acc #append train_cc and gr.num_clients
         self.count_grs[gr.level-1]  += 1
 
         if (gr.childs):
