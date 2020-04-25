@@ -1,6 +1,7 @@
 numpy
+h5py
 scipy
-tensorflow-gpu
+tensorflow-gpu=1.15
 Pillow
 matplotlib
 jupyter
