@@ -1,5 +1,5 @@
 "FIX PROGRAM SETTINGS"
-PLOT_PATH = "../figs/"
+PLOT_PATH = "./figs/"
 K_Levels = 3  #2, 3
 N_clients = 50
 NUM_GLOBAL_ITERS = 10 #100

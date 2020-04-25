@@ -2,6 +2,8 @@ import h5py as hf
 import numpy as np
 from clustering.Setting import *
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 
 def  write_file(file_name = "./results/untitled.h5", **kwargs):
     with hf.File(file_name, "w") as data_file:
@@ -139,6 +141,45 @@ def plot_from_file():
     print("AVG Clients Generalization - Testing:", f_data['cg_avg_data_test'])
     print("Root performance - Testing:", f_data['root_test'])
 
+def plot_3D():
+    file_name = "../results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+    f_data = read_data(file_name)
+    data = np.array(f_data['g_level_test'])
+
+    lx = len(data[0])
+    print(lx)
+    # Work out matrix dimensions
+    ly = len(data[:, 0])
+    print(ly)
+
+    column_names = np.arange(lx)
+    row_names = np.arange(ly)
+
+    fig = plt.figure()
+    ax = Axes3D(fig)
+
+    xpos = np.arange(0, lx, 1)  # Set up a mesh of positions
+    ypos = np.arange(0, ly, 1)
+    xpos, ypos = np.meshgrid(xpos + 0.25, ypos + 0.25)
+
+    xpos = xpos.flatten()  # Convert positions to 1D array
+    ypos = ypos.flatten()
+    zpos = np.zeros(lx * ly)
+
+    dx = 0.5 * np.ones_like(zpos)
+    dy = dx.copy()
+    dz = data.flatten()
+
+    # cs = ['r', 'g', 'b', 'y', 'c'] * ly
+
+    ax.bar3d(xpos, ypos, zpos, dx, dy, dz)
+
+    # sh()
+    # ax.w_xaxis.set_ticklabels(column_names)
+    # ax.w_yaxis.set_ticklabels(row_names)
+
+    plt.show()
+
 if __name__=='__main__':
     # a = [[0.09540889526542325, 0.1135953840605842], [0.9921090387374462, 0.998918139199423], [0.9921090387374462, 0.999278759466282], [0.994261119081779, 1.0], [0.9928263988522238, 1.0], [0.9928263988522238, 1.0], [0.9921090387374462, 1.0], [0.9921090387374462, 1.0], [0.9921090387374462, 1.0], [0.9921090387374462, 1.0]]
     # b = np.asarray(a)
@@ -147,8 +188,9 @@ if __name__=='__main__':
     file_name = "../results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
     dt = read_data(file_name)
     print(dt)
+    plot_3D()
     # print(dt['cs_avg_data_test'])
     # print(dt['cs_avg_data_train'])
     # print(dt['root_test'])
     # print(dt['root_train'])
-    plot_from_file()
+    #plot_from_file()

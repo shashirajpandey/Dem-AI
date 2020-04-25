@@ -178,7 +178,7 @@ class Server(DemBase):
                    cs_avg_data_test=self.cs_avg_data_test, cs_avg_data_train=self.cs_avg_data_train,
                    cg_avg_data_test = self.cg_avg_data_test, cg_avg_data_train = self.cg_avg_data_train,
                    cs_data_test=self.cs_data_test, cs_data_train=self.cs_data_train, cg_data_test=self.cg_data_test,
-                   cg_data_train=self.cg_data_train )
+                   cg_data_train=self.cg_data_train, g_level_train=self.g_level_train, g_level_test=self.g_level_test )
 
 
 

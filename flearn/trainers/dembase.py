@@ -51,6 +51,8 @@ class DemBase(object):
         self.cs_data_train = np.zeros((self.num_rounds, self.N_clients))
         self.cg_data_test = np.zeros((self.num_rounds, self.N_clients))
         self.cg_data_train = np.zeros((self.num_rounds, self.N_clients))
+        self.g_level_train =[]
+        self.g_level_test =[]
 
 
     def __del__(self):
@@ -331,7 +333,9 @@ class DemBase(object):
         #     stats_train[2])))
 
         self.train_accs[gr.level-1] += train_acc #append train_cc and gr.num_clients
+        self.g_level_train.append( [train_acc,gr.numb_clients])
         self.test_accs[gr.level-1]  += test_acc #append train_cc and gr.num_clients
+        self.g_level_test.append([test_acc, gr.numb_clients])
         self.count_grs[gr.level-1]  += 1
 
         if (gr.childs):
