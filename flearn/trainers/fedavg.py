@@ -12,11 +12,13 @@ class Server(BaseFedarated):
     def __init__(self, params, learner, dataset):
         print('Using Federated Average to Train')
         if(params['optimizer'] == "fedprox"):
+            self.alg = "FEDPROX"
             print('Using FedProx to Train')
             mu = 0.005
             # self.inner_opt = PROXSGD(params['learning_rate'], params["lamb"])
             self.inner_opt = PerturbedGradientDescent(params['learning_rate'], mu)
         elif (params['optimizer'] == "fedavg"):
+            self.alg = "FEDAVG"
             print('Using FedAvg to Train')
             self.inner_opt = tf.train.GradientDescentOptimizer(params['learning_rate'])
         super(Server, self).__init__(params, learner, dataset)
@@ -124,9 +126,10 @@ class Server(BaseFedarated):
         print("Training ACC:", self.rs_train_acc)
         print("Training Loss:", self.rs_train_loss)
         self.display_results()
+
     def display_results(self):
-        print("FED-AVG --------------> Plotting")
-        alg_name="FEDAVG_"
+        # print("FED-AVG --------------> Plotting")
+        alg_name=self.alg+"_"
 
         global_train = np.asarray(self.global_data_train)
         global_test = np.asarray(self.global_data_test)
