@@ -126,6 +126,7 @@ class Server(BaseFedarated):
         print("Test ACC:", self.rs_glob_acc)
         print("Training ACC:", self.rs_train_acc)
         print("Training Loss:", self.rs_train_loss)
+        self.save_results()
         self.display_results()
 
     def save_results(self):
