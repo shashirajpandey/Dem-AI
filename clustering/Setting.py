@@ -8,7 +8,8 @@ CLUSTER_METHOD = "weight"
 # CLUSTER_METHOD = "gradient" #"gradient"  #"weight" or "gradient"
 MODEL_TYPE = "cnn" #"cnn" or "mclr"
 # RUNNING_ALG= "fedavg"
-RUNNING_ALG = "demavg"
+RUNNING_ALG= "fedprox"
+# RUNNING_ALG = "demavg"
 # RUNNING_ALG = "demprox"
 
 

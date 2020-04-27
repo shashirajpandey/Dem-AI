@@ -3,6 +3,7 @@ from tqdm import trange, tqdm
 import tensorflow as tf
 from flearn.utils.tf_utils import process_grad
 from flearn.optimizer.proxsgd import PROXSGD
+from flearn.optimizer.pgd import PerturbedGradientDescent
 from .fedbase import BaseFedarated
 import matplotlib.pyplot as plt
 from clustering.Setting import *
@@ -10,9 +11,13 @@ from clustering.Setting import *
 class Server(BaseFedarated):
     def __init__(self, params, learner, dataset):
         print('Using Federated Average to Train')
-        if(params["lamb"] > 0):
-            self.inner_opt = PROXSGD(params['learning_rate'], params["lamb"])
-        else:
+        if(params['optimizer'] == "fedprox"):
+            print('Using FedProx to Train')
+            mu = 0.005
+            # self.inner_opt = PROXSGD(params['learning_rate'], params["lamb"])
+            self.inner_opt = PerturbedGradientDescent(params['learning_rate'], mu)
+        elif (params['optimizer'] == "fedavg"):
+            print('Using FedAvg to Train')
             self.inner_opt = tf.train.GradientDescentOptimizer(params['learning_rate'])
         super(Server, self).__init__(params, learner, dataset)
 

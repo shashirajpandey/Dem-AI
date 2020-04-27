@@ -129,6 +129,8 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
     alg = parsed['optimizer']
     if (alg== "demprox"):
         alg = "demavg"
+    elif(alg=="fedprox"):
+        alg = "fedavg"
     opt_path = 'flearn.trainers.%s' % alg
 
 
