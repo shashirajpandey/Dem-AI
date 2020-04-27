@@ -1,0 +1,10 @@
+Tuning & Simulation issue for 50 users:
+1. Soft-update (gamma < 1) is helpful or not? => Tune the value of gamma if it is helpful otherwise keep gamma = 1.
+2. DemProx: How does self.mu affect to the performance? (Use a the reasonable value to test for other remaining questions)
+3. "Weight" vs "Gradient" is better for clustering in terms of learning performance?
+4. K levels = 3 is better than 2 or not in terms of leanring performance?
+=> Test on better method only, if no one better we verify both methods:
+	5. How does topology change?
+	6. Topology update period (1, 2, 3) is converged to similar topology or not? 
+	
+Note that: the behavior of DemProx might be different from DemAvg.
