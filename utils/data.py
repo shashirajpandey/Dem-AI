@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 
-def  write_file(file_name = "./results/untitled.h5", **kwargs):
+def  write_file(file_name = "../results/untitled.h5", **kwargs):
     with hf.File(file_name, "w") as data_file:
         for key, value in kwargs.items():
             #print("%s == %s" % (key, value))
             data_file.create_dataset(key, data=value)
     print("Successfully save to file!")
-def read_data(file_name = "./results/untitled.h5"):
+def read_data(file_name = "../results/untitled.h5"):
     rs = []
     dic_data = {}
     with hf.File(file_name, "r") as f:
@@ -193,4 +193,4 @@ if __name__=='__main__':
     # print(dt['cs_avg_data_train'])
     # print(dt['root_test'])
     # print(dt['root_train'])
-    #plot_from_file()
+    plot_from_file()

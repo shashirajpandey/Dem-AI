@@ -7,6 +7,7 @@ from flearn.optimizer.pgd import PerturbedGradientDescent
 from .fedbase import BaseFedarated
 import matplotlib.pyplot as plt
 from clustering.Setting import *
+from utils.data import *
 
 class Server(BaseFedarated):
     def __init__(self, params, learner, dataset):
@@ -125,7 +126,15 @@ class Server(BaseFedarated):
         print("Test ACC:", self.rs_glob_acc)
         print("Training ACC:", self.rs_train_acc)
         print("Training Loss:", self.rs_train_loss)
+        self.save_results()
         self.display_results()
+
+    def save_results(self):
+        write_file(file_name=file_name, root_test=self.rs_glob_acc, root_train=self.rs_train_acc,
+                   cs_avg_data_test=self.cs_avg_data_test, cs_avg_data_train=self.cs_avg_data_train,
+                   cg_avg_data_test=self.cg_avg_data_test, cg_avg_data_train=self.cg_avg_data_train,
+                   cs_data_test=self.cs_data_test, cs_data_train=self.cs_data_train, cg_data_test=self.cg_data_test,
+                   cg_data_train=self.cg_data_train)
 
     def display_results(self):
         # print("FED-AVG --------------> Plotting")
