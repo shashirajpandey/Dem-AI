@@ -34,25 +34,32 @@ class DemBase(object):
         # initialize system metrics
         self.metrics = Metrics(self.clients, params)
         self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc = [], [], []
-        self.test_accs = np.zeros(K_Levels+1)
-        self.train_accs = np.zeros(K_Levels+1)
+        # self.test_accs = np.zeros(K_Levels+1)
+        # self.train_accs = np.zeros(K_Levels+1)
         self.count_grs = np.zeros(K_Levels+1)
         self.cg_avg_data_test = []  # avg generalization client accuracy test
         self.cg_avg_data_train = [] # avg generalization client accuracy train
         self.cs_avg_data_test = []   # avg specialization client test accuracy
         self.cs_avg_data_train = [] # avg specialization client train accuracy
-        self.gs_data_test = []  # specialization of group test accuracy
-        self.gs_data_test.append(np.zeros(K_Levels+1 ))
-        self.gg_data_test = [] # generalization of group test accuracy
-        self.gs_data_train = []  # specialization of group train accuracy
-        self.gs_data_train.append(np.zeros(K_Levels + 1))
-        self.gg_data_train = []  # generalization of group train accuracy
+        # self.gs_data_test = []  # specialization of group test accuracy
+        # self.gs_data_test.append(np.zeros(K_Levels+1 ))
+        # self.gg_data_test = [] # generalization of group test accuracy
+        # self.gg_data_train = []  # generalization of group train accuracy
+        # self.gs_data_train = []  # specialization of group train accuracy
+        # self.gs_data_train.append(np.zeros(K_Levels + 1))
+
         self.cs_data_test = np.zeros((self.num_rounds, self.N_clients))
         self.cs_data_train = np.zeros((self.num_rounds, self.N_clients))
         self.cg_data_test = np.zeros((self.num_rounds, self.N_clients))
         self.cg_data_train = np.zeros((self.num_rounds, self.N_clients))
-        self.g_level_train =[]
-        self.g_level_test =[]
+        self.gs_level_train = np.zeros((K_Levels + 1, self.num_rounds, 2))  # specialization of group train accuracy
+        self.gs_level_test =  np.zeros((K_Levels+1, self.num_rounds,2))     # specialization of group test accuracy
+        self.gks_level_train = np.zeros((2, self.num_rounds))               # specialization of group k train accuracy
+        self.gks_level_test  = np.zeros((2, self.num_rounds))               # specialization of group k test accuracy
+        self.gg_level_train  = np.zeros((K_Levels + 1, self.num_rounds, 2)) # generalization of group train accuracy
+        self.gg_level_test   =  np.zeros((K_Levels+1, self.num_rounds,2))   # generalization of group test accuracy
+        self.gkg_level_train = np.zeros((2, self.num_rounds))               # generalization of group k train accuracy
+        self.gkg_level_test  = np.zeros((2, self.num_rounds))               # generalization of group k test accuracy
         self.dendo_data = []
         self.dendo_data_round = []
 
@@ -335,17 +342,36 @@ class DemBase(object):
         # self.metrics.train_accuracies.append(stats_train)
         test_acc =  np.sum(stats[3]) * 1.0 / np.sum(stats[2])
         train_acc = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
-        # tqdm.write('---- Test Group {} at level {} ----'.format(gr._id, gr.level))
-        # tqdm.write('At round {} testing accuracy: {}'.format(i, test_acc))
-        # tqdm.write('At round {} training accuracy: {}'.format(i, train_acc))
-        # tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
-        #     stats_train[2])))
 
-        self.train_accs[gr.level-1] += train_acc #append train_cc and gr.num_clients
-        self.g_level_train.append( [train_acc,gr.numb_clients])
-        self.test_accs[gr.level-1]  += test_acc #append train_cc and gr.num_clients
-        self.g_level_test.append([test_acc, gr.numb_clients])
-        self.count_grs[gr.level-1]  += 1
+        if(mode=="spe"): #Specialization results
+            self.gs_level_train[gr.level - 1, i, 0] += train_acc * gr.numb_clients
+            self.gs_level_train[gr.level - 1, i, 1] += gr.numb_clients
+
+            self.gs_level_test[gr.level - 1, i, 0] += test_acc * gr.numb_clients
+            self.gs_level_test[gr.level - 1, i, 1] += gr.numb_clients
+
+            if(gr._id == self.TreeRoot.childs[0]._id):
+                print("G1")
+                self.gks_level_train[0,i] = train_acc
+                self.gks_level_test[0,i] = test_acc
+            elif(gr._id == self.TreeRoot.childs[1]._id):
+                print("G2")
+                self.gks_level_train[1,i] = train_acc
+                self.gks_level_test[1,i] = test_acc
+
+        else: #Generalization results
+            self.gg_level_train[gr.level - 1, i, 0] += train_acc * gr.numb_clients
+            self.gg_level_train[gr.level - 1, i, 1] += gr.numb_clients
+
+            self.gg_level_test[gr.level - 1, i, 0] += test_acc * gr.numb_clients
+            self.gg_level_test[gr.level - 1, i, 1] += gr.numb_clients
+            if(gr._id == self.TreeRoot.childs[0]._id):
+                self.gkg_level_train[0,i] = train_acc
+                self.gkg_level_test[0,i] = test_acc
+            elif(gr._id == self.TreeRoot.childs[1]._id):
+                self.gkg_level_train[1,i] = train_acc
+                self.gkg_level_test[1,i] = test_acc
+
 
         if (gr.childs):
             for c in gr.childs:

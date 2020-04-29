@@ -53,20 +53,24 @@ class Server(DemBase):
                 if (i > 0):
                     tqdm.write('============= Test Group Models - Specialization ============= ')
                     self.evaluating_groups(self.TreeRoot, i, mode="spe")
-                    gs_test = self.test_accs / self.count_grs
-                    gs_train = self.train_accs / self.count_grs
-                    self.gs_data_test.append(gs_test)
-                    self.gs_data_train.append(gs_train)
-                    print("AvgG. Testing performance for each level:", gs_test)
-                    print("AvgG. Training performance for each level:", gs_train)
+                    # gs_test = self.test_accs / self.count_grs
+                    # gs_train = self.train_accs / self.count_grs
+                    # self.gs_data_test.append(gs_test)
+                    # self.gs_data_train.append(gs_train)
+                    self.gs_level_train[:,i,0] = self.gs_level_train[:,i,0] / self.gs_level_train[:,i,1]    #averaging by level and numb of clients
+                    self.gs_level_test[:,i,0] = self.gs_level_test[:,i,0] / self.gs_level_test[:,i,1]       #averaging by level and numb of clients
+                    print("AvgG. Testing performance for each level:", self.gs_level_test[:,i,0])
+                    print("AvgG. Training performance for each level:", self.gs_level_train[:,i,0])
                     tqdm.write('============= Test Group Models - Generalization ============= ')
                     self.evaluating_groups(self.TreeRoot, i, mode="gen")
-                    gg_test = self.test_accs / self.count_grs
-                    gg_train = self.train_accs / self.count_grs
-                    self.gg_data_test.append(gg_test)
-                    self.gg_data_train.append(gg_train)
-                    print("AvgG. Testing performance for each level:", gg_test)
-                    print("AvgG. Training performance for each level:", gg_train)
+                    # gg_test = self.test_accs / self.count_grs
+                    # gg_train = self.train_accs / self.count_grs
+                    # self.gg_data_test.append(gg_test)
+                    # self.gg_data_train.append(gg_train)
+                    self.gg_level_train[:,i,0] = self.gg_level_train[:,i,0] / self.gg_level_train[:,i,1]    #averaging by level and numb of clients
+                    self.gg_level_test[:,i,0] = self.gg_level_test[:,i,0] / self.gg_level_test[:,i,1]       #averaging by level and numb of clients
+                    print("AvgG. Testing performance for each level:", self.gg_level_test[:,i,0])
+                    print("AvgG. Training performance for each level:", self.gg_level_train[:,i,0])
 
                 # self.rs_glob_acc.append(np.sum(stats[3])*1.0/np.sum(stats[2]))
                 # self.rs_train_acc.append(np.sum(stats_train[3])*1.0/np.sum(stats_train[2]))
@@ -174,16 +178,20 @@ class Server(DemBase):
         else:
             file_name = "./results/{}_iter_{}_k_{}_g.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
         print(file_name)
-        root_train = np.asarray(self.gs_data_train)[:, -1]
-        root_test = np.asarray(self.gs_data_test)[:, -1]
+        # root_train = np.asarray(self.gs_data_train)[:, -1]
+        # root_test = np.asarray(self.gs_data_test)[:, -1]
+        root_train = np.asarray(self.gs_level_train)[K_Levels,:, 0]
+        root_test = np.asarray(self.gs_level_test)[K_Levels,:, 0]
 
-        write_file(file_name=file_name, root_test=root_test, root_train = root_train,
+        write_file(file_name=file_name, root_test=root_test, root_train=root_train,
                    cs_avg_data_test=self.cs_avg_data_test, cs_avg_data_train=self.cs_avg_data_train,
-                   cg_avg_data_test = self.cg_avg_data_test, cg_avg_data_train = self.cg_avg_data_train,
+                   cg_avg_data_test=self.cg_avg_data_test, cg_avg_data_train=self.cg_avg_data_train,
                    cs_data_test=self.cs_data_test, cs_data_train=self.cs_data_train, cg_data_test=self.cg_data_test,
-                   cg_data_train=self.cg_data_train, g_level_train=self.g_level_train, g_level_test=self.g_level_test,
-                   dendo_data=self.dendo_data, dendo_data_round=self.dendo_data_round,                                  #Dendrogram data
-                   N_clients=[N_clients], TREE_UPDATE_PERIOD=[TREE_UPDATE_PERIOD])                                      #Setting
-
+                   cg_data_train=self.cg_data_train, gs_level_train=self.gs_level_train, gs_level_test=self.gs_level_test,
+                   gg_level_train = self.gg_level_train, gg_level_test = self.gg_level_test,
+                   gks_level_train =self.gks_level_train , gks_level_test=self.gks_level_test,
+                   gkg_level_train=self.gkg_level_train, gkg_level_test=self.gkg_level_test,
+                   dendo_data=self.dendo_data, dendo_data_round=self.dendo_data_round,  #Dendrogram data
+                   N_clients=[N_clients], TREE_UPDATE_PERIOD=[TREE_UPDATE_PERIOD])      #Setting
 
 

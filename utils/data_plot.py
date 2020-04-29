@@ -69,27 +69,27 @@ def plot_from_file():
 
     alg_name = RUNNING_ALG+ "_"
 
-    plt.figure(3)
-    plt.clf()
-    plt.plot(f_data['root_train'], label="Root_train", linestyle="--")
-    plt.plot(f_data['root_test'], label="Root_test", linestyle="--")
-    #add group data
-    plt.plot(np.arange(len(f_data['cs_avg_data_train'])), f_data['cs_avg_data_train'], linestyle="-",
-             label="Client_spec_train")
-    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], linestyle="-", label="Client_spec_test")
-    plt.plot(np.arange(len(f_data['cg_avg_data_train'])), f_data['cg_avg_data_train'], linestyle="-",
-             label="Client_gen_train")
-    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], linestyle="-", label="Client_gen_test")
-    plt.legend()
-    plt.xlabel("Global Rounds")
-    plt.ylim(0, 1.02)
-    plt.grid()
-    plt.title("AVG Clients Model (Spec-Gen) Accuracy")
-    plt.savefig(PLOT_PATH + alg_name + "AVGC_Spec_Gen.pdf")
+    # plt.figure(3)
+    # plt.clf()
+    # plt.plot(f_data['root_train'], label="Root_train", linestyle="--")
+    # plt.plot(f_data['root_test'], label="Root_test", linestyle="--")
+    # #add group data
+    # plt.plot(np.arange(len(f_data['cs_avg_data_train'])), f_data['cs_avg_data_train'], linestyle="-",
+    #          label="Client_spec_train")
+    # plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], linestyle="-", label="Client_spec_test")
+    # plt.plot(np.arange(len(f_data['cg_avg_data_train'])), f_data['cg_avg_data_train'], linestyle="-",
+    #          label="Client_gen_train")
+    # plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], linestyle="-", label="Client_gen_test")
+    # plt.legend()
+    # plt.xlabel("Global Rounds")
+    # plt.ylim(0, 1.02)
+    # plt.grid()
+    # plt.title("AVG Clients Model (Spec-Gen) Accuracy")
+    # plt.savefig(PLOT_PATH + alg_name + "AVGC_Spec_Gen.pdf")
 
     # plt.figure(3)
     # plt.clf()
-    # plt.plot(root_train, label="Root_train", linestyle="--")
+    # plt.plot(f_data['root_train'], label="Root_train", linestyle="--")
     # plt.plot(np.arange(len(f_data['cs_avg_data_train'])), f_data['cs_avg_data_train'], label="Client_spec_train")
     # plt.plot(np.arange(len(f_data['cg_avg_data_train'])), f_data['cg_avg_data_train'], label="Client_gen_train")
     # plt.legend()
@@ -98,18 +98,27 @@ def plot_from_file():
     # plt.grid()
     # plt.title("AVG Clients Model (Spec-Gen) Training Accuracy")
     # plt.savefig(PLOT_PATH + alg_name+"AVGC_Spec_Gen_Training.pdf")
-    #
-    # plt.figure(4)
-    # plt.clf()
-    # plt.plot(root_test, label="Root_test", linestyle="--")
-    # plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], label="Client_spec_test")
-    # plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], label="Client_gen_test")
-    # plt.legend()
-    # plt.xlabel("Global Rounds")
-    # plt.ylim(0, 1.02)
-    # plt.grid()
-    # plt.title("AVG Clients Model (Spec-Gen) Testing Accuracy")
-    # plt.savefig(PLOT_PATH + alg_name+"AVGC_Spec_Gen_Testing.pdf")
+
+    plt.figure(4)
+    plt.clf()
+    plt.plot(f_data['root_test'], label="Root_test", linestyle="--")
+    if("dem" in RUNNING_ALG):
+        # for k in range (K_Levels):
+            plt.plot(f_data['gs_level_test'][-2,:,0], label="Gr(K)_spec_test", linestyle=":")
+            plt.plot(f_data['gg_level_test'][-2,:,0], label="Gr(K)_gen_test", linestyle=":")
+        # plt.plot(f_data['gks_level_test'][0,:], label="Gr1(K)_spec_test", linestyle=":")
+        # plt.plot(f_data['gkg_level_test'][0,:], label="Gr1(K)_gen_test", linestyle=":")
+        # plt.plot(f_data['gks_level_test'][1,:], label="Gr2(K)_spec_test", linestyle=":")
+        # plt.plot(f_data['gkg_level_test'][1,:], label="Gr2(K)_gen_test", linestyle=":")
+
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], label="Client_spec_test")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], label="Client_gen_test")
+    plt.legend()
+    plt.xlabel("Global Rounds")
+    plt.ylim(0, 1.02)
+    plt.grid()
+    plt.title("AVG Clients Model (Spec-Gen) Testing Accuracy")
+    plt.savefig(PLOT_PATH + alg_name+"AVGC_Spec_Gen_Testing.pdf")
 
     # plt.figure(5)
     # plt.clf()
