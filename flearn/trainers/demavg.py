@@ -147,7 +147,7 @@ class Server(DemBase):
                 self.update_generalized_model(self.TreeRoot, mode="soft")  # soft update
                 # print("Root Model:", np.sum(self.TreeRoot.gmodel[0]),np.sum(self.TreeRoot.gmodel[1]))
 
-        self.display_results()
+        self.save_results()
         # # final test model
         # stats = self.test()
         # # stats_train = self.train_error()
@@ -167,18 +167,15 @@ class Server(DemBase):
         # print("Training ACC:", self.rs_train_acc)
         # print("Training Loss:", self.rs_train_loss)
 
-    def display_results(self):
+    def save_results(self):
         #file_name = "../results/ALG_"+RUNNING_ALG+'_ITER_'+NUM_GLOBAL_ITERS+'_UE_'+N_clients+'_K_'+K_Levels+'_w.h5'
         if(CLUSTER_METHOD == "weight"):
-            file_name = "./results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+            file_name = "./results/{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
         else:
-            file_name = "./results/alg_{}_iter_{}_k_{}_g.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+            file_name = "./results/{}_iter_{}_k_{}_g.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
         print(file_name)
         root_train = np.asarray(self.gs_data_train)[:, -1]
         root_test = np.asarray(self.gs_data_test)[:, -1]
-        save_cmode = 0
-        if(CLUSTER_METHOD=="gradient"):
-            save_cmode = 1
 
         write_file(file_name=file_name, root_test=root_test, root_train = root_train,
                    cs_avg_data_test=self.cs_avg_data_test, cs_avg_data_train=self.cs_avg_data_train,

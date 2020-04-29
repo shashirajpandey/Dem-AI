@@ -41,15 +41,31 @@ def plot_dendrogram(rs_linkage_matrix, round, alg):
     plt.savefig(PLOT_PATH + alg + "_T"+str(round)+".pdf")
 
 def plot_from_file():
-    if(CLUSTER_METHOD == "weight"):
-        file_name = "../results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+    if("dem" in RUNNING_ALG):
+        if(CLUSTER_METHOD == "weight"):
+            file_name = "../results/{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+        else:
+            file_name = "../results/{}_iter_{}_k_{}_g.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+        f_data = read_data(file_name)
+        TREE_UPDATE_PERIOD = f_data['TREE_UPDATE_PERIOD'][0]
+        N_clients = f_data['N_clients'][0]
+
+        ### PLOT DENDROGRAM ####
+        dendo_data = f_data['dendo_data']
+        dendo_data_round = f_data['dendo_data_round']
+        # print(dd_data)
+        i=0
+        for m_linkage in dendo_data:
+            plot_dendrogram(m_linkage, dendo_data_round[i], RUNNING_ALG)
+            i+=1
     else:
-        file_name = "../results/alg_{}_iter_{}_k_{}_g.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
-    f_data = read_data( file_name )
+        file_name = "../results/{}_iter_{}.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS)
+        f_data = read_data(file_name)
+        N_clients = f_data['N_clients'][0]
+
 
     print("DEM-AI --------->>>>> Plotting")
-    N_clients = f_data['N_clients'][0]
-    TREE_UPDATE_PERIOD = f_data['TREE_UPDATE_PERIOD'][0]
+
 
     alg_name = RUNNING_ALG+ "_"
 
@@ -158,14 +174,7 @@ def plot_from_file():
     plt.savefig(PLOT_PATH + alg_name + "C_Gen_Training.pdf")
 
     plt.show()
-    ### PLOT DENDROGRAM ####
-    dendo_data = f_data['dendo_data']
-    dendo_data_round = f_data['dendo_data_round']
-    # print(dd_data)
-    i=0
-    for m_linkage in dendo_data:
-        plot_dendrogram(m_linkage, dendo_data_round[i], RUNNING_ALG)
-        i+=1
+
 
     print("** Summary Results: ---- Training ----")
     print("AVG Clients Specialization - Training:", f_data['cs_avg_data_train'])
@@ -177,7 +186,7 @@ def plot_from_file():
     print("Root performance - Testing:", f_data['root_test'])
 
 def plot_3D():
-    file_name = "../results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+    file_name = "../results/{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
     f_data = read_data(file_name)
     data = np.array(f_data['g_level_test'])
 
