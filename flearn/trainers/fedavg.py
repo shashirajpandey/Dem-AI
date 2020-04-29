@@ -15,7 +15,7 @@ class Server(BaseFedarated):
         if(params['optimizer'] == "fedprox"):
             self.alg = "FEDPROX"
             print('Using FedProx to Train')
-            mu = 0.005
+            mu = 0.005  #0.005: faster but less smooth vs 0.01: smoother but slower
             # self.inner_opt = PROXSGD(params['learning_rate'], params["lamb"])
             self.inner_opt = PerturbedGradientDescent(params['learning_rate'], mu)
         elif (params['optimizer'] == "fedavg"):
@@ -121,7 +121,7 @@ class Server(BaseFedarated):
         # save server model
         self.metrics.write()
         #self.save()
-        self.save(learning_rate=self.parameters["learning_rate"])
+        # self.save(learning_rate=self.parameters["learning_rate"])
 
         print("Test ACC:", self.rs_glob_acc)
         print("Training ACC:", self.rs_train_acc)

@@ -351,11 +351,9 @@ class DemBase(object):
             self.gs_level_test[gr.level - 1, i, 1] += gr.numb_clients
 
             if(gr._id == self.TreeRoot.childs[0]._id):
-                print("G1")
                 self.gks_level_train[0,i] = train_acc
                 self.gks_level_test[0,i] = test_acc
             elif(gr._id == self.TreeRoot.childs[1]._id):
-                print("G2")
                 self.gks_level_train[1,i] = train_acc
                 self.gks_level_test[1,i] = test_acc
 
