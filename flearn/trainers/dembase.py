@@ -53,6 +53,8 @@ class DemBase(object):
         self.cg_data_train = np.zeros((self.num_rounds, self.N_clients))
         self.g_level_train =[]
         self.g_level_test =[]
+        self.dendo_data = []
+        self.dendo_data_round = []
 
 
     def __del__(self):
@@ -159,6 +161,13 @@ class DemBase(object):
         #     model = gradient_clustering(gradient_matrix)
         model = self.run_clustering()
         self.TreeRoot = tree_construction(model, self.clients, round=i, alg=self.alg)
+        # self.dendo_data.append([model, i])
+        rs_linkage = cal_linkage_matrix(model)[1]
+        self.dendo_data.append(rs_linkage)
+        self.dendo_data_round.append(i)
+        # self.dendo_data.append([rs_linkage, i])
+        # plot_dendrogram(rs_linkage, round, self.alg)
+
         print("Number of agents in tree:", self.TreeRoot.count_clients())
         print("Number of agents in level K:", self.TreeRoot.childs[0].count_clients(), self.TreeRoot.childs[1].count_clients())
         # print("Number of agents Group 1 in level K-1:", root.childs[0].childs[0].count_clients(),

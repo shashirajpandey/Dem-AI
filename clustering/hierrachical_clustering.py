@@ -1,7 +1,6 @@
 import numpy as np
 
 from matplotlib import pyplot as plt
-from scipy.cluster.hierarchy import dendrogram
 from sklearn.datasets import load_iris
 from sklearn.cluster import AgglomerativeClustering
 from flearn.utils.DTree import Node
@@ -167,29 +166,9 @@ def iris_test(model):
                     print("Children:", retrieve_cluster_head(model, g_idx, numb_samples))
 
 
-def plot_dendrogram(rs_linkage_matrix, round, alg):
-    # Plot the corresponding dendrogram
-    plt.figure(1)
-    plt.clf()
-    # change p value to 5 if we want to get 5 levels
-    plt.title('Hierarchical Clustering Dendrogram')
-    rs_dendrogram = dendrogram(rs_linkage_matrix, truncate_mode='level', p=K_Levels)
-
-    # print(rs_dendrogram['ivl'])  # x_axis of dendrogram => index of nodes or (Number of points in clusters (i))
-    # print(rs_dendrogram['leaves'])  # merge points
-    plt.xlabel("index of node or (Number of leaves in each cluster).")
-    if(MODEL_TYPE == "cnn"):
-        if(CLUSTER_METHOD == "gradient"):
-            plt.ylim(0, 1.2)
-        else:
-            plt.ylim(0, 0.4)
-    else:
-        plt.ylim(0,1.5)
-    plt.savefig(PLOT_PATH + alg + "_T"+str(round)+".pdf")
-
-
 def tree_construction(model, Clients,round=0,alg=""):
-    plot_dendrogram(cal_linkage_matrix(model)[1], round, alg)
+    # plot_dendrogram(cal_linkage_matrix(model)[1], round, alg)
+
     cluster_heads = model.children_[-1]
     # print(cluster_heads)
     Root = Node(_id="Root", parent=None, level=K_Levels+1)

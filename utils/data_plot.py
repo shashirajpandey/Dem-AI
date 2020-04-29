@@ -3,7 +3,7 @@ import numpy as np
 from clustering.Setting import *
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
+from scipy.cluster.hierarchy import dendrogram
 
 def  write_file(file_name = "../results/untitled.h5", **kwargs):
     with hf.File(file_name, "w") as data_file:
@@ -12,25 +12,52 @@ def  write_file(file_name = "../results/untitled.h5", **kwargs):
             data_file.create_dataset(key, data=value)
     print("Successfully save to file!")
 def read_data(file_name = "../results/untitled.h5"):
-    rs = []
     dic_data = {}
     with hf.File(file_name, "r") as f:
         # List all groups
         #print("Keys: %s" % f.keys())
         for key in f.keys():
-            rs.append( [key, f[key][:]] )
             dic_data[key] = f[key][:]
     return   dic_data
+
+def plot_dendrogram(rs_linkage_matrix, round, alg):
+    # Plot the corresponding dendrogram
+    plt.figure(1)
+    plt.clf()
+    # change p value to 5 if we want to get 5 levels
+    plt.title('Hierarchical Clustering Dendrogram')
+    rs_dendrogram = dendrogram(rs_linkage_matrix, truncate_mode='level', p=K_Levels)
+
+    # print(rs_dendrogram['ivl'])  # x_axis of dendrogram => index of nodes or (Number of points in clusters (i))
+    # print(rs_dendrogram['leaves'])  # merge points
+    plt.xlabel("index of node or (Number of leaves in each cluster).")
+    if(MODEL_TYPE == "cnn"):
+        if(CLUSTER_METHOD == "gradient"):
+            plt.ylim(0, 1.2)
+        else:
+            plt.ylim(0, 0.4)
+    else:
+        plt.ylim(0,1.5)
+    plt.savefig(PLOT_PATH + alg + "_T"+str(round)+".pdf")
+
 def plot_from_file():
-    file_name = "../results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+    if(CLUSTER_METHOD == "weight"):
+        file_name = "../results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+    else:
+        file_name = "../results/alg_{}_iter_{}_k_{}_g.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
     f_data = read_data( file_name )
+
     print("DEM-AI --------->>>>> Plotting")
-    alg_name = RUNNING_ALG + "_"
+    N_clients = f_data['N_clients'][0]
+    TREE_UPDATE_PERIOD = f_data['TREE_UPDATE_PERIOD'][0]
+
+    alg_name = RUNNING_ALG+ "_"
 
     plt.figure(3)
     plt.clf()
     plt.plot(f_data['root_train'], label="Root_train", linestyle="--")
     plt.plot(f_data['root_test'], label="Root_test", linestyle="--")
+    #add group data
     plt.plot(np.arange(len(f_data['cs_avg_data_train'])), f_data['cs_avg_data_train'], linestyle="-",
              label="Client_spec_train")
     plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], linestyle="-", label="Client_spec_test")
@@ -131,6 +158,14 @@ def plot_from_file():
     plt.savefig(PLOT_PATH + alg_name + "C_Gen_Training.pdf")
 
     plt.show()
+    ### PLOT DENDROGRAM ####
+    dendo_data = f_data['dendo_data']
+    dendo_data_round = f_data['dendo_data_round']
+    # print(dd_data)
+    i=0
+    for m_linkage in dendo_data:
+        plot_dendrogram(m_linkage, dendo_data_round[i], RUNNING_ALG)
+        i+=1
 
     print("** Summary Results: ---- Training ----")
     print("AVG Clients Specialization - Training:", f_data['cs_avg_data_train'])
@@ -181,14 +216,15 @@ def plot_3D():
     plt.show()
 
 if __name__=='__main__':
+    PLOT_PATH = "../figs/"
     # a = [[0.09540889526542325, 0.1135953840605842], [0.9921090387374462, 0.998918139199423], [0.9921090387374462, 0.999278759466282], [0.994261119081779, 1.0], [0.9928263988522238, 1.0], [0.9928263988522238, 1.0], [0.9921090387374462, 1.0], [0.9921090387374462, 1.0], [0.9921090387374462, 1.0], [0.9921090387374462, 1.0]]
     # b = np.asarray(a)
     # c = np.asarray([1,2,3,4,5,6,7,8])
     # write_file( file_name="../results/tri_test.h5", b=b, c=c)
-    file_name = "../results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
-    dt = read_data(file_name)
-    print(dt)
-    plot_3D()
+    # file_name = "../results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+    # dt = read_data(file_name)
+    # print(dt)
+    # plot_3D()
     # print(dt['cs_avg_data_test'])
     # print(dt['cs_avg_data_train'])
     # print(dt['root_test'])

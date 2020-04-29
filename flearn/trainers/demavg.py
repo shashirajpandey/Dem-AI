@@ -10,7 +10,7 @@ from clustering.Setting import *
 from clustering.Setting import *
 from ..optimizer.dempgd import DemPerturbedGradientDescent
 from ..optimizer.pgd import PerturbedGradientDescent
-from utils.data import *
+from utils.data_plot import *
 
 
 class Server(DemBase):
@@ -169,16 +169,24 @@ class Server(DemBase):
 
     def display_results(self):
         #file_name = "../results/ALG_"+RUNNING_ALG+'_ITER_'+NUM_GLOBAL_ITERS+'_UE_'+N_clients+'_K_'+K_Levels+'_w.h5'
-        file_name = "./results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+        if(CLUSTER_METHOD == "weight"):
+            file_name = "./results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+        else:
+            file_name = "./results/alg_{}_iter_{}_k_{}_g.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
         print(file_name)
         root_train = np.asarray(self.gs_data_train)[:, -1]
         root_test = np.asarray(self.gs_data_test)[:, -1]
+        save_cmode = 0
+        if(CLUSTER_METHOD=="gradient"):
+            save_cmode = 1
 
         write_file(file_name=file_name, root_test=root_test, root_train = root_train,
                    cs_avg_data_test=self.cs_avg_data_test, cs_avg_data_train=self.cs_avg_data_train,
                    cg_avg_data_test = self.cg_avg_data_test, cg_avg_data_train = self.cg_avg_data_train,
                    cs_data_test=self.cs_data_test, cs_data_train=self.cs_data_train, cg_data_test=self.cg_data_test,
-                   cg_data_train=self.cg_data_train, g_level_train=self.g_level_train, g_level_test=self.g_level_test )
+                   cg_data_train=self.cg_data_train, g_level_train=self.g_level_train, g_level_test=self.g_level_test,
+                   dendo_data=self.dendo_data, dendo_data_round=self.dendo_data_round,                                  #Dendrogram data
+                   N_clients=[N_clients], TREE_UPDATE_PERIOD=[TREE_UPDATE_PERIOD])                                      #Setting
 
 
 

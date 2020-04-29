@@ -7,7 +7,7 @@ from flearn.optimizer.pgd import PerturbedGradientDescent
 from .fedbase import BaseFedarated
 import matplotlib.pyplot as plt
 from clustering.Setting import *
-from utils.data import *
+from utils.data_plot import *
 
 class Server(BaseFedarated):
     def __init__(self, params, learner, dataset):
