@@ -174,9 +174,9 @@ class Server(DemBase):
     def save_results(self):
         #file_name = "../results/ALG_"+RUNNING_ALG+'_ITER_'+NUM_GLOBAL_ITERS+'_UE_'+N_clients+'_K_'+K_Levels+'_w.h5'
         if(CLUSTER_METHOD == "weight"):
-            file_name = "./results/{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+            file_name = RS_PATH+"{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
         else:
-            file_name = "./results/{}_iter_{}_k_{}_g.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+            file_name = RS_PATH+"{}_iter_{}_k_{}_g.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
         print(file_name)
         # root_train = np.asarray(self.gs_data_train)[:, -1]
         # root_test = np.asarray(self.gs_data_test)[:, -1]
@@ -193,5 +193,5 @@ class Server(DemBase):
                    gkg_level_train=self.gkg_level_train, gkg_level_test=self.gkg_level_test,
                    dendo_data=self.dendo_data, dendo_data_round=self.dendo_data_round,  #Dendrogram data
                    N_clients=[N_clients], TREE_UPDATE_PERIOD=[TREE_UPDATE_PERIOD])      #Setting
-
+        plot_from_file()
 

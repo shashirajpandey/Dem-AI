@@ -138,6 +138,7 @@ class Server(BaseFedarated):
                    cg_avg_data_test=self.cg_avg_data_test, cg_avg_data_train=self.cg_avg_data_train,
                    cs_data_test=self.cs_data_test, cs_data_train=self.cs_data_train, cg_data_test=self.cg_data_test,
                    cg_data_train=self.cg_data_train, N_clients=[N_clients])
+        plot_from_file()
 
     # def display_results(self):
     #     # print("FED-AVG --------------> Plotting")
