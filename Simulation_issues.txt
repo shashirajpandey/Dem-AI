@@ -1,10 +1,28 @@
 Tuning & Simulation issue for 50 users:
+0. DemProx vs DemAVG:
+    - In demavg all clients, groups Generalization and Specialization performance is convergence to similar performance (points)
+                clients reduces the spec performance (0.95~0.96)
+    - In Demprox: Client generalization performance is achieve a lowest value (0.67).
+                  And, groups spec and gens convergence to a similar value (around 0.8)
+                  Clients specs is achieve a highest value without loosing performance (0.99x)
+
+
 1. Soft-update (gamma < 1) is helpful or not? => Tune the value of gamma if it is helpful otherwise keep gamma = 1.
+    gamma=0.6 getting smooth performance then 1. and convergence to a higher point -  in DemAVG.
 2. DemProx: How does self.mu affect to the performance? (Use a the reasonable value to test for other remaining questions)
+               When mu small the performance of DemProx converge to the DemAvg performance and behave similarly
+               We need to find a traeoff value such that the client Spec not reduce the performance while the generalization increase fastest.
+
 3. "Weight" vs "Gradient" is better for clustering in terms of learning performance?
+    => Gradient clustering shows similar performance with  Weight Clustering
+    => Maybe even we use the gradient groups but the averaging mechanism still follows the averging of weights?
+
+
 4. K levels = 3 is better than 2 or not in terms of leanring performance?
 => Test on better method only, if no one better we verify both methods:
 	5. How does topology change?
-	6. Topology update period (1, 2, 3) is converged to similar topology or not? 
+	=> converged and shrink the distance among the groups.
+	6. Topology update period (1, 2, 3) is converged to similar topology or not?
+
 	
 Note that: the behavior of DemProx might be different from DemAvg.
