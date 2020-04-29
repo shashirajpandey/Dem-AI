@@ -179,7 +179,7 @@ if __name__ == '__main__':
     hyper_learning_rate = [0.2,0,0.2,0,0.2,0,2,4]
     local_ep = [10, 10, 10, 10, 10, 10, 10, 10]
     # local_ep = [20, 20, 20, 20, 20, 20, 20, 20]
-    batch_size = [20,20,50,50,0,0,0,0]
+    batch_size = [10,10,10,10,0,0,0,0]
     DATA_SET = "mnist"
     number_users = 50 #100
     number_global_iters = NUM_GLOBAL_ITERS

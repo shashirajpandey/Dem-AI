@@ -25,8 +25,8 @@ class Server(BaseFedarated):
         super(Server, self).__init__(params, learner, dataset)
 
     def train(self):
-        '''Train using Federated Averaging'''
-        print("Train using Federated Averaging")
+        '''Train using Federated Averaging or Federated Proximal'''
+        print("Train using " + self.alg)
         print('Training with {} workers ---'.format(self.clients_per_round))
         # for i in trange(self.num_rounds, desc='Round: ', ncols=120):
         for i in range(self.num_rounds):

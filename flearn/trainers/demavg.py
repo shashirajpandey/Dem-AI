@@ -31,7 +31,7 @@ class Server(DemBase):
         super(Server, self).__init__(params, learner, dataset)
 
     def train(self):
-        '''Train using Federated Averaging'''
+        '''Train using DemAVG or DemProx'''
         print("Train using " + self.alg)
         print('Training with {} workers ---'.format(self.clients_per_round))
 

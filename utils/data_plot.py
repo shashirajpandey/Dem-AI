@@ -43,9 +43,9 @@ def plot_dendrogram(rs_linkage_matrix, round, alg):
 def plot_from_file():
     if("dem" in RUNNING_ALG):
         if(CLUSTER_METHOD == "weight"):
-            file_name = "../results/{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+            file_name = RS_PATH+"{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
         else:
-            file_name = "../results/{}_iter_{}_k_{}_g.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
+            file_name = RS_PATH+"{}_iter_{}_k_{}_g.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
         f_data = read_data(file_name)
         TREE_UPDATE_PERIOD = f_data['TREE_UPDATE_PERIOD'][0]
         N_clients = f_data['N_clients'][0]
@@ -59,7 +59,7 @@ def plot_from_file():
             plot_dendrogram(m_linkage, dendo_data_round[i], RUNNING_ALG)
             i+=1
     else:
-        file_name = "../results/{}_iter_{}.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS)
+        file_name = RS_PATH+"{}_iter_{}.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS)
         f_data = read_data(file_name)
         N_clients = f_data['N_clients'][0]
 
