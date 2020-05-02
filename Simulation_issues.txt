@@ -6,6 +6,7 @@ Tuning & Simulation issue for 50 users:
                   And, groups spec and gens convergence to a similar value (around 0.8)
                   Clients specs is achieve a highest value without loosing performance (0.99x)
 
+0. FedProx is smoother than FedAvg but FedProx is a little bit slower in generalization. They show almost similar behavior,
 
 1. Soft-update (gamma < 1) is helpful or not? => Tune the value of gamma if it is helpful otherwise keep gamma = 1.
     gamma=0.6 getting smooth performance then 1. and convergence to a higher point -  in DemAVG.
@@ -19,10 +20,17 @@ Tuning & Simulation issue for 50 users:
 
 
 4. K levels = 3 is better than 2 or not in terms of leanring performance?
-=> Test on better method only, if no one better we verify both methods:
-	5. How does topology change?
-	=> converged and shrink the distance among the groups.
-	6. Topology update period (1, 2, 3) is converged to similar topology or not?
+    => K=2 ... Client generalization performance reduces
 
+5. How does topology change?
+=> "Weight": The topology converged and shrunk the distance among the groups.
+
+6. Topology update period (1, 2, 3) is converged to similar topology or not?
+=>Update period =2 is better for DemProx and almost similar behavior for DemAvg
+
+7. Decay the hard update -> soft update we can boost the generalization of client  converge to higher values (0.945) and
+close to specialization capability (0.96) in DemAvg. In DemProx, it does not show a good effect yet
 	
 Note that: the behavior of DemProx might be different from DemAvg.
+
+
