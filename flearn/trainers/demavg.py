@@ -15,9 +15,10 @@ from utils.data_plot import *
 
 class Server(DemBase):
     def __init__(self, params, learner, dataset):
-        # self.gamma = 0.6  # soft update in hierrachical averaging
-        self.gamma = 1.  # hard update in hierrachical averaging
-        self.beta = 1.
+        self.gamma = 0.6  # soft update in hierrachical averaging
+        # self.gamma = 1. # hard update in hierrachical averaging
+        self.beta = 1.  # DemAvg 0.8> 0.960 vs 0.936, DemProx 0.98 vs 0.605
+        # self.beta = 0.8   # DemAvg 0.8> 0.958 vs 0.948, DemProx 0.5x generalization
 
         if (params['optimizer'] == "demavg"):
             print('Using DemAvg to Train')
@@ -139,10 +140,10 @@ class Server(DemBase):
                 # track communication cost
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
             # print("First Client model:", np.sum(csolns[0][1][0]), np.sum(csolns[0][1][1]))
-            # if (i % 3 == 0):
+            # if (i % 3 == 0 and DECAY == True):
             #     self.gamma = max(self.gamma - 0.3, 0.05)  # period = 3, 0.960  vs 0.945.. after 31
             #     # self.gamma = self.gamma *0.2  # max(self.gamma *0.5,0.05)
-            if (i % TREE_UPDATE_PERIOD == 0):
+            if (i % TREE_UPDATE_PERIOD == 0) and (DECAY == True):
                 self.gamma = max(self.gamma - 0.25, 0.02)  # period = 2  0.96 vs 0.9437 after 31 : 0.25, 0.02 DemAVG
                 # self.gamma = max(self.gamma - 0.1, 0.6) # 0.25, 0.02:  0.987 vs 0.859 after 31 DemProx vs fixed 0.6 =>0.985 and 0.89
                 # self.gamma = self.gamma *0.45  # 0.4: 0.9395
