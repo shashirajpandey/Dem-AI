@@ -33,4 +33,8 @@ close to specialization capability (0.96) in DemAvg. In DemProx, it does not sho
 	
 Note that: the behavior of DemProx might be different from DemAvg.
 
-
+100 iterations
+Fig1. 4 algs với setting tốt DemAvg,DemProx (0.6, 0.001)
+Fig2. Soft update vs Hard update (0.6, 0.8, 1.0) cho DemProx, DemAvg
+Fig3. DemProx với mu (0.004, 0.001, 0.0005, 0.0001) in soft update
+Fig4. K=2, 3 cho DemProx, DemAvg.
