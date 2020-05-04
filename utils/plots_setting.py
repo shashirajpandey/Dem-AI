@@ -21,5 +21,19 @@ BS_labels = ["BS0", "BS1", "BS2", "BS3", "BS4"]
 Site_labels = ["Site 0", "Site 1", "Site 2", "Site 3", "Site 4"]
 PLOT_PATH = "Figs/" if SIMULATION_MODE<3 else "Figs/Scale/"
 
+def plot_convergence(f_scaling,  k):
+#    colors=["b","r","k"]
+    plt.figure(1,figsize=fig_size1)
+    plt.clf()
+    for j in range(Numb_BS):
+        plt.plot(range(0,k),f_scaling[j,0:k],marker=markers[j], markersize=6,markevery=1,linestyle=":",label=Site_labels[j])
+
+    plt.legend(loc=1,fontsize=legendsize)
+    plt.xlabel("Iterations",fontsize=labelsize)
+    plt.ylabel("Scaling factor $f$",fontsize=labelsize)
+    # plt.show()
+    plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    plt.savefig(PLOT_PATH+"Solution_Convergence.pdf")
+
 
 
