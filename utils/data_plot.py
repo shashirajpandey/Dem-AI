@@ -1,10 +1,11 @@
 import h5py as hf
+import os
 import numpy as np
 from clustering.Setting import *
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.cluster.hierarchy import dendrogram
-
+import matplotlib.gridspec as gridspec
 def  write_file(file_name = "../results/untitled.h5", **kwargs):
     with hf.File(file_name, "w") as data_file:
         for key, value in kwargs.items():
@@ -233,19 +234,410 @@ def plot_3D():
 
     plt.show()
 
+
+
+def get_ploting_data(RS_PATH="../results/100iters/" ):
+    # list_file = os.listdir(RS_PATH)
+    # list_file_name = sorted(list_file)
+    # for file in list_file_name:
+    #     print("\" \": \"{}\",".format(file))
+    #listing file name in directory: transfrom into dictionary (copy from consolt
+    RS_PATH = "../results/100iters/"
+    name = {
+        "avg2w": "demavg_iter_100_k_2_w.h5",
+        "avg3g": "demavg_iter_100_k_3_g.h5",
+        "avg3w": "demavg_iter_100_k_3_w.h5",
+        "prox2w": "demprox_iter_100_k_2_w.h5",
+        "prox3w": "demprox_iter_100_k_3_w.h5",
+        "fedavg": "fedavg_iter_100.h5",
+        "fedprox": "fedprox_iter_100.h5",
+        "avg3b08": "demavg_iter_100_k_3_w_beta_0_8.h5",
+        "avg3wdecay": "demavg_iter_100_k_3_w_decay.h5",
+        "avg3wg08": "demavg_iter_100_k_3_w_gamma_0_8.h5",
+        "avg3g1": "demavg_iter_100_k_3_w_gamma_1.h5",
+        "prox3wg08": "demprox_iter_100_k_3_w_gamma_0_8.h5",
+        "prox3wg1": "demprox_iter_100_k_3_w_gamma_1.h5",
+        "prox3wmu0001": "demprox_iter_100_k_3_w_mu_0001.h5",
+        "prox3wmu0005": "demprox_iter_100_k_3_w_mu_0005.h5",
+        "prox3wmu005": "demprox_iter_100_k_3_w_mu_005.h5"
+    }
+    markers_on = [ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90] #np.arange(0,100,10)
+
+
+    plt.figure(1)
+    plt.subplot(241)
+    f_data = read_data(RS_PATH + name['avg2w'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8',markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":",marker='s',markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P',markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p',markevery=markers_on,label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*',markevery=markers_on,label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0,1)
+    plt.title("DEM-AVG")
+    plt.xlabel("#Round \n a)")
+    plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left",mode="expand", borderaxespad=0, ncol=3, prop={'size': 6})
+    # plt.tight_layout()
+    # plt.legend()
+    plt.subplot(242)
+    f_data = read_data(RS_PATH + name['prox2w'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-PROX")
+    plt.xlabel("#Round \n b)")
+    # plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode="expand", borderaxespad=0, ncol=3,prop={'size': 6})
+    # plt.tight_layout()
+    plt.subplot(244)
+    fed_data2 = read_data(RS_PATH + name['fedprox'])
+    plt.plot(fed_data2['root_test'], label="GEN", linestyle="-.", marker='8', markevery=markers_on)
+    plt.plot(fed_data2['cs_avg_data_test'], label="C-SPE", marker='p', markevery=markers_on)
+    plt.plot(fed_data2['cg_avg_data_test'], label="C-GEN", marker='*', markevery=markers_on)
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.grid()
+    plt.title("FED-PROX")
+    plt.xlabel("#Round \n c)")
+    # plt.ylabel("Accuracy")
+    # plt.tight_layout()
+    # plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode="expand", borderaxespad=0, ncol=5, prop={'size': 6})
+    plt.subplot(243)
+    fed_data = read_data(RS_PATH+name['fedavg'])
+    plt.plot(fed_data['root_test'], label="GEN", linestyle="-.", marker='8', markevery=markers_on)
+    plt.plot(fed_data['cs_avg_data_test'], label="C-SPE", marker='p', markevery=markers_on)
+    plt.plot(fed_data['cg_avg_data_test'], label="C-GEN", marker='*', markevery=markers_on)
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.grid()
+    plt.title("FED-AVG")
+    plt.xlabel("#Round \n d)")
+    # plt.ylabel("Accuracy")
+    # plt.show()
+    #---------------------//K=2, K=3//---------------------------------#
+    # plt.figure(2)
+    plt.subplot(245)
+    f_data = read_data(RS_PATH + name['avg2w'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-AVG K =2")
+    plt.xlabel("#Round \n a)")
+    plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left",mode="expand", borderaxespad=0, ncol=3, prop={'size': 6})
+    # plt.tight_layout()
+    # plt.legend()
+    plt.subplot(246)
+    f_data = read_data(RS_PATH + name['prox2w'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-PROX K=2")
+    plt.xlabel("#Round \n b)")
+    # plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode="expand", borderaxespad=0, ncol=3,prop={'size': 6})
+    # plt.tight_layout()
+    plt.subplot(247)
+    f_data = read_data(RS_PATH + name['avg3w'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-AVG K=3")
+    plt.xlabel("#Round \n c)")
+    # plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left",mode="expand", borderaxespad=0, ncol=3, prop={'size': 6})
+    # plt.tight_layout()
+    # plt.legend()
+    plt.subplot(248)
+    f_data = read_data(RS_PATH + name['prox3w'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-PROX K = 3")
+    plt.xlabel("#Round \n d)")
+    # plt.ylabel("Accuracy")
+    plt.grid()
+
+    #--------------------//-----gamma-------//--------------//
+    plt.figure(3)
+    plt.subplot(141)
+    f_data = read_data(RS_PATH + name['avg3w'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-AVG $\gamma = 0.6$")
+    plt.xlabel("#Round \n a)")
+    plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left",mode="expand", borderaxespad=0, ncol=3, prop={'size': 6})
+    # plt.tight_layout()
+    # plt.legend()
+    plt.subplot(142)
+    f_data = read_data(RS_PATH + name['avg3wdecay'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-AVG $\gamma$ decay")
+    plt.xlabel("#Round \n b)")
+    # plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode="expand", borderaxespad=0, ncol=3,prop={'size': 6})
+    # plt.tight_layout()
+    plt.subplot(143)
+    f_data = read_data(RS_PATH + name['avg3wg08'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-AVG $\gamma = 0.8$")
+    plt.xlabel("#Round \n c)")
+    # plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left",mode="expand", borderaxespad=0, ncol=3, prop={'size': 6})
+    # plt.tight_layout()
+    # plt.legend()
+    plt.subplot(144)
+    f_data = read_data(RS_PATH + name['avg3g1'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-AVG $\gamma = 1.0$")
+    plt.xlabel("#Round\n d)")
+    # plt.ylabel("Accuracy")
+    plt.grid()
+
+    #-----------PROX--------------
+
+    plt.figure(4)
+    plt.subplot(131)
+    f_data = read_data(RS_PATH + name['prox3w'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-PROX $\gamma = 0.6$")
+    plt.xlabel("#Round \n a)")
+    plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left",mode="expand", borderaxespad=0, ncol=3, prop={'size': 6})
+    # plt.tight_layout()
+    # plt.legend()
+    plt.subplot(132)
+    f_data = read_data(RS_PATH + name['prox3wg08'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-PROX $\gamma=0.8$")
+    plt.xlabel("#Round \n b)")
+    # plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode="expand", borderaxespad=0, ncol=3,prop={'size': 6})
+    # plt.tight_layout()
+    plt.subplot(133)
+    f_data = read_data(RS_PATH + name['prox3wg1'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-PROX $\gamma = 1.0$")
+    plt.xlabel("#Round \n c)")
+    # plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left",mode="expand", borderaxespad=0, ncol=3, prop={'size': 6})
+    # plt.tight_layout()
+    # plt.legend()
+    #================MU================//
+    plt.figure(5)
+    plt.subplot(131)
+    f_data = read_data(RS_PATH + name['prox3wmu0001'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-PROX $\gamma = 0.6, \mu=0.0001$")
+    plt.xlabel("#Round \n a)")
+    plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left",mode="expand", borderaxespad=0, ncol=3, prop={'size': 6})
+    # plt.tight_layout()
+    # plt.legend()
+    plt.subplot(132)
+    f_data = read_data(RS_PATH + name['prox3wmu0005'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-PROX $\gamma=0.6, \mu=0.0005$")
+    plt.xlabel("#Round \n b)")
+    # plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode="expand", borderaxespad=0, ncol=3,prop={'size': 6})
+    # plt.tight_layout()
+    plt.subplot(133)
+    f_data = read_data(RS_PATH + name['prox3wmu005'])
+    plt.plot(f_data['root_test'], label="GEN", linestyle="--", marker='8', markevery=markers_on)
+    plt.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle=":", marker='s', markevery=markers_on)
+    plt.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", marker='P', markevery=markers_on)
+    plt.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], marker='p', markevery=markers_on,
+             label="C-SPE")
+    plt.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], marker='*', markevery=markers_on,
+             label="C-GEN")
+    plt.legend(loc="best", prop={'size': 8})
+    plt.xlim(0, 50)
+    plt.ylim(0, 1)
+    plt.title("DEM-PROX $\gamma = 0.6, \mu=0.05$")
+    plt.xlabel("#Round \n c)")
+    # plt.ylabel("Accuracy")
+    plt.grid()
+    # plt.legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left",mode="expand", borderaxespad=0, ncol=3, prop={'size': 6})
+    # plt.tight_layout()
+    # plt.legend()
+
+
+
+    plt.show()
+
+    return  0
+def get_data_from_file(file_name=""):
+    rs = {}
+    if not file_name:
+        print("File is not existing please make sure file name is correct")
+    else:
+        f_data = read_data(file_name)
+        if('dem' in file_name):
+            return  f_data['root_test'], f_data['gs_level_test'][-2,:,0], f_data['gg_level_test'][-2,:,0], f_data['cs_avg_data_test'], f_data['cg_avg_data_test']
+        else:
+            return f_data['root_test'], f_data['cs_avg_data_test'], f_data['cg_avg_data_test']
+
 if __name__=='__main__':
     PLOT_PATH = "../figs/"
-    RS_PATH =  "../results/"
-    # a = [[0.09540889526542325, 0.1135953840605842], [0.9921090387374462, 0.998918139199423], [0.9921090387374462, 0.999278759466282], [0.994261119081779, 1.0], [0.9928263988522238, 1.0], [0.9928263988522238, 1.0], [0.9921090387374462, 1.0], [0.9921090387374462, 1.0], [0.9921090387374462, 1.0], [0.9921090387374462, 1.0]]
-    # b = np.asarray(a)
-    # c = np.asarray([1,2,3,4,5,6,7,8])
-    # write_file( file_name="../results/tri_test.h5", b=b, c=c)
-    # file_name = "../results/alg_{}_iter_{}_k_{}_w.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels)
-    # dt = read_data(file_name)
-    # print(dt)
-    # plot_3D()
-    # print(dt['cs_avg_data_test'])
-    # print(dt['cs_avg_data_train'])
-    # print(dt['root_test'])
-    # print(dt['root_train'])
-    plot_from_file()
+    RS_PATH =  "../results/100iters/"
+
+    get_ploting_data()
+
+    # markers_on = np.arange(0, 100, 10)
+    # print(markers_on)
+    # x = np.linspace(0, 2 * np.pi, 400)
+    # y = np.sin(x ** 2)
+    # fig, axs = plt.subplots(2, 2)
+    # axs[0, 0].plot(x, y)
+    # axs[0, 0].set_title('Axis [0, 0]')
+    # axs[0, 1].plot(x, y, 'tab:orange')
+    # axs[0, 1].set_title('Axis [0, 1]')
+    # axs[1, 0].plot(x, -y, 'tab:green', label="test")
+    # #axs[1, 0].set_title('Axis [1, 0]')
+    # axs[1, 1].plot(x, -y, 'tab:red')
+    # axs[1, 1].set_title('Axis [1, 1]')
+    # axs[1, 0].legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left",
+    #             mode="expand", borderaxespad=0, ncol=3)
+    # for ax in axs.flat:
+    #     ax.set(xlabel='x-label', ylabel='y-label')
+    #
+    # # Hide x labels and tick labels for top plots and y ticks for right plots.
+    # for ax in axs.flat:
+    #     ax.label_outer()
+    # #for ax in axs.flat:
+    #     # ax.label_outer()
+    # plt.show()

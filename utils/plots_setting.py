@@ -37,3 +37,4 @@ def plot_convergence(f_scaling,  k):
 
 
 
+
