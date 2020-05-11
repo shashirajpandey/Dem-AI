@@ -84,6 +84,19 @@ def plot_dendrogram(rs_linkage_matrix, round, alg):
         plt.ylim(0,1.5)
     plt.savefig(PLOT_PATH + alg + "_T"+str(round)+".pdf")
 
+def plot_dendo_data_dem(file_name):
+    f_data = read_data(file_name)
+    TREE_UPDATE_PERIOD = f_data['TREE_UPDATE_PERIOD'][0]
+    N_clients = f_data['N_clients'][0]
+    dendo_data = f_data['dendo_data']
+    dendo_data_round = f_data['dendo_data_round']
+    i = 0
+    for m_linkage in dendo_data:
+        plot_dendrogram(m_linkage, dendo_data_round[i], RUNNING_ALG)
+        i += 1
+
+    return 0
+
 def plot_from_file():
     if("dem" in RUNNING_ALG):
         if(CLUSTER_METHOD == "weight"):
@@ -895,15 +908,20 @@ def get_data_from_file(file_name=""):
 if __name__=='__main__':
     PLOT_PATH = "../figs/"
     RS_PATH =  "../results/100iters/"
-    # plot_dem_vs_fed()
-    # plot_demavg_vs_demprox()
-    # plot_demavg_gamma_vari()
-    # plot_demprox_mu_vari()
-    # plt.show()
+    plot_dem_vs_fed() #plot comparision FED vs DEM
+    plot_demavg_vs_demprox() # DEM, PROX vs K level
+    plot_demavg_gamma_vari() # DEM AVG vs Gamma vary
+    plot_demprox_mu_vari() # DEM Prox vs mu vary
+    #-------DENDOGRAM PLOT --------------------------------------------------------------------------------#
+    #
+    #plot_dendo_data_dem(file_name=name["avg3w"]) #change file_name in order to get correct file to plot   #|
+    #
+    # -------DENDOGRAM PLOT --------------------------------------------------------------------------------#
+    plt.show()
     # dendo_data
     # dendo_data_round
-    tmp_data = read_data(RS_PATH+name["avg3w"])
-    print(tmp_data["dendo_data"].shape)
-    print(tmp_data["dendo_data_round"])
+    # tmp_data = read_data(RS_PATH+name["avg3w"])
+    # print(tmp_data["dendo_data"].shape)
+    # print(tmp_data["dendo_data_round"])
 
     #plot_dendrogram(tmp_data["dendo_data"],tmp_data["dendo_data_round"], "DEMAVG" )
