@@ -1,7 +1,7 @@
 "FIX PROGRAM SETTINGS"
 PLOT_PATH = "./figs/"
 RS_PATH = "./results/"
-K_Levels = 3  #2, 3
+K_Levels = 1  #2, 3
 N_clients = 50
 NUM_GLOBAL_ITERS = 100 #100
 TREE_UPDATE_PERIOD = 2 # tested with 1, 2, 3
