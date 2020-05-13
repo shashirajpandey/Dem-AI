@@ -27,7 +27,7 @@ class DemBase(object):
         self.N_clients = len(self.clients)
         self.TreeRoot = None
 
-        print('{} Clients in Total'.format(len(self.clients)))
+        print('{} Clients in Total'.format(self.N_clients))
         self.latest_model = self.client_model.get_params()
         self.model_shape = (self.latest_model[0].shape,self.latest_model[1].shape) #weight, bias dimension
         print("Model Shape:", self.model_shape)
