@@ -13,6 +13,7 @@ YLim=0.1
 #Global variable
 markers_on = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
 RS_PATH = "./results/50users/"
+PLOT_PATH = "./figs/"
 # RS_PATH = "./results/50users/100iters"
 OUT_TYPE = ".pdf" #.eps or .pdf
 name = {
@@ -52,7 +53,6 @@ marker = {
     "cspe": "p",
     "cgen": "*"
 }
-PLOT_PATH = "./figs/Cluster/mclr/"
 
 def  write_file(file_name = "../results/untitled.h5", **kwargs):
     with hf.File(file_name, "w") as data_file:

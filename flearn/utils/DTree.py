@@ -63,9 +63,11 @@ class Node(object):
                 parent_md, parent_normalize_term = self.parent.get_hierrachical_info1()
                 normalize_term = 1./self.numb_clients + parent_normalize_term
                 # print(parent_md)
-                return ((self.gmodel[0]/self.numb_clients + parent_md[0], self.gmodel[1]/self.numb_clients + parent_md[1]), normalize_term)
+                # return ((self.gmodel[0]/self.numb_clients + parent_md[0], self.gmodel[1]/self.numb_clients + parent_md[1]), normalize_term)
+                return [w/self.numb_clients for w in self.gmodel]  + parent_md , normalize_term
             elif(self.parent == "Empty"):  #root node
-                return ((self.gmodel[0]/self.numb_clients, self.gmodel[1]/self.numb_clients), 1./self.numb_clients)
+                # return list(self.gmodel)/self.numb_clients, 1./self.numb_clients
+                return [w/self.numb_clients for w in self.gmodel], 1./self.numb_clients
 
 
     def count_clients(self):
