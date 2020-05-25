@@ -104,11 +104,14 @@ class DemBase(object):
             # print("Bias:", w[1][1])
             if(CLUSTER_METHOD == "weight"):
                 c_w = []
+                # for w in range(2):  #using the first layer to cluster only.
                 for w in range(len(self.model_shape1)):
+                #     print(c.gmodel[w].shape)
                     c_w.append(c.gmodel[w].flatten())
                 p_list.append( np.concatenate( c_w, axis=0)   )
             else:
                 c_g = []
+                # for g in range(2): #using the first layer to cluster only.
                 for g in range(len(self.model_shape1)):
                     c_g.append(c.gmodel[g].flatten())
                 p_list.append( np.concatenate( c_g, axis=0)   )

@@ -46,21 +46,21 @@ class Model(object):
             pool1,
             rate=0.4,
         )
-        # conv2 = tf.layers.conv2d(
-        #     inputs=dropout1,
-        #     # filters=64,
-        #     filters=32,
-        #     kernel_size=[5, 5],
-        #     padding="same",
-        #     activation=tf.nn.relu)
-        # pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
-        # dropout2 = tf.layers.dropout(
-        #     pool2,
-        #     rate=0.4,
-        # )
-        # pool2_flat = tf.reshape(dropout2, [-1, 7 * 7 * 32])
-        # # pool2_flat = tf.reshape(dropout2, [-1, 7 * 7 * 64])
-        pool2_flat= tf.reshape(dropout1, [-1, 7 * 7 * 32])
+        conv2 = tf.layers.conv2d(
+            inputs=dropout1,
+            # filters=64,
+            filters=32,
+            kernel_size=[5, 5],
+            padding="same",
+            activation=tf.nn.relu)
+        pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
+        dropout2 = tf.layers.dropout(
+            pool2,
+            rate=0.4,
+        )
+        pool2_flat = tf.reshape(dropout2, [-1, 7 * 7 * 32])
+        # pool2_flat = tf.reshape(dropout2, [-1, 7 * 7 * 64])
+        # pool2_flat= tf.reshape(dropout1, [-1, 7 * 7 * 32])
         dense = tf.layers.dense(inputs=pool2_flat, units=512, activation=tf.nn.relu)
         logits = tf.layers.dense(inputs=dense, units=self.num_classes)
         predictions = {

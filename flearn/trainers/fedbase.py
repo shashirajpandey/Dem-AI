@@ -144,6 +144,7 @@ class BaseFedarated(object):
     def aggregate(self, wsolns, weighted=True):
         total_weight = 0.0
         base = [0]*len(wsolns[0][1])
+        print("Numb of Layers:", len(wsolns[0][1]))
         for (w, soln) in wsolns:  # w is the number of samples
             # Equal weights
 #            if(weighted==False):

@@ -64,10 +64,15 @@ class Node(object):
                 normalize_term = 1./self.numb_clients + parent_normalize_term
                 # print(parent_md)
                 # return ((self.gmodel[0]/self.numb_clients + parent_md[0], self.gmodel[1]/self.numb_clients + parent_md[1]), normalize_term)
-                return [w/self.numb_clients for w in self.gmodel]  + parent_md , normalize_term
+                w_tmp=[]
+                for w in range(len(parent_md)):
+                    w_tmp.append(self.gmodel[w]/self.numb_clients + parent_md[w])
+                return (w_tmp, normalize_term)
+                # w_tmp = [w/self.numb_clients for w in self.gmodel]
+                # return (w_tmp + parent_md, normalize_term)
             elif(self.parent == "Empty"):  #root node
-                # return list(self.gmodel)/self.numb_clients, 1./self.numb_clients
-                return [w/self.numb_clients for w in self.gmodel], 1./self.numb_clients
+                # return((self.gmodel[0] / self.numb_clients, self.gmodel[1] / self.numb_clients), 1. / self.numb_clients)
+                return ([w/self.numb_clients for w in self.gmodel], 1./self.numb_clients)
 
 
     def count_clients(self):
