@@ -15,7 +15,7 @@ from utils.data_plot import *
 
 class Server(DemBase):
     def __init__(self, params, learner, dataset):
-        self.gamma = 0.6  # soft update in hierrachical averaging
+        self.gamma = 1.0  # soft update in hierrachical averaging
         # self.gamma = 1. # hard update in hierrachical averaging
         self.beta = 1.  # DemAvg 0.8> 0.960 vs 0.936, DemProx 0.98 vs 0.605
         # self.beta = 0.8   # DemAvg 0.8> 0.958 vs 0.948, DemProx 0.5x generalization
@@ -25,7 +25,9 @@ class Server(DemBase):
             self.alg = "DEMAVG"
             self.inner_opt = tf.train.GradientDescentOptimizer(params['learning_rate'])
         elif (params['optimizer'] == "demprox"):
-            self.mu = 0.001  # params['mu'] 0.002 (better generaliztaion) vs 0.005 (better specialization)
+            self.mu = 0.004  # params['mu'] 0.002 (better generaliztaion) vs 0.005 (better specialization)
+            if (N_clients == 100):
+                self.mu=0.0005
             print('Using DemProx to Train')
             self.alg = "DEMPROX"
             self.inner_opt = DemPerturbedGradientDescent(params['learning_rate'], mu=self.mu)

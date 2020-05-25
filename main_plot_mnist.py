@@ -25,6 +25,8 @@ MODEL_PARAMS = {
     'nist.cnn': (62,),
     'mnist.mclr': (10,),  # num_classes
     'mnist.cnn': (10,),  # num_classes
+    'cifar100.mclr': (100,),  # num_classes
+    'cifar100.cnn': (100,),  # num_classes
     'fashion_mnist.mclr': (10,),
     'fashion_mnist.cnn': (10,),
     'shakespeare.stacked_lstm': (80, 80, 256),  # seq_len, emb_dim, num_hidden
@@ -32,7 +34,8 @@ MODEL_PARAMS = {
 }
 
 
-def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01,hyper_learning_rate= 0.01, alg='fedprox', weight=True, batch_size=0, dataset="mnist"):
+def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01,hyper_learning_rate= 0.01,
+                 alg='fedprox', weight=True, batch_size=0, dataset="mnist", model="cnn.py"):
     ''' Parse command line arguments or load defaults '''
     parser = argparse.ArgumentParser()
 
@@ -49,7 +52,7 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
     parser.add_argument('--model',
                         help='name of model;',
                         type=str,
-                        default='mclr.py')  # 'stacked_lstm.py'
+                        default=model)  # 'stacked_lstm.py'
     parser.add_argument('--num_rounds',
                         help='number of rounds to simulate;',
                         type=int,
@@ -117,10 +120,16 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
 
     # mod = importlib.import_module(model_path)
     if MODEL_TYPE == "cnn": #"cnn" or "mclr"
-        import flearn.models.mnist.cnn as cnn
+        if(DATA_SET=="mnist"):
+            import flearn.models.mnist.cnn as cnn
+        elif(DATA_SET=="cifar100"):
+            import flearn.models.cifar100.cnn as cnn
         mod = cnn
     else:
-        import flearn.models.mnist.cnn as mclr
+        if (DATA_SET == "mnist"):
+            import flearn.models.mnist.mclr as mclr
+        elif (DATA_SET == "cifar100"):
+            import flearn.models.cifar100.mclr as mclr
         mod = mclr
 
     learner_model = getattr(mod, 'Model')
@@ -155,10 +164,10 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
 def main(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01,hyper_learning_rate= 0.01, alg='fedprox', weight=True, batch_size=0, dataset="mnist"):
     # suppress tf warnings
     tf.logging.set_verbosity(tf.logging.WARN)
-
+    model = MODEL_TYPE+".py"
     # parse command line arguments
     options, learner_model, trainer = read_options(
-        num_users, loc_ep, Numb_Glob_Iters, lamb, learning_rate,hyper_learning_rate, alg, weight, batch_size, dataset)
+        num_users, loc_ep, Numb_Glob_Iters, lamb, learning_rate,hyper_learning_rate, alg, weight, batch_size, dataset, model)
 
     # read data
     train_path = os.path.join('data', options['dataset'], 'data', 'train')
@@ -180,8 +189,9 @@ if __name__ == '__main__':
     local_ep = [10, 10, 10, 10, 10, 10, 10, 10]
     # local_ep = [20, 20, 20, 20, 20, 20, 20, 20]
     batch_size = [10,10,10,10,0,0,0,0]
-    DATA_SET = "mnist"
-    number_users = 50 #100
+
+    DATA_SET = DATASET
+    number_users = N_clients #100
     number_global_iters = NUM_GLOBAL_ITERS
     #
     # for i in range(len(algorithms_list)):

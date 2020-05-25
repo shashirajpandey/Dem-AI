@@ -30,6 +30,11 @@ class DemBase(object):
         print('{} Clients in Total'.format(self.N_clients))
         self.latest_model = self.client_model.get_params()
         self.model_shape = (self.latest_model[0].shape,self.latest_model[1].shape) #weight, bias dimension
+        self.model_shape1 = []
+        for m in self.latest_model:
+            self.model_shape1.append(m.shape)
+
+        print("Model Shape1:", self.model_shape1)
         print("Model Shape:", self.model_shape)
         # initialize system metrics
         self.metrics = Metrics(self.clients, params)

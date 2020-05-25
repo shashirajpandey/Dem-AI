@@ -295,7 +295,7 @@ def plot_3D():
 
 def plot_dem_vs_fed():
 
-    fig, (ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=3, sharex=True, sharey=True, figsize=(9.0, 4.6))
+    fig, (ax2, ax4, ax3) = plt.subplots(nrows=1, ncols=3, sharex=True, sharey=True, figsize=(9.0, 4.2))
     # f_data = read_data(RS_PATH + name['avg3w'])
     # ax1.plot(f_data['root_test'], label="GEN", linestyle="--", color=color["gen"], marker=marker["gen"],
     #          markevery=markers_on)
@@ -328,8 +328,9 @@ def plot_dem_vs_fed():
     ax2.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"], marker=marker["cgen"], markevery=markers_on,
              label="Client Generalization")
 
-    ax2.set_xlim(0, 60)
+    ax2.set_xlim(0, 40)
     ax2.set_ylim(0, 1)
+    ax2.set_ylabel("Testing Accuracy")
     ax2.set_title("DemLearn")
     ax2.set_xlabel("#Global Rounds")
     ax2.grid()
@@ -341,7 +342,7 @@ def plot_dem_vs_fed():
     ax3.plot(fed_data2['cs_avg_data_test'], label="Client-SPE", color=color["cspe"], marker=marker["cspe"], markevery=markers_on)
     ax3.plot(fed_data2['cg_avg_data_test'], label="Client-GEN", color=color["cgen"], marker=marker["cgen"], markevery=markers_on)
     # ax3.legend(loc="best", prop={'size': 8})
-    ax3.set_xlim(0, 60)
+    ax3.set_xlim(0, 40)
     ax3.set_ylim(0, 1)
     ax3.grid()
     ax3.set_title("FedProx")
@@ -354,8 +355,9 @@ def plot_dem_vs_fed():
     ax4.plot(fed_data['cs_avg_data_test'], label="Client-SPE", color=color["cspe"], marker=marker["cspe"], markevery=markers_on)
     ax4.plot(fed_data['cg_avg_data_test'], label="Client-GEN", color=color["cgen"], marker=marker["cgen"], markevery=markers_on)
     # plt.legend(loc="best", prop={'size': 8})
-    ax4.set_xlim(0, 60)
+    ax4.set_xlim(0, 40)
     ax4.set_ylim(0, 1)
+    ax4.xaxis.set_major_locator(plt.MaxNLocator(4))
     ax4.grid()
     ax4.set_title("FedAvg")
     ax4.set_xlabel("#Global Rounds")
@@ -709,7 +711,7 @@ def get_data_from_file(file_name=""):
 
 if __name__=='__main__':
     PLOT_PATH = "../figs/"
-    RS_PATH =  "../results/50users/100iters/"
+    RS_PATH =  "../results/100users/"
     plot_dem_vs_fed() #plot comparision FED vs DEM
     # plot_demavg_vs_demprox() # DEM, PROX vs K level
     # plot_demavg_gamma_vari() # DEM AVG vs Gamma vary

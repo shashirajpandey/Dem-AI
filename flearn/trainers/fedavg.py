@@ -130,7 +130,7 @@ class Server(BaseFedarated):
 
     def save_results(self):
         #file_name = "../results/ALG_"+RUNNING_ALG+'_ITER_'+NUM_GLOBAL_ITERS+'_UE_'+N_clients+'_K_'+K_Levels+'_w.h5'
-        file_name = "./results/{}_iter_{}.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS)
+        file_name = RS_PATH+"{}_iter_{}.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS)
         print(file_name)
 
         write_file(file_name=file_name, root_test=self.global_data_test, root_train=self.global_data_train,
