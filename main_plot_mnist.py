@@ -167,6 +167,8 @@ def main(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01
     # suppress tf warnings
     tf.logging.set_verbosity(tf.logging.WARN)
     model = MODEL_TYPE+".py"
+    if(DATA_SET == "cifar100"):
+        learning_rate = 0.002
     # parse command line arguments
     options, learner_model, trainer = read_options(
         num_users, loc_ep, Numb_Glob_Iters, lamb, learning_rate,hyper_learning_rate, alg, weight, batch_size, dataset, model)
