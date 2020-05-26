@@ -54,7 +54,7 @@ for user in range(NUM_USERS):
         print("L:", l)
         X[user] += mnist_data[l][idx[l]:idx[l]+10].tolist()
         y[user] += (l*np.ones(10)).tolist()
-        idx[l] += 5
+        idx[l] += 10
 
 print("IDX1:", idx)  # counting samples for each labels
 

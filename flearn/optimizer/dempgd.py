@@ -31,7 +31,7 @@ class DemPerturbedGradientDescent(optimizer.Optimizer):
         # var_update = state_ops.assign_sub(var, lr_t*(grad + beta_t*(var-vstar)))  # Gradient update here:  w^{t+1}= w^{t} - lr *(grad + beta*(w^{t} - w^{0}))
 
         # Gradient update here:  w^{t+1}= w^{t} - lr *(grad + 2beta*(sum_Nk*w^{t} - sum_w_Nk{k=1..K})))
-        var_update = state_ops.assign_sub(var, lr_t*( grad + 2*mu_t*(var-vstar)))
+        var_update = state_ops.assign_sub(var, lr_t*( grad + mu_t*(var-vstar)))
 
 
         return control_flow_ops.group(*[var_update,])

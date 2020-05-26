@@ -13,7 +13,7 @@ from clustering.Setting import *
 # GLOBAL PARAMETERS
 OPTIMIZERS = ['fedavg', 'fedprox', 'fedsgd', 'fedfedl']
 
-DATASETS = ['nist', 'mnist', 'fashion_mnist']  # NIST is EMNIST in the paper
+DATASETS = ['nist', 'mnist', 'fmnist']  # NIST is EMNIST in the paper
 
 MODEL_PARAMS = {
     'sent140.bag_dnn': (2,),  # num_classes
@@ -27,8 +27,8 @@ MODEL_PARAMS = {
     'mnist.cnn': (10,),  # num_classes
     'cifar100.mclr': (100,),  # num_classes
     'cifar100.cnn': (100,),  # num_classes
-    'fashion_mnist.mclr': (10,),
-    'fashion_mnist.cnn': (10,),
+    'fmnist.mclr': (10,),
+    'fmnist.cnn': (10,),
     'shakespeare.stacked_lstm': (80, 80, 256),  # seq_len, emb_dim, num_hidden
     'synthetic.mclr': (10, )  # num_classes
 }
@@ -124,12 +124,16 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
             import flearn.models.mnist.cnn as cnn
         elif(DATA_SET=="cifar100"):
             import flearn.models.cifar100.cnn as cnn
+        elif(DATA_SET == "fmnist"):
+            import flearn.models.fmnist.cnn as cnn
         mod = cnn
     else:
         if (DATA_SET == "mnist"):
             import flearn.models.mnist.mclr as mclr
         elif (DATA_SET == "cifar100"):
             import flearn.models.cifar100.mclr as mclr
+        elif (DATA_SET == "fmnist"):
+            import flearn.models.fmnist.mclr as mclr
         mod = mclr
 
     learner_model = getattr(mod, 'Model')
@@ -168,7 +172,7 @@ def main(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01
     tf.logging.set_verbosity(tf.logging.WARN)
     model = MODEL_TYPE+".py"
     if(DATA_SET == "cifar100"):
-        learning_rate = 0.002
+        learning_rate = 0.001
     # parse command line arguments
     options, learner_model, trainer = read_options(
         num_users, loc_ep, Numb_Glob_Iters, lamb, learning_rate,hyper_learning_rate, alg, weight, batch_size, dataset, model)

@@ -47,12 +47,14 @@ class Model(object):
         pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
         conv2 = tf.layers.conv2d(
             inputs=pool1,
-            filters=64,
+            filters=32,
+            # filters=64,
             kernel_size=[5, 5],
             padding="same",
             activation=tf.nn.relu)
         pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
-        pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
+        # pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
+        pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 32])
         dense = tf.layers.dense(inputs=pool2_flat, units=512, activation=tf.nn.relu)
         logits = tf.layers.dense(inputs=dense, units=self.num_classes)
         predictions = {
@@ -73,6 +75,7 @@ class Model(object):
                 all_vars = tf.trainable_variables()
                 for variable, value in zip(all_vars, model_params):
                     variable.load(value, self.sess)
+
     def set_vzero(self, vzero):
         self.vzero = vzero
 
@@ -88,108 +91,56 @@ class Model(object):
 
         with self.graph.as_default():
             model_grads = self.sess.run(self.grads,
-                feed_dict={self.features: data['x'], self.labels: data['y']})
+                                        feed_dict={self.features: data['x'], self.labels: data['y']})
             grads = process_grad(model_grads)
 
         return num_samples, grads
-    
+
     def get_raw_gradients(self, data):
-    
+
         with self.graph.as_default():
             model_grads = self.sess.run(self.grads,
                                         feed_dict={self.features: data['x'], self.labels: data['y']})
 
         return model_grads
 
+    def set_gradientParam(self, preG, preGn):
+        self.optimizer.set_preG(preG, self)
+        self.optimizer.set_preGn(preGn, self)
+
     def solve_inner(self, optimizer, data, num_epochs=1, batch_size=32):
         '''Solves local optimization problem'''
         if (batch_size == 0):  # Full data or batch_size
-            # print("Full dataset")
-            batch_size = len(data['y'])
+            batch_size = len(data['y'])  # //10
 
-        if(optimizer == "fedavg"):
-            for _ in trange(num_epochs, desc='Epoch: ', leave=False, ncols=120):
-                for X, y in batch_data(data, batch_size):
-                    with self.graph.as_default():
-                        self.sess.run(self.train_op, feed_dict={
-                                      self.features: X, self.labels: y})
-
-        if(optimizer == "fedprox"):
-            data_x, data_y = suffer_data(data)
-            for _ in range(num_epochs):  # t = 1,2,3,4,5,...m
-                X, y = get_random_batch_sample(data_x, data_y, batch_size)
+        # if(optimizer == "fedavg"):
+        # data_x, data_y = suffer_data(data)
+        for _ in trange(num_epochs, desc='Epoch: ', leave=False, ncols=120):
+            # X, y = get_random_batch_sample(data_x, data_y, batch_size)
+            # with self.graph.as_default():
+            #    self.sess.run(self.train_op, feed_dict={self.features: X, self.labels: y})
+            for X, y in batch_data(data, batch_size):
                 with self.graph.as_default():
                     self.sess.run(self.train_op, feed_dict={
                         self.features: X, self.labels: y})
-
-        else:
-            wzero = self.get_params()
-            data_x, data_y = suffer_data(data)
-            w1 = wzero - self.optimizer._lr * np.array(self.vzero)
-            w1 = prox_L2(np.array(w1), np.array(wzero),
-                         self.optimizer._lr, self.optimizer._lamb)
-            self.set_params(w1)
-
-            for _ in range(num_epochs):  # t = 1,2,3,4,5,...m
-                X, y = get_random_batch_sample(data_x, data_y, batch_size)
-                with self.graph.as_default():
-                    # get the current weight
-                    if(optimizer == "fedsvrg"):
-                        current_weight = self.get_params()
-
-                        # calculate fw0 first:
-                        self.set_params(wzero)
-                        fwzero = self.sess.run(self.grads, feed_dict={
-                                               self.features: X, self.labels: y})
-                        self.optimizer.set_fwzero(fwzero, self)
-
-                        # return the current weight to the model
-                        self.set_params(current_weight)
-                        self.sess.run(self.train_op, feed_dict={
-                            self.features: X, self.labels: y})
-                    elif(optimizer == "fedsarah"):
-                        if(_ == 0):
-                            self.set_params(wzero)
-                            grad_w0 = self.sess.run(self.grads, feed_dict={
-                                                    self.features: X, self.labels: y})  # grad w0)
-                            self.optimizer.set_preG(grad_w0, self)
-
-                            self.set_params(w1)
-                            preW = self.get_params()   # previous is w1
-                            self.sess.run(self.train_op, feed_dict={
-                                self.features: X, self.labels: y})
-                        else:
-                         # == w1
-                            curW = self.get_params()
-
-                            # get previous grad
-                            self.set_params(preW)
-                            grad_preW = self.sess.run(self.grads, feed_dict={
-                                                      self.features: X, self.labels: y})  # grad w0)
-                            self.optimizer.set_preG(grad_preW, self)
-                            preW = curW
-
-                            # return back curent grad
-                            self.set_params(curW)
-                            self.sess.run(self.train_op, feed_dict={
-                                          self.features: X, self.labels: y})
-                    else:   # fedsgd
-                        self.sess.run(self.train_op, feed_dict={
-                                      self.features: X, self.labels: y})
         soln = self.get_params()
+        with self.graph.as_default():
+            grad = self.sess.run(self.grads, feed_dict={
+                self.features: data['x'], self.labels: data['y']})
         comp = num_epochs * \
-            (len(data['y'])//batch_size) * batch_size * self.flops
-        return soln, comp
-    
+               (len(data['y']) // batch_size) * batch_size * self.flops
+        return soln, grad, comp
+
     def test(self, data):
         '''
         Args:
             data: dict of the form {'x': [list], 'y': [list]}
         '''
         with self.graph.as_default():
-            tot_correct, loss = self.sess.run([self.eval_metric_ops, self.loss], 
-                feed_dict={self.features: data['x'], self.labels: data['y']})
+            tot_correct, loss = self.sess.run([self.eval_metric_ops, self.loss],
+                                              feed_dict={self.features: data['x'], self.labels: data['y']})
         return tot_correct, loss
-    
+
     def close(self):
         self.sess.close()
+

@@ -10,26 +10,31 @@ from clustering.Setting import *
 from clustering.Setting import *
 from ..optimizer.dempgd import DemPerturbedGradientDescent
 from ..optimizer.pgd import PerturbedGradientDescent
-from utils.data_plot import *
+from utils.data_plot_mnist import *
 
 
 class Server(DemBase):
     def __init__(self, params, learner, dataset):
-        self.gamma = 1.0  # soft update in hierrachical averaging
-        # self.gamma = 1. # hard update in hierrachical averaging
+        # self.gamma = 0.6  # soft update in hierrachical averaging
+        self.gamma = 1. # hard update in hierrachical averaging
         self.beta = 1.0 # DemAvg 0.8> 0.960 vs 0.936, DemProx 0.98 vs 0.605
         # self.beta = 0.8   # DemAvg 0.8> 0.958 vs 0.948, DemProx 0.5x generalization
 
         if (params['optimizer'] == "demlearn"):
             print('Using DemLearnto Train')
-            self.alg = "DEMAVG"
+            self.alg = "Demlearn"
             self.inner_opt = tf.train.GradientDescentOptimizer(params['learning_rate'])
         elif (params['optimizer'] == "demlearn-p"):
-            self.mu = 0.003  # params['mu'] 0.002 (better generaliztaion) vs 0.005 (better specialization)
+            if(DATASET=="mnist"):
+                self.mu = 0.002 # 0.005, 0.002, 0.001, 0.0005  => choose 0.002
+            elif(DATASET=="fmnist"):
+                self.mu = 0.001 # 0.005, 0.002, 0.001, 0.0005  => select 0.001
+            else:
+                self.mu = 0.001
             if (N_clients == 100):
                 self.mu=0.0005
             print('Using DemLearn-P to Train')
-            self.alg = "DEMPROX"
+            self.alg = "Demlearn-p"
             self.inner_opt = DemPerturbedGradientDescent(params['learning_rate'], mu=self.mu)
 
         super(Server, self).__init__(params, learner, dataset)
@@ -65,7 +70,7 @@ class Server(DemBase):
                     self.gs_level_train[:,i,0] = self.gs_level_train[:,i,0] / self.gs_level_train[:,i,1]    #averaging by level and numb of clients
                     self.gs_level_test[:,i,0] = self.gs_level_test[:,i,0] / self.gs_level_test[:,i,1]       #averaging by level and numb of clients
                     print("AvgG. Testing performance for each level:", self.gs_level_test[:,i,0])
-                    print("AvgG. Training performance for each level:", self.gs_level_train[:,i,0])
+                    # print("AvgG. Training performance for each level:", self.gs_level_train[:,i,0])
                     tqdm.write('============= Test Group Models - Generalization ============= ')
                     self.evaluating_groups(self.TreeRoot, i, mode="gen")
                     # gg_test = self.test_accs / self.count_grs
@@ -75,7 +80,7 @@ class Server(DemBase):
                     self.gg_level_train[:,i,0] = self.gg_level_train[:,i,0] / self.gg_level_train[:,i,1]    #averaging by level and numb of clients
                     self.gg_level_test[:,i,0] = self.gg_level_test[:,i,0] / self.gg_level_test[:,i,1]       #averaging by level and numb of clients
                     print("AvgG. Testing performance for each level:", self.gg_level_test[:,i,0])
-                    print("AvgG. Training performance for each level:", self.gg_level_train[:,i,0])
+                    # print("AvgG. Training performance for each level:", self.gg_level_train[:,i,0])
 
                 # self.rs_glob_acc.append(np.sum(stats[3])*1.0/np.sum(stats[2]))
                 # self.rs_train_acc.append(np.sum(stats_train[3])*1.0/np.sum(stats_train[2]))
@@ -146,7 +151,10 @@ class Server(DemBase):
             #     self.gamma = max(self.gamma - 0.3, 0.05)  # period = 3, 0.960  vs 0.945.. after 31
             #     # self.gamma = self.gamma *0.2  # max(self.gamma *0.5,0.05)
             if (DECAY == True):
-                self.beta = max(self.beta *0.5,0.001)
+                if(DATASET=="mnist"):
+                    self.beta = max(self.beta *0.7,0.001) #### Mnist dataset
+                elif(DATASET == "fmnist"):
+                    self.beta = max(self.beta * 0.5, 0.0005)  #### Mnist dataset
                 # self.gamma = max(self.gamma - 0.25, 0.02)  # period = 2  0.96 vs 0.9437 after 31 : 0.25, 0.02 DemAVG
                 # self.gamma = max(self.gamma - 0.1, 0.6) # 0.25, 0.02:  0.987 vs 0.859 after 31 DemProx vs fixed 0.6 =>0.985 and 0.89
                 # self.gamma = self.gamma *0.45  # 0.4: 0.9395

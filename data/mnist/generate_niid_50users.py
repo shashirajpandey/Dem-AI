@@ -54,7 +54,7 @@ for user in range(NUM_USERS):
         print("L:", l)
         X[user] += mnist_data[l][idx[l]:idx[l]+10].tolist()
         y[user] += (l*np.ones(10)).tolist()
-        idx[l] += 5
+        idx[l] += 10
 
 print("IDX1:", idx)  # counting samples for each labels
 
@@ -62,7 +62,7 @@ print("IDX1:", idx)  # counting samples for each labels
 user = 0
 props = np.random.lognormal(
     0, 1., (10, NUM_USERS, NUM_LABELS))  # last 5 is 5 labels
-props = np.array([[[len(v)-1000]] for v in mnist_data]) * \
+props = np.array([[[len(v)-100]] for v in mnist_data]) * \
     props/np.sum(props, (1, 2), keepdims=True)
 # print("here:",props/np.sum(props,(1,2), keepdims=True))
 #props = np.array([[[len(v)-100]] for v in mnist_data]) * \

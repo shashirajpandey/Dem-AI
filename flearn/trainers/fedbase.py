@@ -253,28 +253,34 @@ class BaseFedarated(object):
 
     def evaluating_clients(self, i, mode="spe"): # mode spe: specialization, gen: generalization
         stats = self.c_test(i,mode)
-        stats_train = self.c_train_error_and_loss(i,mode)
+        if mode == "spe":
+            stats_train = self.c_train_error_and_loss(i, mode)
+        else:
+            stats_train = []
         # self.metrics.accuracies.append(stats)
         # self.metrics.train_accuracies.append(stats_train)
 
         test_acr = np.sum(stats[3]) * 1.0 / np.sum(stats[2])
-        train_acr = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
         tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, test_acr))
-        tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, train_acr))
+        if mode == "spe":
+            train_acr = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
+            tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, train_acr))
+        else:
+            train_acr=[]
         # tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
         #     stats_train[2])))
         return test_acr, train_acr
 
     def evaluating_global(self,i):
         stats = self.test()
-        stats_train = self.train_error_and_loss()
+        # stats_train = self.train_error_and_loss()
         self.metrics.accuracies.append(stats)
-        self.metrics.train_accuracies.append(stats_train)
+        # self.metrics.train_accuracies.append(stats_train)
         gl_test = np.sum(stats[3])*1.0/np.sum(stats[2])
-        gl_train = np.sum(stats_train[3])*1.0/np.sum(stats_train[2])
+        # gl_train = np.sum(stats_train[3])*1.0/np.sum(stats_train[2])
         self.global_data_test.append(gl_test)
-        self.global_data_train.append(gl_train)
+        # self.global_data_train.append(gl_train)
         tqdm.write('At round {} global testing accuracy: {}'.format(i, gl_test))
-        tqdm.write('At round {} global training accuracy: {}'.format(i, gl_train))
-        tqdm.write('At round {} global training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
+        # tqdm.write('At round {} global training accuracy: {}'.format(i, gl_train))
+        # tqdm.write('At round {} global training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
 

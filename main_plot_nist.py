@@ -14,7 +14,7 @@ import matplotlib
 # GLOBAL PARAMETERS
 OPTIMIZERS = ['fedavg', 'fedprox', 'fedsgd', 'fedfedl']
 
-DATASETS = ['nist', 'mnist', 'fashion_mnist']  # NIST is EMNIST in the paper
+DATASETS = ['nist', 'mnist', 'fmnist']  # NIST is EMNIST in the paper
 
 MODEL_PARAMS = {
     'sent140.bag_dnn': (2,),  # num_classes
@@ -26,8 +26,8 @@ MODEL_PARAMS = {
     'nist.cnn': (62,),
     'mnist.mclr': (10,),  # num_classes
     'mnist.cnn': (10,),  # num_classes
-    'fashion_mnist.mclr': (10,),
-    'fashion_mnist.cnn': (10,),
+    'fmnist.mclr': (10,),
+    'fmnist.cnn': (10,),
     'shakespeare.stacked_lstm': (80, 80, 256),  # seq_len, emb_dim, num_hidden
     'synthetic.mclr': (10, )  # num_classes
 }

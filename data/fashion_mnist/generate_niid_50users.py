@@ -7,7 +7,7 @@ import os
 from tensorflow.examples.tutorials.mnist import input_data
 
 np.random.seed(0)
-NUM_USERS = 100
+NUM_USERS = 50
 NUM_LABELS = 2
 
 # Setup directory for train/test data
@@ -64,19 +64,23 @@ print("IDX1:", idx)  # counting samples for each labels
 # Assign remaining sample by power law
 user = 0
 props = np.random.lognormal(
-    0, 2., (10, NUM_USERS, NUM_LABELS))  # last 5 is 5 labels
+    0, 1., (10, NUM_USERS, NUM_LABELS))  # last 5 is 5 labels
 # print("here:",props/np.sum(props,(1,2), keepdims=True))
 props = np.array([[[len(v)-100]] for v in mnist_data]) * \
     props/np.sum(props, (1, 2), keepdims=True)
 #idx = 1000*np.ones(10, dtype=np.int64)
 # print("here2:",props)
 for user in trange(NUM_USERS):
-    for j in range(NUM_LABELS):  # 4 labels for each users
+    for j in range(NUM_LABELS):  # 2 labels for each users
         # l = (2*user+j)%10
         l = (user + j) % 10
-        #num_samples = int(props[l,user//int(NUM_USERS/10),j]) *10
-        num_samples = int(props[l, user, j]) * NUM_USERS * 2
-        #num_samples = min(num_samples,200)
+        # #num_samples = int(props[l,user//int(NUM_USERS/10),j]) *10
+        # num_samples = int(props[l, user, j]) * NUM_USERS * 2
+
+        num_samples = int(props[l, user//int(NUM_USERS/10), j])
+        num_samples = int(num_samples * 0.5)  # Scale down number of samples
+
+        ## num_samples = min(num_samples,200)
         # print(num_samples)
         if idx[l] + num_samples < len(mnist_data[l]):
             X[user] += mnist_data[l][idx[l]:idx[l]+num_samples].tolist()
@@ -97,7 +101,7 @@ for i in range(NUM_USERS):
     random.shuffle(combined)
     X[i][:], y[i][:] = zip(*combined)
     num_samples = len(X[i])
-    train_len = int(0.75*num_samples)
+    train_len = int(0.8*num_samples)
     test_len = num_samples - train_len
 
     train_data['users'].append(uname)
@@ -109,8 +113,10 @@ for i in range(NUM_USERS):
         'x': X[i][train_len:], 'y': y[i][train_len:]}
     test_data['num_samples'].append(test_len)
 
-print("Num_samples:", train_data['num_samples'])
-print("Total_samples:", sum(train_data['num_samples']))
+print("Numb_training_samples:", train_data['num_samples'])
+print("Total_training_samples:",sum(train_data['num_samples']))
+print("Numb_testing_samples:", test_data['num_samples'])
+print("Total_testing_samples:",sum(test_data['num_samples']))
 
 with open(train_path, 'w') as outfile:
     json.dump(train_data, outfile)

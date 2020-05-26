@@ -8,34 +8,58 @@ from scipy.cluster.hierarchy import dendrogram
 import matplotlib.gridspec as gridspec
 plt.rcParams.update({'font.size': 16})  #font size 10 12 14 16 main 16
 plt.rcParams['lines.linewidth'] = 2
-XLim=60
+XLim=100
 YLim=0.1
 #Global variable
 markers_on = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+# markers_on = [0, 10, 20, 30, 40, 50, 60, 70]
 RS_PATH = "./results/50users/"
 PLOT_PATH = "./figs/"
 # RS_PATH = "./results/50users/100iters"
 OUT_TYPE = ".pdf" #.eps or .pdf
+# name = {
+#         "avg1w": "demavg_iter_100_k_1_w.h5",
+#         "avg2w": "demavg_iter_100_k_2_w.h5",
+#         "avg3g": "demavg_iter_100_k_3_g.h5",
+#         "avg3w": "demavg_iter_100_k_3_w.h5",
+#         "prox1w": "demprox_iter_100_k_1_w.h5",
+#         "prox2w": "demprox_iter_100_k_2_w.h5",
+#         "prox3w": "demprox_iter_100_k_3_w.h5",
+#         "fedavg": "fedavg_iter_100.h5",
+#         "fedprox": "fedprox_iter_100.h5",
+#         "avg3b08": "demavg_iter_100_k_3_w_beta_0_8.h5",
+#         "avg3wdecay": "demavg_iter_100_k_3_w_decay.h5",
+#         "avg3wg08": "demavg_iter_100_k_3_w_gamma_0_8.h5",
+#         "avg3g1": "demavg_iter_100_k_3_w_gamma_1.h5",
+#         "prox3wg08": "demprox_iter_100_k_3_w_gamma_0_8.h5",
+#         "prox3wg1": "demprox_iter_100_k_3_w_gamma_1.h5",
+#         "prox3wmu0001": "demprox_iter_100_k_3_w_mu_0001.h5",
+#         "prox3wmu0005": "demprox_iter_100_k_3_w_mu_0005.h5",
+#         "prox3wmu005": "demprox_iter_100_k_3_w_mu_005.h5"
+#     }
+
 name = {
-        "avg1w": "demavg_iter_100_k_1_w.h5",
-        "avg2w": "demavg_iter_100_k_2_w.h5",
-        "avg3g": "demavg_iter_100_k_3_g.h5",
-        "avg3w": "demavg_iter_100_k_3_w.h5",
-        "prox1w": "demprox_iter_100_k_1_w.h5",
-        "prox2w": "demprox_iter_100_k_2_w.h5",
-        "prox3w": "demprox_iter_100_k_3_w.h5",
+        "avg1w": "demlearn_iter_100_k_1_w.h5",
+        "avg2w": "demlearn_iter_100_k_2_w.h5",
+        "avg3g": "demlearn_iter_100_k_3_g.h5",
+        "avg3w": "demlearn_iter_100_k_3_w.h5",
+        "prox1w": "demlearn-p_iter_100_k_1_w.h5",
+        "prox2w": "demlearn-p_iter_100_k_2_w.h5",
+        "prox3w": "demlearn-p_iter_100_k_3_w_mu_001.h5",
         "fedavg": "fedavg_iter_100.h5",
         "fedprox": "fedprox_iter_100.h5",
-        "avg3b08": "demavg_iter_100_k_3_w_beta_0_8.h5",
-        "avg3wdecay": "demavg_iter_100_k_3_w_decay.h5",
-        "avg3wg08": "demavg_iter_100_k_3_w_gamma_0_8.h5",
-        "avg3g1": "demavg_iter_100_k_3_w_gamma_1.h5",
-        "prox3wg08": "demprox_iter_100_k_3_w_gamma_0_8.h5",
-        "prox3wg1": "demprox_iter_100_k_3_w_gamma_1.h5",
-        "prox3wmu0001": "demprox_iter_100_k_3_w_mu_0001.h5",
-        "prox3wmu0005": "demprox_iter_100_k_3_w_mu_0005.h5",
-        "prox3wmu005": "demprox_iter_100_k_3_w_mu_005.h5"
+        "avg3b08": "demlearn_iter_100_k_3_w_beta_0_8.h5",
+        # "avg3wdecay": "demlearn_iter_60_k_3_w_decay.h5",
+        "avg3wg08": "demlearn_iter_100_k_3_w_gamma_0_8.h5",
+        "avg3g1": "demlearn_iter_100_k_3_w_gamma_1.h5",
+        "prox3wg08": "demlearn-p_iter_100_k_3_w_gamma_0_8.h5",
+        "prox3wg1": "demlearn-p_iter_100_k_3_w_gamma_1.h5",
+        "prox3wmu001": "demlearn-p_iter_100_k_3_w_mu_001.h5",
+        "prox3wmu002": "demlearn-p_iter_100_k_3_w_mu_002.h5",
+        "prox3wmu0005": "demlearn-p_iter_100_k_3_w_mu_0005.h5",
+        "prox3wmu005": "demlearn-p_iter_100_k_3_w_mu_005.h5"
     }
+
 color = {
     "gen": "royalblue",
     "cspe": "forestgreen",
@@ -96,9 +120,10 @@ def plot_dendrogram(rs_linkage_matrix, round, alg):
     # plt.xlabel("index of node or (Number of leaves in each cluster).")
     if(MODEL_TYPE == "cnn"):
         if(CLUSTER_METHOD == "gradient"):
-            plt.ylim(0, 1.4)
+            plt.ylim(0, 0.0006)
+            # plt.yscale("log")
         else:
-            plt.ylim(0, 0.3)
+            plt.ylim(0, 1.)
     else:
         plt.ylim(0,1.5)
     #plt.grid()
@@ -121,7 +146,7 @@ def plot_dendo_data_dem(file_name):
     i = 0
     for i in range(8):
         plt.subplot(num_plots[i])
-        plot_dendrogram(dendo_data[i*4], dendo_data_round[i*4], RUNNING_ALG)
+        plot_dendrogram(dendo_data[i*7], dendo_data_round[i*7], RUNNING_ALG)
     # for m_linkage in dendo_data:
     #     plot_dendrogram(m_linkage, dendo_data_round[i], RUNNING_ALG)
     #     i += 1
@@ -329,8 +354,8 @@ def plot_dem_vs_fed():
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['avg3w'])
     print("DemLearn Global 12 iters:", f_data['root_test'][12])
-    print("DemLearn Global:", f_data['root_test'][XLim])
-    print("DemLearn C-GEN:",f_data['cg_avg_data_test'][XLim])
+    print("DemLearn Global:", f_data['root_test'][XLim-1])
+    print("DemLearn C-GEN:",f_data['cg_avg_data_test'][XLim-1])
 
     ax1.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
              markevery=markers_on)
@@ -354,7 +379,7 @@ def plot_dem_vs_fed():
     # subfig1-end---begin---subfig 2
     f_data = read_data(RS_PATH + name['prox3w'])
     print("DemLearn-P Global 12 iters:", f_data['root_test'][12])
-    print("DemLearn-P C-SPE:", f_data['cs_avg_data_test'][XLim])
+    print("DemLearn-P C-SPE:", f_data['cs_avg_data_test'][XLim-1])
     ax2.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"], markevery=markers_on)
     ax2.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"], marker=marker["ggen"], markevery=markers_on)
     ax2.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"], marker=marker["gspe"], markevery=markers_on)
@@ -385,7 +410,7 @@ def plot_dem_vs_fed():
     # END-subfig3-begin-subfig4
 
     fed_data = read_data(RS_PATH + name['fedavg'])
-    print("FedAvg Global:", fed_data['root_test'][XLim])
+    print("FedAvg Global:", fed_data['root_test'][XLim-1])
     ax4.plot(fed_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"], markevery=markers_on)
     ax4.plot(fed_data['cs_avg_data_test'], label="C-SPE", color=color["cspe"], marker=marker["cspe"], markevery=markers_on)
     ax4.plot(fed_data['cg_avg_data_test'], label="C-GEN", color=color["cgen"], marker=marker["cgen"], markevery=markers_on)
@@ -404,7 +429,7 @@ def plot_dem_vs_fed():
     plt.savefig(PLOT_PATH + "dem_vs_fed" + OUT_TYPE)
     return 0
 
-def plot_demavg_vs_demprox():
+def plot_demlearn_vs_demlearn_p():
     plt.rcParams.update({'font.size': 16})
     # plt.grid(linewidth=0.25)
     # fig, ((ax1, ax2, ax3),(ax4, ax5, ax6))= plt.subplots(nrows=2, ncols=3, sharex=True, sharey=True, figsize=(10.0, 7))
@@ -545,9 +570,9 @@ def plot_demavg_vs_demprox():
     plt.savefig(PLOT_PATH + "dem_vs_K_vary"+OUT_TYPE)
     return 0
 
-def plot_demprox_mu_vari():
+def plot_demlearn_p_mu_vari():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax4, ax3) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['prox3wmu005'])
     ax1.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
              markevery=markers_on)
@@ -564,12 +589,12 @@ def plot_demprox_mu_vari():
     # ax1.legend(loc="best", prop={'size': 8})
     ax1.set_xlim(0, XLim)
     ax1.set_ylim(YLim, 1)
-    ax1.set_title("DemLearn-P: $\mu=0.01$")
+    ax1.set_title("DemLearn-P: $\mu=0.005$")
     ax1.set_xlabel("#Global Rounds")
     ax1.set_ylabel("Testing Accuracy")
     ax1.grid()
     # subfig1-end---begin---subfig 2
-    f_data = read_data(RS_PATH + name['prox3w'])
+    f_data = read_data(RS_PATH + name['prox3wmu002'])
 
     ax2.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
              markevery=markers_on)
@@ -606,12 +631,12 @@ def plot_demprox_mu_vari():
     # ax1.legend(loc="best", prop={'size': 8})
     ax3.set_xlim(0, XLim)
     ax3.set_ylim(YLim, 1)
-    ax3.set_title("DemLearn-P: $\mu=0.001$")
+    ax3.set_title("DemLearn-P: $\mu=0.0005$")
     ax3.set_xlabel("#Global Rounds")
     #ax3.set_ylabel("Testing Accuracy")
     ax3.grid()
     # subfig1-end---begin---subfig 2
-    f_data = read_data(RS_PATH + name['prox3wmu0001'])
+    f_data = read_data(RS_PATH + name['prox3wmu001'])
 
     ax4.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
              markevery=markers_on)
@@ -628,7 +653,7 @@ def plot_demprox_mu_vari():
 
     ax4.set_xlim(0, XLim)
     ax4.set_ylim(YLim, 1)
-    ax4.set_title("DemLearn-P: $\mu=0.0002$")
+    ax4.set_title("DemLearn-P: $\mu=0.001$")
     ax4.set_xlabel("#Global Rounds")
     ax4.grid()
     handles, labels = ax1.get_legend_handles_labels()
@@ -643,7 +668,7 @@ def plot_demprox_mu_vari():
     return 0
 
 
-def plot_demavg_gamma_vari():
+def plot_demlearn_gamma_vari():
     plt.rcParams.update({'font.size': 14})
     fig, (ax3, ax2, ax1) = plt.subplots(nrows=1, ncols=3, sharex=True, sharey=True, figsize=(10.0, 4.2))
     # fig, (ax3, ax2, ax1, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(13.0, 4.2))
@@ -740,7 +765,7 @@ def plot_demavg_gamma_vari():
     return 0
 
 
-def plot_demavg_gamma_vari_clients():
+def plot_demlearn_gamma_vari_clients():
     plt.rcParams.update({'font.size': 14})
     fig, (ax3, ax2, ax1) = plt.subplots(nrows=1, ncols=3, sharex=True, sharey=True, figsize=(10.0, 3.96))
     # fig, (ax3, ax2, ax1, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(13.0, 4.2))
@@ -802,7 +827,7 @@ def plot_demavg_gamma_vari_clients():
     plt.savefig(PLOT_PATH+"dem_avg_gamma_vary_clients"+OUT_TYPE)
     return 0
 
-def plot_demavg_w_vs_g():
+def plot_demlearn_w_vs_g():
     plt.rcParams.update({'font.size': 12})
     # plt.grid(linewidth=0.25)
     # fig, ((ax1, ax2, ax3),(ax4, ax5, ax6))= plt.subplots(nrows=2, ncols=3, sharex=True, sharey=True, figsize=(10.0, 7))
@@ -955,21 +980,22 @@ def get_data_from_file(file_name=""):
             return f_data['root_test'], f_data['cs_avg_data_test'], f_data['cg_avg_data_test']
 
 if __name__=='__main__':
-    PLOT_PATH = "../figs/50users/"
-    RS_PATH =  "../results/50users/100iters/"
+    PLOT_PATH = "../figs/50users/f_"
+    # RS_PATH =  "../results/50users/100iters/"
+    RS_PATH = "../results/50users/100iters/fmnist/"
     plot_dem_vs_fed() #plot comparision FED vs DEM
-    plot_demavg_vs_demprox() # DEM, PROX vs K level
-    plot_demprox_mu_vari() # DEM Prox vs mu vary
+    plot_demlearn_vs_demlearn_p() # DEM, PROX vs K level
+    plot_demlearn_p_mu_vari() # DEM Prox vs mu vary
 
     # ### SUPPLEMENTAL FIGS ####
-    plot_demavg_gamma_vari() # DEM AVG vs Gamma vary
-    plot_demavg_gamma_vari_clients()
-    plot_demavg_w_vs_g()
+    # plot_demlearn_gamma_vari() # DEM AVG vs Gamma vary
+    # plot_demlearn_gamma_vari_clients()
+    plot_demlearn_w_vs_g()
     # # ##-------DENDOGRAM PLOT --------------------------------------------------------------------------------#
-    # CLUSTER_METHOD = "gradient"
-    # plot_dendo_data_dem(file_name="avg3g") #change file_name in order to get correct file to plot   #|
-    # CLUSTER_METHOD = "weight"
-    # plot_dendo_data_dem(file_name="avg3w")
+    CLUSTER_METHOD = "gradient"
+    plot_dendo_data_dem(file_name="avg3g") #change file_name in order to get correct file to plot   #|
+    CLUSTER_METHOD = "weight"
+    plot_dendo_data_dem(file_name="avg3w")
     # plot_dendo_data_dem(file_name=name["avg3wg08"])
     ##-------DENDOGRAM PLOT --------------------------------------------------------------------------------#
     # plot_from_file()
@@ -980,4 +1006,4 @@ if __name__=='__main__':
     # print(tmp_data["dendo_data"].shape)
     # print(tmp_data["dendo_data_round"])
 
-    #plot_dendrogram(tmp_data["dendo_data"],tmp_data["dendo_data_round"], "DEMAVG" )
+    #plot_dendrogram(tmp_data["dendo_data"],tmp_data["dendo_data_round"], "demlearn" )

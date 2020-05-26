@@ -108,6 +108,7 @@ class DemBase(object):
                 for w in range(len(self.model_shape1)):
                 #     print(c.gmodel[w].shape)
                     c_w.append(c.gmodel[w].flatten())
+                # print("Concatenation Len for clustering:",len(np.concatenate( c_w, axis=0)))
                 p_list.append( np.concatenate( c_w, axis=0)   )
             else:
                 c_g = []
@@ -341,15 +342,21 @@ class DemBase(object):
 
     def evaluating_clients(self, i, mode="spe"): # mode spe: specialization, gen: generalization
         stats = self.c_test(i,mode)
-        stats_train = self.c_train_error_and_loss(i,mode)
+        if mode=="spe":
+            stats_train = self.c_train_error_and_loss(i,mode)
+        else:
+            stats_train=[]
         # self.metrics.accuracies.append(stats)
         # self.metrics.train_accuracies.append(stats_train)
         test_acr = np.sum(stats[3]) * 1.0 / np.sum(stats[2])
-        train_acr = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
         tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, test_acr))
-        tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, train_acr ))
+        if mode=="spe":
+            train_acr = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
+            tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, train_acr ))
         # tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(
         #     stats_train[2])))
+        else:
+            train_acr=[]
         return test_acr, train_acr
 
     def evaluating_groups(self,gr,i, mode="spe"): # mode spe: specialization, gen: generalization
@@ -359,37 +366,37 @@ class DemBase(object):
             self.count_grs = np.zeros(K_Levels + 1)
 
         stats = self.g_test(gr,mode)
-        stats_train = self.g_train_error_and_loss(gr,mode)
+        # stats_train = self.g_train_error_and_loss(gr,mode)
         # self.metrics.accuracies.append(stats)
         # self.metrics.train_accuracies.append(stats_train)
         test_acc =  np.sum(stats[3]) * 1.0 / np.sum(stats[2])
-        train_acc = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
+        # train_acc = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
 
         if(mode=="spe"): #Specialization results
-            self.gs_level_train[gr.level - 1, i, 0] += train_acc * gr.numb_clients
+            # self.gs_level_train[gr.level - 1, i, 0] += train_acc * gr.numb_clients
             self.gs_level_train[gr.level - 1, i, 1] += gr.numb_clients
 
             self.gs_level_test[gr.level - 1, i, 0] += test_acc * gr.numb_clients
             self.gs_level_test[gr.level - 1, i, 1] += gr.numb_clients
 
             if(gr._id == self.TreeRoot.childs[0]._id):
-                self.gks_level_train[0,i] = train_acc
+                # self.gks_level_train[0,i] = train_acc
                 self.gks_level_test[0,i] = test_acc
             elif(gr._id == self.TreeRoot.childs[1]._id):
-                self.gks_level_train[1,i] = train_acc
+                # self.gks_level_train[1,i] = train_acc
                 self.gks_level_test[1,i] = test_acc
 
         else: #Generalization results
-            self.gg_level_train[gr.level - 1, i, 0] += train_acc * gr.numb_clients
+            # self.gg_level_train[gr.level - 1, i, 0] += train_acc * gr.numb_clients
             self.gg_level_train[gr.level - 1, i, 1] += gr.numb_clients
 
             self.gg_level_test[gr.level - 1, i, 0] += test_acc * gr.numb_clients
             self.gg_level_test[gr.level - 1, i, 1] += gr.numb_clients
             if(gr._id == self.TreeRoot.childs[0]._id):
-                self.gkg_level_train[0,i] = train_acc
+                # self.gkg_level_train[0,i] = train_acc
                 self.gkg_level_test[0,i] = test_acc
             elif(gr._id == self.TreeRoot.childs[1]._id):
-                self.gkg_level_train[1,i] = train_acc
+                # self.gkg_level_train[1,i] = train_acc
                 self.gkg_level_test[1,i] = test_acc
 
 
