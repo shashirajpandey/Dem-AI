@@ -97,6 +97,7 @@ print("Remaining samples added:", sum(idx))
 # Create data structure
 train_data = {'users': [], 'user_data':{}, 'num_samples':[]}
 test_data = {'users': [], 'user_data':{}, 'num_samples':[]}
+all_samples=[]
 
 # Setup 5 users
 # for i in trange(5, ncols=120):
@@ -116,11 +117,13 @@ for i in range(NUM_USERS):
     test_data['users'].append(uname)
     test_data['user_data'][uname] = {'x': X[i][train_len:], 'y': y[i][train_len:]}
     test_data['num_samples'].append(test_len)
+    all_samples.append(train_len+test_len)
 
 print("Numb_training_samples:", train_data['num_samples'])
 print("Total_training_samples:",sum(train_data['num_samples']))
 print("Numb_testing_samples:", test_data['num_samples'])
 print("Total_testing_samples:",sum(test_data['num_samples']))
+print("Median of data samples:", np.median(all_samples))
     
 with open(train_path,'w') as outfile:
     json.dump(train_data, outfile)

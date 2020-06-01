@@ -40,12 +40,17 @@ OUT_TYPE = ".pdf" #.eps or .pdf
 
 name = {
         "avg1w": "demlearn_iter_60_k_1_w.h5",
+        "avg1wf": "demlearn_iter_60_k_1_w_fixed.h5",
         "avg2w": "demlearn_iter_60_k_2_w.h5",
         "avg3g": "demlearn_iter_60_k_3_g.h5",
         "avg3w": "demlearn_iter_60_k_3_w_gamma_1.h5",
+        "avg3wf": "demlearn_iter_60_k_3_w_fixed.h5",
         "prox1w": "demlearn-p_iter_60_k_1_w.h5",
+        "prox1wf": "demlearn-p_iter_60_k_1_w_fixed.h5",
         "prox2w": "demlearn-p_iter_60_k_2_w.h5",
         "prox3w": "demlearn-p_iter_60_k_3_w_mu_002.h5",
+        "prox3g": "demlearn-p_iter_60_k_3_g.h5",
+        "prox3wf": "demlearn-p_iter_60_k_3_w_fixed.h5",
         "fedavg": "fedavg_iter_60.h5",
         "fedprox": "fedprox_iter_60.h5",
         "avg3b08": "demlearn_iter_60_k_3_w_beta_0_8.h5",
@@ -120,6 +125,7 @@ def plot_dendrogram(rs_linkage_matrix, round, alg):
     if(MODEL_TYPE == "cnn"):
         if(CLUSTER_METHOD == "gradient"):
             plt.ylim(0, 0.0006)
+            # plt.ylim(0, 0.001)
             # plt.yscale("log")
         else:
             plt.ylim(0, 1.)
@@ -352,7 +358,7 @@ def plot_dem_vs_fed():
     plt.rcParams.update({'font.size': 16})
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['avg3w'])
-    print("DemLearn Global 12 iters:", f_data['root_test'][12])
+    print("DemLearn Global 20 iters:", f_data['root_test'][20])
     print("DemLearn Global:", f_data['root_test'][XLim-1])
     print("DemLearn C-GEN:",f_data['cg_avg_data_test'][XLim-1])
 
@@ -377,7 +383,7 @@ def plot_dem_vs_fed():
     ax1.grid()
     # subfig1-end---begin---subfig 2
     f_data = read_data(RS_PATH + name['prox3w'])
-    print("DemLearn-P Global 12 iters:", f_data['root_test'][12])
+    print("DemLearn-P Global 20 iters:", f_data['root_test'][20])
     print("DemLearn-P C-SPE:", f_data['cs_avg_data_test'][XLim-1])
     ax2.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"], markevery=markers_on)
     ax2.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"], marker=marker["ggen"], markevery=markers_on)
@@ -429,113 +435,161 @@ def plot_dem_vs_fed():
     return 0
 
 def plot_demlearn_vs_demlearn_p():
+    # plt.rcParams.update({'font.size': 14})
     plt.rcParams.update({'font.size': 16})
     # plt.grid(linewidth=0.25)
-    # fig, ((ax1, ax2, ax3),(ax4, ax5, ax6))= plt.subplots(nrows=2, ncols=3, sharex=True, sharey=True, figsize=(10.0, 7))
-    fig, (ax1, ax3, ax4, ax6) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
-    f_data = read_data(RS_PATH + name['avg1w'])
-    ax1.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
-             markevery=markers_on)
-    ax1.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"],
-             marker=marker["ggen"], markevery=markers_on)
-    ax1.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"],
-             marker=marker["gspe"], markevery=markers_on)
-    ax1.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], color=color["cspe"],
-             marker=marker["cspe"], markevery=markers_on,
-             label="C-SPE")
-    ax1.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"],
-             marker=marker["cgen"], markevery=markers_on,
-             label="C-GEN")
-    # ax1.legend(loc="best", prop={'size': 8})
-    ax1.set_xlim(0, XLim)
-    ax1.set_ylim(YLim, 1)
-    ax1.set_title("DemLearn: $K=2$")
-    ax1.set_xlabel("#Global Rounds")
-    ax1.set_ylabel("Testing Accuracy")
-    ax1.grid()
-    # subfig1-end---begin---subfig 2
-    # f_data = read_data(RS_PATH + name['avg2w'])
-    #
-    # ax2.plot(f_data['root_test'], label="GEN", linestyle="--", color=color["gen"], marker=marker["gen"],
+    # fig, ((ax1, ax7, ax3, ax2), (ax4, ax8, ax6, ax5)) = plt.subplots(nrows=2, ncols=4, sharex=True, sharey=True, figsize=(15.0, 8.4))
+    # fig, ((ax1, ax3, ax2),(ax4, ax6, ax5))= plt.subplots(nrows=2, ncols=3, sharex=True, sharey=True, figsize=(12.0, 8))
+    fig, (ax3, ax2, ax6, ax5) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    # f_data = read_data(RS_PATH + name['avg1w'])
+    # ax1.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
     #          markevery=markers_on)
-    # ax2.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"],
+    # ax1.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"],
     #          marker=marker["ggen"], markevery=markers_on)
-    # ax2.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"],
+    # ax1.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"],
     #          marker=marker["gspe"], markevery=markers_on)
-    # ax2.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], color=color["cspe"],
+    # ax1.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], color=color["cspe"],
     #          marker=marker["cspe"], markevery=markers_on,
     #          label="C-SPE")
-    # ax2.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"],
+    # ax1.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"],
+    #          marker=marker["cgen"], markevery=markers_on,
+    #          label="C-GEN")
+    # # ax1.legend(loc="best", prop={'size': 8})
+    # ax1.set_xlim(0, XLim)
+    # ax1.set_ylim(YLim, 1)
+    # ax1.set_title("DemLearn: $K=2$")
+    # ax1.set_xlabel("#Global Rounds")
+    # ax1.set_ylabel("Testing Accuracy")
+    # ax1.grid()
+    # subfig1-end---begin---subfig 2
+    f_data = read_data(RS_PATH + name['avg3wf'])
+
+    ax2.plot(f_data['root_test'], label="GEN", linestyle="--", color=color["gen"], marker=marker["gen"],
+             markevery=markers_on)
+    ax2.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"],
+             marker=marker["ggen"], markevery=markers_on)
+    ax2.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"],
+             marker=marker["gspe"], markevery=markers_on)
+    ax2.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], color=color["cspe"],
+             marker=marker["cspe"], markevery=markers_on,
+             label="C-SPE")
+    ax2.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"],
+             marker=marker["cgen"], markevery=markers_on,
+             label="C-GEN")
+
+    ax2.set_xlim(0, XLim)
+    ax2.set_ylim(0, 1)
+    ax2.set_ylabel("Testing Accuracy")
+    # ax2.set_title("DemLearn: $K=4$, Fixed")
+    ax2.set_title("DemLearn: Fixed")
+    ax2.set_xlabel("#Global Rounds")
+    ax2.grid()
+    # # subfig1-end---begin---subfig 2
+    # f_data = read_data(RS_PATH + name['avg1wf'])
+    #
+    # ax7.plot(f_data['root_test'], label="GEN", linestyle="--", color=color["gen"], marker=marker["gen"],
+    #          markevery=markers_on)
+    # ax7.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"],
+    #          marker=marker["ggen"], markevery=markers_on)
+    # ax7.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"],
+    #          marker=marker["gspe"], markevery=markers_on)
+    # ax7.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], color=color["cspe"],
+    #          marker=marker["cspe"], markevery=markers_on,
+    #          label="C-SPE")
+    # ax7.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"],
     #          marker=marker["cgen"], markevery=markers_on,
     #          label="C-GEN")
     #
-    # ax2.set_xlim(0, XLim)
-    # ax2.set_ylim(0, 1)
-    # ax2.set_title("DemLearn: $K=2$")
-    # # ax2.set_xlabel("#Round")
-    # ax2.grid()
+    # ax7.set_xlim(0, XLim)
+    # ax7.set_ylim(0, 1)
+    # ax7.set_title("DemLearn: $K=2$, Fixed")
+    # ax7.set_xlabel("#Global Rounds")
+    # ax7.grid()
 
     f_data = read_data(RS_PATH + name['avg3w'])
-    ax3.plot(f_data['root_test'], label="Generalization", linestyle="--", color=color["gen"], marker=marker["gen"],
+    ax3.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
              markevery=markers_on)
-    ax3.plot(f_data['gs_level_test'][-2, :, 0], label="Group-Generalization", linestyle="-.", color=color["ggen"],
+    ax3.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"],
              marker=marker["ggen"], markevery=markers_on)
-    ax3.plot(f_data['gg_level_test'][-2, :, 0], label="Group-Specialization", linestyle="-.", color=color["gspe"],
+    ax3.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"],
              marker=marker["gspe"], markevery=markers_on)
     ax3.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], color=color["cspe"],
              marker=marker["cspe"], markevery=markers_on,
-             label="Client-Specialization")
+             label="C-SPE")
     ax3.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"],
              marker=marker["cgen"], markevery=markers_on,
-             label="Client-Generalization")
+             label="C-GEN")
     # ax1.legend(loc="best", prop={'size': 8})
     ax3.set_xlim(0, XLim)
     ax3.set_ylim(YLim, 1)
-    ax3.set_title("DemLearn: $K=4$")
+    # ax3.set_title("DemLearn: $K=4$")
+    ax3.set_title("DemLearn")
     ax3.set_xlabel("#Global Rounds")
     # ax3.set_ylabel("Accuracy")
     ax3.grid()
     # subfig1-end---begin---subfig 2
-    f_data = read_data(RS_PATH + name['prox1w'])
-    ax4.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
-             markevery=markers_on)
-    ax4.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"],
-             marker=marker["ggen"], markevery=markers_on)
-    ax4.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"],
-             marker=marker["gspe"], markevery=markers_on)
-    ax4.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], color=color["cspe"],
-             marker=marker["cspe"], markevery=markers_on,
-             label="C-SPE")
-    ax4.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"],
-             marker=marker["cgen"], markevery=markers_on,
-             label="C-GEN")
-
-    ax4.set_xlim(0, XLim)
-    ax4.set_ylim(YLim, 1)
-    ax4.set_title("DemLearn-P: $K=2$")
-    ax4.set_xlabel("#Global Rounds")
-    # ax4.set_ylabel("Testing Accuracy")
-    ax4.grid()
-
-    # f_data = read_data(RS_PATH + name['prox2w'])
-    # ax5.plot(f_data['root_test'], label="GEN", linestyle="--", color=color["gen"], marker=marker["gen"],
+    # f_data = read_data(RS_PATH + name['prox1w'])
+    # ax4.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
     #          markevery=markers_on)
-    # ax5.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"],
+    # ax4.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"],
     #          marker=marker["ggen"], markevery=markers_on)
-    # ax5.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"],
+    # ax4.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"],
     #          marker=marker["gspe"], markevery=markers_on)
-    # ax5.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], color=color["cspe"],
+    # ax4.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], color=color["cspe"],
     #          marker=marker["cspe"], markevery=markers_on,
     #          label="C-SPE")
-    # ax5.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"],
+    # ax4.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"],
     #          marker=marker["cgen"], markevery=markers_on,
     #          label="C-GEN")
     #
-    # ax5.set_xlim(0, XLim)
-    # ax5.set_ylim(0, 1)
-    # ax5.set_title("DemLearn-P: $K=2$")
-    # ax5.set_xlabel("#Global Rounds")
-    # ax5.grid()
+    # ax4.set_xlim(0, XLim)
+    # ax4.set_ylim(YLim, 1)
+    # ax4.set_title("DemLearn-P: $K=2$")
+    # ax4.set_xlabel("#Global Rounds")
+    # ax4.set_ylabel("Testing Accuracy")
+    # ax4.grid()
+
+    f_data = read_data(RS_PATH + name['prox3wf'])
+    ax5.plot(f_data['root_test'], label="GEN", linestyle="--", color=color["gen"], marker=marker["gen"],
+             markevery=markers_on)
+    ax5.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"],
+             marker=marker["ggen"], markevery=markers_on)
+    ax5.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"],
+             marker=marker["gspe"], markevery=markers_on)
+    ax5.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], color=color["cspe"],
+             marker=marker["cspe"], markevery=markers_on,
+             label="C-SPE")
+    ax5.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"],
+             marker=marker["cgen"], markevery=markers_on,
+             label="C-GEN")
+
+    ax5.set_xlim(0, XLim)
+    ax5.set_ylim(0, 1)
+    # ax5.set_title("DemLearn-P: $K=4$, Fixed")
+    ax5.set_xlabel("#Global Rounds")
+    ax5.set_title("DemLearn-P: Fixed")
+    ax5.set_xlabel("#Global Rounds")
+    ax5.grid()
+
+    # f_data = read_data(RS_PATH + name['prox1wf'])
+    # ax8.plot(f_data['root_test'], label="GEN", linestyle="--", color=color["gen"], marker=marker["gen"],
+    #          markevery=markers_on)
+    # ax8.plot(f_data['gs_level_test'][-2, :, 0], label="G-GEN", linestyle="-.", color=color["ggen"],
+    #          marker=marker["ggen"], markevery=markers_on)
+    # ax8.plot(f_data['gg_level_test'][-2, :, 0], label="G-SPE", linestyle="-.", color=color["gspe"],
+    #          marker=marker["gspe"], markevery=markers_on)
+    # ax8.plot(np.arange(len(f_data['cs_avg_data_test'])), f_data['cs_avg_data_test'], color=color["cspe"],
+    #          marker=marker["cspe"], markevery=markers_on,
+    #          label="C-SPE")
+    # ax8.plot(np.arange(len(f_data['cg_avg_data_test'])), f_data['cg_avg_data_test'], color=color["cgen"],
+    #          marker=marker["cgen"], markevery=markers_on,
+    #          label="C-GEN")
+    #
+    # ax8.set_xlim(0, XLim)
+    # ax8.set_ylim(0, 1)
+    # ax8.set_title("DemLearn-P: $K=2$, Fixed")
+    # ax8.set_xlabel("#Global Rounds")
+    # ax8.grid()
 
     f_data = read_data(RS_PATH + name['prox3w'])
     ax6.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
@@ -553,7 +607,8 @@ def plot_demlearn_vs_demlearn_p():
 
     ax6.set_xlim(0, XLim)
     ax6.set_ylim(YLim, 1)
-    ax6.set_title("DemLearn-P: $K=4$")
+    # ax6.set_title("DemLearn-P: $K=4$")
+    ax6.set_title("DemLearn-P")
     ax6.set_xlabel("#Global Rounds")
     ax6.grid()
 
@@ -561,11 +616,12 @@ def plot_demlearn_vs_demlearn_p():
     plt.tight_layout()
     # plt.grid(linewidth=0.25)
 
-    handles, labels = ax1.get_legend_handles_labels()
+    handles, labels = ax3.get_legend_handles_labels()
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1,  ncol=5, prop={'size': 14})  # mode="expand",mode="expand", frameon=False,
     # plt.subplots_adjust(bottom=0.16)
     # fig.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
     plt.subplots_adjust(bottom=0.22)
+    # plt.subplots_adjust(bottom=0.15)
     plt.savefig(PLOT_PATH + "dem_vs_K_vary"+OUT_TYPE)
     return 0
 
@@ -982,18 +1038,20 @@ if __name__=='__main__':
     PLOT_PATH = "../figs/50users/"
     # RS_PATH =  "../results/50users/100iters/"
     RS_PATH = "../results/50users/60iters/mnist/"
-    plot_dem_vs_fed() #plot comparision FED vs DEM
-    plot_demlearn_vs_demlearn_p() # DEM, PROX vs K level
-    plot_demlearn_p_mu_vari() # DEM Prox vs mu vary
-
-    # ### SUPPLEMENTAL FIGS ####
-    # plot_demlearn_gamma_vari() # DEM AVG vs Gamma vary
-    # plot_demlearn_gamma_vari_clients()
-    plot_demlearn_w_vs_g()
+    # plot_dem_vs_fed() #plot comparision FED vs DEM
+    # plot_demlearn_vs_demlearn_p() # DEM, PROX vs K level
+    # plot_demlearn_p_mu_vari() # DEM Prox vs mu vary
+    #
+    # # ### SUPPLEMENTAL FIGS ####
+    # # plot_demlearn_gamma_vari() # DEM AVG vs Gamma vary
+    # # plot_demlearn_gamma_vari_clients()
+    # plot_demlearn_w_vs_g()
     # # ##-------DENDOGRAM PLOT --------------------------------------------------------------------------------#
     CLUSTER_METHOD = "gradient"
-    plot_dendo_data_dem(file_name="avg3g") #change file_name in order to get correct file to plot   #|
+    # plot_dendo_data_dem(file_name="prox3g") #change file_name in order to get correct file to plot   #|
+    plot_dendo_data_dem(file_name="avg3g")  # change file_name in order to get correct file to plot   #|
     CLUSTER_METHOD = "weight"
+    # plot_dendo_data_dem(file_name="prox3w")
     plot_dendo_data_dem(file_name="avg3w")
     # plot_dendo_data_dem(file_name=name["avg3wg08"])
     ##-------DENDOGRAM PLOT --------------------------------------------------------------------------------#

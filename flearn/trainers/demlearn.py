@@ -17,8 +17,8 @@ class Server(DemBase):
     def __init__(self, params, learner, dataset):
         # self.gamma = 0.6  # soft update in hierrachical averaging
         self.gamma = 1. # hard update in hierrachical averaging
-        self.beta = 1.0 # DemAvg 0.8> 0.960 vs 0.936, DemProx 0.98 vs 0.605
-        # self.beta = 0.8   # DemAvg 0.8> 0.958 vs 0.948, DemProx 0.5x generalization
+        self.beta = 1.0 #
+        # self.beta = 0.5   #
 
         if (params['optimizer'] == "demlearn"):
             print('Using DemLearnto Train')
@@ -27,12 +27,13 @@ class Server(DemBase):
         elif (params['optimizer'] == "demlearn-p"):
             if(DATASET=="mnist"):
                 self.mu = 0.002 # 0.005, 0.002, 0.001, 0.0005  => choose 0.002
+                if (N_clients == 100):
+                    self.mu = 0.0005
             elif(DATASET=="fmnist"):
                 self.mu = 0.001 # 0.005, 0.002, 0.001, 0.0005  => select 0.001
             else:
                 self.mu = 0.001
-            if (N_clients == 100):
-                self.mu=0.0005
+
             print('Using DemLearn-P to Train')
             self.alg = "Demlearn-p"
             self.inner_opt = DemPerturbedGradientDescent(params['learning_rate'], mu=self.mu)

@@ -9,6 +9,7 @@ import tensorflow as tf
 from flearn.utils.plot_utils import plot_summary_two_figures, plot_summary_one_figure2, plot_summary_three_figures, plot_summary_three_figures_batch, plot_summary_mnist, plot_summary_nist
 from flearn.utils.model_utils import read_data
 from clustering.Setting import *
+import data.fmnist.data
 
 # GLOBAL PARAMETERS
 OPTIMIZERS = ['fedavg', 'fedprox', 'fedsgd', 'fedfedl']
@@ -201,6 +202,17 @@ if __name__ == '__main__':
     DATA_SET = DATASET
     number_users = N_clients #100
     number_global_iters = NUM_GLOBAL_ITERS
+    n = input("Type number of users: i.e., 50, 100:")
+    if(int(n)==50):
+        print("number of user:", n )
+        exec(open( "./data/fmnist/generate_niid_50users.py").read())
+    elif(int(n)==100):
+        print("number of user:", n)
+        exec(open("./data/fmnist/generate_niid_1000users.py").read())
+    else:
+        print("number of users set to default 50",)
+        exec(open("./data/fmnist/generate_niid_50users.py").read())
+    number_users = int(n)
     #
     # for i in range(len(algorithms_list)):
     #     main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],
@@ -212,4 +224,6 @@ if __name__ == '__main__':
     main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],
          learning_rate=learning_rate[i], hyper_learning_rate=hyper_learning_rate[i], alg=algorithms_list[i],
          batch_size=batch_size[i], dataset=DATA_SET)
+
+
     print("-- FINISH -- :",)

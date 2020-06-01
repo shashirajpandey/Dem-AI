@@ -141,7 +141,7 @@ if __name__=='__main__':
     RS_PATH =  "../results/100users/mnist/"
     plot_dem_vs_fed("mnist") #plot comparision FED vs DEM
     RS_PATH = "../results/100users/fmnist/"
-    # plot_dem_vs_fed("fmnist")  # plot comparision FED vs DEM
+    plot_dem_vs_fed("fmnist")  # plot comparision FED vs DEM
     # plot_demlearn_vs_demlearn-p() # DEM, PROX vs K level
     # plot_demlearn_gamma_vari() # DEM AVG vs Gamma vary
     # plot_demlearn-p_mu_vari() # DEM Prox vs mu vary
