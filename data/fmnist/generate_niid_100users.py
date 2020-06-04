@@ -54,7 +54,7 @@ for user in range(NUM_USERS):
     for j in range(NUM_LABELS):  # 3 labels for each users
         # l = (2*user+j)%10
         l = (user + j) % 10
-        print("L:", l)
+        # print("L:", l)
         X[user] += mnist_data[l][idx[l]:idx[l]+10].tolist()
         y[user] += (l*np.ones(10)).tolist()
         idx[l] += 10

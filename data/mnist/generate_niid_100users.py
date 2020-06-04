@@ -51,7 +51,7 @@ for user in range(NUM_USERS):
     for j in range(NUM_LABELS):  # 3 labels for each users
         #l = (2*user+j)%10
         l = (user + j) % 10    # round robin style to assign labels keep user_index in 10 base or 100 base
-        print("L:", l)
+        # print("L:", l)
         X[user] += mnist_data[l][idx[l]:idx[l]+10].tolist()
         y[user] += (l*np.ones(10)).tolist()
         idx[l] += 10
@@ -89,8 +89,8 @@ for user in trange(NUM_USERS):
             X[user] += mnist_data[l][idx[l]:idx[l]+num_samples].tolist()
             y[user] += (l*np.ones(num_samples)).tolist()
             idx[l] += num_samples
-            print("check len os user:", user, j,
-                  "len data", len(X[user]), num_samples)
+            # print("check len os user:", user, j,
+            #       "len data", len(X[user]), num_samples)
 
 print("IDX2:", idx) # counting samples for each labels
 print("Remaining samples added:", sum(idx))

@@ -11,10 +11,10 @@ from flearn.utils.model_utils import read_data
 from clustering.Setting import *
 import data.fmnist.data
 
-# GLOBAL PARAMETERS
+# # GLOBAL PARAMETERS
 OPTIMIZERS = ['fedavg', 'fedprox', 'fedsgd', 'fedfedl']
-
-DATASETS = ['nist', 'mnist', 'fmnist']  # NIST is EMNIST in the paper
+#
+DATASETS1 = ['nist', 'mnist', 'fmnist']  # NIST is EMNIST in the paper
 
 MODEL_PARAMS = {
     'sent140.bag_dnn': (2,),  # num_classes
@@ -48,7 +48,7 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
     parser.add_argument('--dataset',
                         help='name of dataset;',
                         type=str,
-                        choices=DATASETS,
+                        choices=DATASETS1,
                         default=dataset)
     parser.add_argument('--model',
                         help='name of model;',
@@ -121,19 +121,19 @@ def read_options(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_r
 
     # mod = importlib.import_module(model_path)
     if MODEL_TYPE == "cnn": #"cnn" or "mclr"
-        if(DATA_SET=="mnist"):
+        if(DATASET=="mnist"):
             import flearn.models.mnist.cnn as cnn
-        elif(DATA_SET=="cifar100"):
+        elif(DATASET=="cifar100"):
             import flearn.models.cifar100.cnn as cnn
-        elif(DATA_SET == "fmnist"):
+        elif(DATASET == "fmnist"):
             import flearn.models.fmnist.cnn as cnn
         mod = cnn
     else:
-        if (DATA_SET == "mnist"):
+        if (DATASET == "mnist"):
             import flearn.models.mnist.mclr as mclr
-        elif (DATA_SET == "cifar100"):
+        elif (DATASET == "cifar100"):
             import flearn.models.cifar100.mclr as mclr
-        elif (DATA_SET == "fmnist"):
+        elif (DATASET == "fmnist"):
             import flearn.models.fmnist.mclr as mclr
         mod = mclr
 
@@ -172,9 +172,9 @@ def main(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01
     # suppress tf warnings
     tf.logging.set_verbosity(tf.logging.WARN)
     model = MODEL_TYPE+".py"
-    if(DATA_SET == "cifar100"):
-        learning_rate = 0.001
-    # parse command line arguments
+    # if(dataset == "cifar100"):
+    #     learning_rate = 0.001
+    # # parse command line arguments
     options, learner_model, trainer = read_options(
         num_users, loc_ep, Numb_Glob_Iters, lamb, learning_rate,hyper_learning_rate, alg, weight, batch_size, dataset, model)
 
@@ -189,47 +189,26 @@ def main(num_users=5, loc_ep=10, Numb_Glob_Iters=100, lamb=0, learning_rate=0.01
 
 
 if __name__ == '__main__':
-    algorithms_list = ["demavg", "fedfedl", "fedsgd", "fedfedl", "fedsgd", "fedfedl", "fedsgd", "fedfedl", "fedfedl"]
-    algorithms_list[0] = RUNNING_ALG
-
-    lamb_value = [0, 0, 0, 0, 0, 0,0, 0, 0, 0]
-    learning_rate = [0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01]
-    hyper_learning_rate = [0.2,0,0.2,0,0.2,0,2,4]
-    local_ep = [10, 10, 10, 10, 10, 10, 10, 10]
-    # local_ep = [20, 20, 20, 20, 20, 20, 20, 20]
-    batch_size = [10,10,10,10,0,0,0,0]
-    mu_value = [0.001, 0.002, 0.005, 0.0005]
-    k_value = [1,3]
-    cluster_method = ["weight", "gradient"]
-    _data_set = ["fmnist", "mnist"]
+    lamb_value=0
+    learning_rate = 0.01
+    hyper_learning_rate = 0.2
+    local_ep = 10               # Number of local iterations
+    batch_size = 10
 
 
-
-    DATA_SET = DATASET
     number_users = N_clients #100
     number_global_iters = NUM_GLOBAL_ITERS
-    n = input("Type number of users: i.e., 50, 100:")
-    if(int(n)==50):
-        print("number of user:", n )
-        exec(open( "./data/fmnist/generate_niid_50users.py").read())
-    elif(int(n)==100):
-        print("number of user:", n)
-        exec(open("./data/fmnist/generate_niid_1000users.py").read())
-    else:
-        print("number of users set to default 50",)
-        exec(open("./data/fmnist/generate_niid_50users.py").read())
-    number_users = int(n)
-    #
-    # for i in range(len(algorithms_list)):
-    #     main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],
-    #          learning_rate=learning_rate[i],hyper_learning_rate=hyper_learning_rate[i],  alg=algorithms_list[i], batch_size=batch_size[i], dataset=DATA_SET)
-    #
-    # plot_summary_mnist(num_users=number_users, loc_ep1=local_ep, Numb_Glob_Iters=number_global_iters, lamb=lamb_value,
-    #                            learning_rate=learning_rate, hyper_learning_rate = hyper_learning_rate, algorithms_list=algorithms_list, batch_size=batch_size, dataset=DATA_SET)
-    i=0
-    main(num_users=number_users, loc_ep=local_ep[i], Numb_Glob_Iters=number_global_iters, lamb=lamb_value[i],
-         learning_rate=learning_rate[i], hyper_learning_rate=hyper_learning_rate[i], alg=algorithms_list[i],
-         batch_size=batch_size[i], dataset=DATA_SET)
+    number_users = int(N_clients)
 
+    if(READ_DATASET ==False):
+        print("Generate ", str.upper(DATASET), "  Dataset with ", number_users, " users")
+        if(number_users==50):
+            exec(open( "./data/" + DATASET + "/generate_niid_50users.py").read())
+        elif(number_users==100):
+            exec(open( "./data/" + DATASET +"/generate_niid_100users.py").read())
+
+    main(num_users=number_users, loc_ep=local_ep, Numb_Glob_Iters=number_global_iters, lamb=lamb_value,
+         learning_rate=learning_rate, hyper_learning_rate=hyper_learning_rate, alg=RUNNING_ALG,
+         batch_size=batch_size, dataset=DATASET)
 
     print("-- FINISH -- :",)

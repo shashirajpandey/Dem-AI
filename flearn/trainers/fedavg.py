@@ -44,44 +44,6 @@ class Server(BaseFedarated):
                 tqdm.write('============= Test Global Models  ============= ')
                 self.evaluating_global(i)
 
-
-        #     # test model
-        #     if i % self.eval_every == 0:
-        #         stats = self.test()
-        #         stats_train = self.train_error_and_loss()
-        #         self.metrics.accuracies.append(stats)
-        #         self.metrics.train_accuracies.append(stats_train)
-        #         tqdm.write('At round {} accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))
-        #         tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
-        #         tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
-
-                # self.rs_glob_acc.append(np.sum(stats[3])*1.0/np.sum(stats[2]))
-                # self.rs_train_acc.append(np.sum(stats_train[3])*1.0/np.sum(stats_train[2]))
-                # self.rs_train_loss.append(np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2]))
-                #
-                # model_len = process_grad(self.latest_model).size
-                # global_grads = np.zeros(model_len)
-                # client_grads = np.zeros(model_len)
-                # num_samples = []
-                # local_grads = []
-                #
-                # for c in self.clients:
-                #     num, client_grad = c.get_grads(model_len)
-                #     local_grads.append(client_grad)
-                #     num_samples.append(num)
-                #     global_grads = np.add(global_grads, client_grads * num)
-                # global_grads = global_grads * 1.0 / np.sum(np.asarray(num_samples))
-                #
-                # difference = 0
-                # for idx in range(len(self.clients)):
-                #     difference += np.sum(np.square(global_grads - local_grads[idx]))
-                # difference = difference * 1.0 / len(self.clients)
-                # tqdm.write('gradient difference: {}'.format(difference))
-                #
-                # # save server model
-                # self.metrics.write()
-                # self.save()
-
             # choose K clients prop to data size
             # selected_clients = self.select_clients(i, num_clients=self.clients_per_round)
             selected_clients = self.clients
@@ -129,11 +91,8 @@ class Server(BaseFedarated):
         self.save_results()
 
     def save_results(self):
-        #file_name = "../results/ALG_"+RUNNING_ALG+'_ITER_'+NUM_GLOBAL_ITERS+'_UE_'+N_clients+'_K_'+K_Levels+'_w.h5'
-        file_name = RS_PATH+"{}_iter_{}.h5".format(RUNNING_ALG, NUM_GLOBAL_ITERS)
-        print(file_name)
 
-        write_file(file_name=file_name, root_test=self.global_data_test, root_train=self.global_data_train,
+        write_file(file_name=rs_file_path, root_test=self.global_data_test, root_train=self.global_data_train,
                    cs_avg_data_test=self.cs_avg_data_test, cs_avg_data_train=self.cs_avg_data_train,
                    cg_avg_data_test=self.cg_avg_data_test, cg_avg_data_train=self.cg_avg_data_train,
                    cs_data_test=self.cs_data_test, cs_data_train=self.cs_data_train, cg_data_test=self.cg_data_test,
