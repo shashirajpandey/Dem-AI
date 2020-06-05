@@ -9,7 +9,7 @@ plt.rcParams['lines.linewidth'] = 2
 YLim=0.1
 #Global variable
 markers_on = 10 #maker only at x = markers_on[]
-OUT_TYPE = ".pdf" #.eps or .pdf #output figure type
+OUT_TYPE = ".pdf" #.eps, .pdf, .jpeg #output figure type
 
 color = {
     "gen": "royalblue",
