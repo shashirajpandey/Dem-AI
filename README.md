@@ -26,7 +26,7 @@ Running Instruction
 The more detail setting can be found in `Setting.py` file
 
 - Four algorithms: *"fedavg","fedprox","demlearn","demlearn-p"*
-- Datasets: "mnist", *"fmnist"*
+- Datasets: *"mnist", "fmnist"*
 - Clustering metrics: *"weight"*, *"gradient"*
 - Model: *"cnn"*
 - Result file name: *"{}_ {}_ I{}_ K{}_ T{}_ b{}_ d{}_ m{}_ {}.h5"* that reflects DATASET, RUNNING_ALG, NUM_GLOBAL_ITERS, K_Levels, TREE_UPDATE_PERIOD, beta, DECAY, mu, cluster_metric(w or g).
