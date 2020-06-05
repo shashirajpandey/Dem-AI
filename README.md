@@ -14,7 +14,7 @@ FedProx implementation as: https://github.com/litian96/FedProx
 
 Running Instruction
 ======
- In the current version, we support **MNIST** and **Fashion-MNIST** Dataset.
+ In the current version, we evaluate **MNIST** and **Fashion-MNIST** Dataset.
  
  **Environment:** Python 3.7, Tensorflow-gpu=1.15
  
