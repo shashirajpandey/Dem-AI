@@ -1,4 +1,4 @@
-# Self-organizing Democratized Learning: Towards Large-scale Distributed Learning Systems
+# DemLearn Algorithm Implementation
 
 We are working for the demonstration of some properties and initially develop new algorithm for Democratized Learning systems based on our Dem-AI philosophy paper
  
