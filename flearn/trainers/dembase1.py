@@ -1,12 +1,10 @@
-import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
 
-from flearn.models.client import Client
 from flearn.utils.model_utils import Metrics
 from flearn.utils.tf_utils import process_grad
 from clustering.hierrachical_clustering import *
-from clustering.Setting import *
+from Setting import *
 from flearn.models.demclient import DemClient
 import h5py
 

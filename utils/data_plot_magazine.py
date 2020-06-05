@@ -1,11 +1,7 @@
 import h5py as hf
-import os
-import numpy as np
-from clustering.Setting import *
+from Setting import *
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from scipy.cluster.hierarchy import dendrogram
-import matplotlib.gridspec as gridspec
+
 plt.rcParams.update({'font.size': 15})
 plt.rcParams['lines.linewidth'] = 2
 #Global variable

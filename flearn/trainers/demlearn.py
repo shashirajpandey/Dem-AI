@@ -1,15 +1,7 @@
-import numpy as np
-from tqdm import trange, tqdm
+from tqdm import tqdm
 import tensorflow as tf
-from flearn.utils.tf_utils import process_grad
-from flearn.optimizer.proxsgd import PROXSGD
 from .dembase1 import DemBase
-from flearn.utils.DTree import Node
-import matplotlib.pyplot as plt
-from clustering.Setting import *
-from clustering.Setting import *
 from ..optimizer.dempgd import DemPerturbedGradientDescent
-from ..optimizer.pgd import PerturbedGradientDescent
 # from utils.data_plot_mnist import *
 from utils.dem_plot import *
 

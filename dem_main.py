@@ -1,15 +1,11 @@
-import h5py
-import matplotlib.pyplot as plt
 import numpy as np
 import argparse
 import importlib
 import random
 import os
 import tensorflow as tf
-from flearn.utils.plot_utils import plot_summary_two_figures, plot_summary_one_figure2, plot_summary_three_figures, plot_summary_three_figures_batch, plot_summary_mnist, plot_summary_nist
 from flearn.utils.model_utils import read_data
-from clustering.Setting import *
-import data.fmnist.data
+from Setting import *
 
 # # GLOBAL PARAMETERS
 OPTIMIZERS = ['fedavg', 'fedprox', 'fedsgd', 'fedfedl']

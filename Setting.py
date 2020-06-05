@@ -1,5 +1,5 @@
 "FIX PROGRAM SETTINGS"
-READ_DATASET = True
+READ_DATASET = True  # True or False => Set False to generate dataset.
 PLOT_PATH = "./figs/"
 RS_PATH = "./results/"
 
@@ -20,13 +20,13 @@ elif(DATASET == "fmnist"):
     PARAMS_mu = 0.001  # 0.005, 0.002, 0.001, 0.0005  => select 0.001
 
 if(N_clients == 100):
-        PARAMS_mu = 0.0005
+    PARAMS_mu = 0.0005
 
 PARAMS_gamma = 1.
-PARAMS_beta = 1.
-DECAY = True # True or False   Decay of smooth update beta
+PARAMS_beta = 1.    # Use in DemLearn algorithm
+DECAY = True # True or False =>  Decay of beta parameter
 K_Levels = 3  #1, 2, 3  # plus root level => K = K+1 in paper
-TREE_UPDATE_PERIOD = 2 # tested with 1, 2, 3, NUM_GLOBAL_ITERS
+TREE_UPDATE_PERIOD = 2 # tested with 1, 2, 3, NUM_GLOBAL_ITERS => TREE_UPDATE_PERIOD = NUM_GLOBAL_ITERS: fixed hierrachical structure from beginning
 CLUSTER_METHOD = "weight" #"weight" or "gradient"
 MODEL_TYPE = "cnn" #"cnn" or "mclr"
 

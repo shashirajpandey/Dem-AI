@@ -1,10 +1,9 @@
 import numpy as np
 
-from matplotlib import pyplot as plt
 from sklearn.datasets import load_iris
 from sklearn.cluster import AgglomerativeClustering
 from flearn.utils.DTree import Node
-from clustering.Setting import *
+from Setting import *
 
 ''' sklearn.cluster.AgglomerativeClustering
 linkage{“ward”, “complete”, “average”, “single”}, default=”ward”

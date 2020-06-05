@@ -1,12 +1,7 @@
-import numpy as np
-from tqdm import trange, tqdm
+from tqdm import tqdm
 import tensorflow as tf
-from flearn.utils.tf_utils import process_grad
-from flearn.optimizer.proxsgd import PROXSGD
 from flearn.optimizer.pgd import PerturbedGradientDescent
 from .fedbase import BaseFedarated
-import matplotlib.pyplot as plt
-from clustering.Setting import *
 from utils.data_plot_mnist import *
 
 class Server(BaseFedarated):
